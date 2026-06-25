@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <title>Registro de Vendas</title>
+        <link rel="stylesheet" href="/css/style.css">
+    </head>
+    <body>
+
+        <div th:replace="~{fragments/menu :: menu}"></div>
+
+        <div class="container">
+
+            <h1>💰 Registro de Vendas</h1>
+
+            <form action="/vendas/salvar" method="post" class="card-form">
+
+                <h2>📋 Dados da Venda</h2>
+
+                <div class="form-grid">
+
+                    <div class="campo">
+                        <label>Comprador</label>
+                        <select name="cliente">
+                            <option value="">Selecione...</option>
+                            <option th:each="c : ${clientes}"
+                                    th:value="${c.id}"
+                                    th:text="${c.nome + ' - ' + c.telefone}"
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="campo">
+                        <label>Veículo</label>
+                        <select id="veiculoSelect" name="veiculo">
+                            <option value="">Selecione...</option>
+                            <option th:each="v : ${veiculos}"
+                                    th:value="${v.id}"
+                                    th:text="${v.nome + ' (' + v.ano + ') - ' + v.placa}"
+                                    th:data-preco="${v.preco}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="campo">
+                        <label>Data da Venda</label>
+                        <input type="date" name="dataVenda">
+                    </div>
+
+                    <div class="campo">
+                        <label>Valor da Venda</label>
+                        <input type="number"
+                               step="0.01"
+                               id="valorVenda"
+                               name="valor"
+                               placeholder="Calculado automaticamente">
+                    </div>
+
+                </div>
+
+                <hr>
+
+                <h2>💳 Dados do Pagamento</h2>
+
+                <div class="form-grid">
+
+                    <div class="campo">
+                        <label>Tipo de Pagamento</label>
+                        <select name="tipo">
+                            <option value="PIX">PIX</option>
+                            <option value="DINHEIRO">DINHEIRO</option>
+                            <option value="CARTAO">CARTÃO</option>
+                            <option value="FINANCIAMENTO">FINANCIAMENTO</option>
+                            <option value="CONSORCIO">CONSÓRCIO</option>
+                        </select>
+                    </div>
+
+                    <div class="campo">
+                        <label>Entrada</label>
+                        <input type="number"
+                               step="0.01"
+                               id="entrada"
+                               name="entrada"
+                               placeholder="Valor da entrada">
+                    </div>
+
+                    <div class="campo">
+                        <label>Parcelas</label>
+                        <select id="parcelas" name="parcelas">
+
+                            <option value="">Selecione...</option>
+
+                            <option value="6">6x</option>
+                            <option value="12">12x</option>
+                            <option value="18">18x</option>
+                            <option value="24">24x</option>
+                            <option value="30">30x</option>
+                            <option value="36">36x</option>
+                            <option value="48">48x</option>
+                            <option value="60">60x</option>
+                            <option value="72">72x</option>
+                            <option value="84">84x</option>
+                            <option value="96">96x</option>
+
+                        </select>
+                    </div>
+
+                    <div class="campo">
+                        <label>Valor da Parcela</label>
+                        <input type="number"
+                               step="0.01"
+                               id="valorParcela"
+                               name="valorParcela"
+                               placeholder="Calculado automaticamente">
+                    </div>
+
+                </div>
+
+                <button type="submit" class="btn-salvar">
+                    💾 Registrar Venda
+                </button>
+
+            </form>
+
+        </div>
+
+        <script>
+            const veiculoSelect = document.getElementById("veiculoSelect");
+            const valorVenda = document.getElementById("valorVenda");
+            const entrada = document.getElementById("entrada");
+            const parcelas = document.getElementById("parcelas");
+            const valorParcela = document.getElementById("valorParcela");
+
+            function calcularParcela() {
+                const valor = parseFloat(valorVenda.value) || 0;
+                const valorEntrada = parseFloat(entrada.value) || 0;
+                const qtdParcelas = parseInt(parcelas.value) || 0;
+
+                if (valor > 0 && qtdParcelas > 0) {
+                    const valorFinanciado = valor - valorEntrada;
+                    valorParcela.value = (valorFinanciado / qtdParcelas).toFixed(2);
+                } else {
+                    valorParcela.value = "";
+                }
+            }
+
+            veiculoSelect.addEventListener("change", function () {
+                const option = veiculoSelect.options[veiculoSelect.selectedIndex];
+                const preco = parseFloat(option.getAttribute("data-preco"));
+
+                if (!isNaN(preco)) {
+                    valorVenda.value = (preco * 1.08).toFixed(2);
+                } else {
+                    valorVenda.value = "";
+                }
+
+                calcularParcela();
+            });
+
+            entrada.addEventListener("input", calcularParcela);
+            parcelas.addEventListener("input", calcularParcela);
+            valorVenda.addEventListener("input", calcularParcela);
+        </script>
+
+    </body>
+</html>

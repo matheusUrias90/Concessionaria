@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <title>Veículos</title>
+        <link rel="stylesheet" href="/css/style.css">
+    </head>
+
+    <body>
+
+        <div th:replace="~{fragments/menu :: menu}"></div>
+
+        <div class="container">
+
+            <h1>🚗 Veículos</h1>
+
+            <button type="button" class="btn-salvar" onclick="abrirModal('modal-novo')">
+                + Novo Veículo
+            </button>
+
+            <br><br>
+
+            <form method="get" action="/veiculos" class="form-busca" id="formBuscaVeiculos">
+                <input type="text"
+                       name="busca"
+                       id="campoBuscaVeiculos"
+                       placeholder="Buscar por nome, marca ou placa"
+                       th:value="${busca}">
+
+                <a href="/veiculos" class="btn-limpar">Limpar</a>
+            </form>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>Preço</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+
+                <tbody id="tabelaVeiculos">
+                    <tr th:each="v : ${veiculos}">
+                        <td th:text="${v.id}"></td>
+                        <td th:text="${v.nome}"></td>
+                        <td th:text="${'R$ ' + #numbers.formatDecimal(v.preco, 1, 'POINT', 2, 'COMMA')}"></td>
+
+                        <td class="acoes">
+                            <button type="button" class="btn-detalhes"
+                                    th:attr="onclick=|abrirModal('modal-detalhes-${v.id}')|">
+                                👁 Detalhes
+                            </button>
+
+                            <button type="button" class="btn-editar"
+                                    th:attr="onclick=|abrirModal('modal-editar-${v.id}')|">
+                                ✏ Editar
+                            </button>
+
+                            <button type="button"
+                                    class="btn-excluir"
+                                    th:attr="onclick=|abrirModalExclusao('/veiculos/excluir/${v.id}')|">
+                                🗑 Excluir
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="paginacao" th:if="${totalPaginas > 1}">
+
+                <a th:if="${paginaAtual > 0}"
+                   th:href="@{/veiculos(pagina=${paginaAtual - 1}, busca=${busca})}">                    Anterior
+                </a>
+
+                <span>
+                    Página <span th:text="${paginaAtual + 1}"></span>
+                    de <span th:text="${totalPaginas}"></span>
+                </span>
+
+                <a th:if="${paginaAtual + 1 < totalPaginas}"
+                   th:href="@{/veiculos(pagina=${paginaAtual + 1}, busca=${busca})}">
+                    Próxima
+                </a>
+
+            </div>
+
+            <!-- MODAL NOVO -->
+            <div class="modal" id="modal-novo">
+                <div class="modal-conteudo modal-grande">
+
+                    <span class="fechar" onclick="fecharModal('modal-novo')">X</span>
+
+                    <h2>🚗 Novo Veículo</h2>
+
+                    <form action="/veiculos/salvar" method="post" class="card-form">
+
+                        <h3>🚗 Dados do Veículo</h3>
+
+                        <div class="form-grid">
+                            <div class="campo">
+                                <label>Nome</label>
+                                <input type="text" name="nome" placeholder="Nome do veículo">
+                            </div>
+
+                            <div class="campo">
+                                <label>Marca</label>
+                                <input type="text" name="marca" placeholder="Marca do veículo">
+                            </div>
+
+                            <div class="campo">
+                                <label>Cor</label>
+                                <input type="text" name="cor" placeholder="Cor do veículo">
+                            </div>
+
+                            <div class="campo">
+                                <label>Placa</label>
+                                <input type="text" name="placa" placeholder="Placa do veículo">
+                            </div>
+
+                            <div class="campo">
+                                <label>Ano</label>
+                                <input type="number" name="ano" placeholder="Ano">
+                            </div>
+
+                            <div class="campo">
+                                <label>Preço</label>
+                                <input type="number" step="0.01" name="preco" placeholder="Preço">
+                            </div>
+                        </div>
+
+                        <h3>👤 Dados do Proprietário</h3>
+
+                        <div class="form-grid">
+                            <div class="campo">
+                                <label>Nome do Proprietário</label>
+                                <input type="text" name="nomeProprietario" placeholder="Nome do proprietário">
+                            </div>
+
+                            <div class="campo">
+                                <label>CPF do Proprietário</label>
+                                <input type="text" name="cpfProprietario" placeholder="CPF do proprietário">
+                            </div>
+
+                            <div class="campo">
+                                <label>Telefone do Proprietário</label>
+                                <input type="text" name="telefoneProprietario" placeholder="Telefone do proprietário">
+                            </div>
+
+                            <div class="campo">
+                                <label>Email do Proprietário</label>
+                                <input type="email" name="emailProprietario" placeholder="Email do proprietário">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-salvar">💾 Salvar</button>
+                    </form>
+
+                </div>
+            </div>
+
+            <!-- MODAIS DETALHES -->
+            <div th:each="v : ${veiculos}">
+                <div class="modal" th:id="|modal-detalhes-${v.id}|">
+                    <div class="modal-conteudo modal-grande">
+
+                        <span class="fechar"
+                              th:attr="onclick=|fecharModal('modal-detalhes-${v.id}')|">
+                            X
+                        </span>
+
+                        <h2>🚗 Detalhes do Veículo</h2>
+
+                        <div class="detalhes-grid">
+
+                            <div class="card-detalhe">
+                                <h3>🚗 Veículo</h3>
+                                <p><strong>ID:</strong> <span th:text="${v.id}"></span></p>
+                                <p><strong>Nome:</strong> <span th:text="${v.nome}"></span></p>
+                                <p><strong>Marca:</strong> <span th:text="${v.marca}"></span></p>
+                                <p><strong>Cor:</strong> <span th:text="${v.cor}"></span></p>
+                                <p><strong>Placa:</strong> <span th:text="${v.placa}"></span></p>
+                                <p><strong>Ano:</strong> <span th:text="${v.ano}"></span></p>
+                                <p><strong>Preço:</strong> R$ <span th:text="${#numbers.formatDecimal(v.preco, 1, 'POINT', 2, 'COMMA')}"></span></p>
+                                <p><strong>Entrada no estoque:</strong> <span th:text="${#temporals.format(v.dataEntrada, 'dd/MM/yyyy')}"></span></p>
+                                <p><strong>Status:</strong> <span th:text="${v.vendido ? 'Vendido' : 'Disponível'}"></span></p>
+                            </div>
+
+                            <div class="card-detalhe">
+                                <h3>👤 Proprietário</h3>
+                                <p><strong>Nome:</strong> <span th:text="${v.nomeProprietario}"></span></p>
+                                <p><strong>CPF:</strong> <span th:text="${v.cpfProprietario}"></span></p>
+                                <p><strong>Telefone:</strong> <span th:text="${v.telefoneProprietario}"></span></p>
+                                <p><strong>Email:</strong> <span th:text="${v.emailProprietario}"></span></p>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODAIS EDITAR -->
+            <div th:each="v : ${veiculos}">
+                <div class="modal" th:id="|modal-editar-${v.id}|">
+                    <div class="modal-conteudo modal-grande">
+
+                        <span class="fechar"
+                              th:attr="onclick=|fecharModal('modal-editar-${v.id}')|">
+                            X
+                        </span>
+
+                        <h2>✏ Editar Veículo</h2>
+
+                        <form action="/veiculos/salvar" method="post" class="card-form">
+
+                            <input type="hidden" name="id" th:value="${v.id}">
+
+                            <h3>🚗 Dados do Veículo</h3>
+
+                            <div class="form-grid">
+                                <div class="campo">
+                                    <label>Nome</label>
+                                    <input type="text" name="nome" th:value="${v.nome}">
+                                </div>
+
+                                <div class="campo">
+                                    <label>Marca</label>
+                                    <input type="text" name="marca" th:value="${v.marca}">
+                                </div>
+
+                                <div class="campo">
+                                    <label>Cor</label>
+                                    <input type="text" name="cor" th:value="${v.cor}">
+                                </div>
+
+                                <div class="campo">
+                                    <label>Placa</label>
+                                    <input type="text" name="placa" th:value="${v.placa}">
+                                </div>
+
+                                <div class="campo">
+                                    <label>Ano</label>
+                                    <input type="number" name="ano" th:value="${v.ano}">
+                                </div>
+
+                                <div class="campo">
+                                    <label>Preço</label>
+                                    <input type="number" step="0.01" name="preco" th:value="${v.preco}">
+                                </div>
+                            </div>
+
+                            <h3>👤 Dados do Proprietário</h3>
+
+                            <div class="form-grid">
+                                <div class="campo">
+                                    <label>Nome do Proprietário</label>
+                                    <input type="text" name="nomeProprietario" th:value="${v.nomeProprietario}">
+                                </div>
+
+                                <div class="campo">
+                                    <label>CPF do Proprietário</label>
+                                    <input type="text" name="cpfProprietario" th:value="${v.cpfProprietario}">
+                                </div>
+
+                                <div class="campo">
+                                    <label>Telefone do Proprietário</label>
+                                    <input type="text" name="telefoneProprietario" th:value="${v.telefoneProprietario}">
+                                </div>
+
+                                <div class="campo">
+                                    <label>Email do Proprietário</label>
+                                    <input type="email" name="emailProprietario" th:value="${v.emailProprietario}">
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn-salvar">💾 Salvar Alterações</button>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal" id="modal-exclusao">
+                <div class="modal-conteudo modal-confirmacao">
+
+                    <h2>⚠ Confirmar Exclusão</h2>
+
+                    <p>Deseja realmente excluir este registro?</p>
+
+                    <div class="acoes">
+                        <button type="button"
+                                class="btn-voltar"
+                                onclick="fecharModal('modal-exclusao')">
+                            Cancelar
+                        </button>
+
+                        <a id="btn-confirmar-exclusao"
+                           class="btn-excluir">
+                            Excluir
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <script>
+            function abrirModal(id) {
+                const modal = document.getElementById(id);
+
+                if (modal) {
+                    modal.style.display = "block";
+                }
+            }
+
+            function fecharModal(id) {
+                const modal = document.getElementById(id);
+
+                if (modal) {
+                    modal.style.display = "none";
+                }
+            }
+
+            document.querySelectorAll('input[name="cpfProprietario"]').forEach(function (cpf) {
+
+                cpf.addEventListener("input", function () {
+                    let v = cpf.value.replace(/\D/g, "");
+
+                    v = v.replace(/(\d{3})(\d)/, "$1.$2");
+                    v = v.replace(/(\d{3})(\d)/, "$1.$2");
+                    v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+
+                    cpf.value = v;
+                });
+
+            });
+
+            document.querySelectorAll('input[name="telefoneProprietario"]').forEach(function (telefone) {
+
+                telefone.addEventListener("input", function () {
+                    let v = telefone.value.replace(/\D/g, "");
+
+                    v = v.replace(/^(\d{2})(\d)/, "($1) $2");
+                    v = v.replace(/(\d{5})(\d{4})$/, "$1-$2");
+
+                    telefone.value = v;
+                });
+
+            });
+
+            window.onclick = function (event) {
+                if (event.target.classList.contains("modal")) {
+                    event.target.style.display = "none";
+                }
+            }
+
+            document.addEventListener("keydown", function (event) {
+                if (event.key === "Escape") {
+                    document.querySelectorAll(".modal").forEach(function (modal) {
+                        modal.style.display = "none";
+                    });
+                }
+            });
+
+            document.querySelectorAll('input[name="placa"]').forEach(function (campoPlaca) {
+                campoPlaca.addEventListener("input", function () {
+                    campoPlaca.value = campoPlaca.value
+                            .toUpperCase()
+                            .replace(/[^A-Z0-9]/g, "")
+                            .slice(0, 7);
+                });
+            });
+
+            const campoBuscaVeiculos = document.getElementById("campoBuscaVeiculos");
+            const formBuscaVeiculos = document.getElementById("formBuscaVeiculos");
+
+            let tempoVeiculos;
+
+            campoBuscaVeiculos.addEventListener("input", function () {
+                clearTimeout(tempoVeiculos);
+
+                tempoVeiculos = setTimeout(function () {
+                    formBuscaVeiculos.submit();
+                }, 500);
+            });
+
+            function abrirModalExclusao(url) {
+                const botao = document.getElementById("btn-confirmar-exclusao");
+                botao.href = url;
+
+                abrirModal("modal-exclusao");
+            }
+        </script>
+
+    </body>
+</html>

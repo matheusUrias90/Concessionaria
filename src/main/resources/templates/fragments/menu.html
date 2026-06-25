@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <body>
+
+        <nav th:fragment="menu" class="menu">
+
+            <div class="menu-links">
+                <a class="menu-link" href="/veiculos">Veículos</a>
+                <a class="menu-link" href="/compradores">Compradores</a>
+                <a class="menu-link" href="/vendas/form">Vendas</a>
+
+                <a class="menu-link"
+                   th:if="${session.usuarioLogado.perfil == 'DONO' or session.usuarioLogado.perfil == 'GERENTE'}"
+                   href="/usuarios">
+                    Usuários
+                </a>
+
+                <a class="menu-link"
+                   th:if="${session.usuarioLogado.perfil == 'DONO' or session.usuarioLogado.perfil == 'GERENTE'}"
+                   href="/admin">
+                    Admin
+                </a>
+
+    <a class="menu-link"
+       th:if="${session.usuarioLogado.perfil == 'VENDEDOR'}"
+       href="/dashboard-vendedor">
+        Painel
+    </a>
+</div>
+
+            <div class="menu-usuario" th:if="${session.usuarioLogado != null}">
+
+                <span class="usuario-nome">
+                    <span th:if="${session.usuarioLogado != null}"
+                             th:text="'👤 ' + ${session.usuarioLogado.nome} + ' (' + ${session.usuarioLogado.perfil} + ')'">
+                    </span> ▼
+                </span>
+
+                <div class="submenu-usuario">
+                    <a href="/logout">🚪 Sair</a>
+                </div>
+
+            </div>
+
+        </nav>
+
+    </body>
+</html>

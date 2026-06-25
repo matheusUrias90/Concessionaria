@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <title>Compradores</title>
+        <link rel="stylesheet" href="/css/style.css">
+    </head>
+
+    <body>
+
+        <div th:replace="~{fragments/menu :: menu}"></div>
+
+        <div class="container">
+
+            <h1>👤 Compradores</h1>
+
+            <button type="button" class="btn-salvar" onclick="abrirModal('modal-novo')">
+                + Novo Comprador
+            </button>
+
+            <br><br>
+
+            <form method="get" action="/compradores" class="form-busca" id="formBuscaCompradores">
+                <input type="text"
+                       name="busca"
+                       id="campoBuscaCompradores"
+                       placeholder="Buscar por nome, telefone ou CPF"
+                       th:value="${busca}">
+
+                <a href="/compradores" class="btn-limpar">Limpar</a>
+            </form>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+
+                <tbody id="tabelaCompradores">
+                    <tr th:each="c : ${clientes}">
+                        <td th:text="${c.id}"></td>
+                        <td th:text="${c.nome}"></td>
+
+                        <td class="acoes">
+                            <button type="button"
+                                    class="btn-detalhes"
+                                    th:attr="onclick=|abrirModal('modal-detalhes-${c.id}')|">
+                                👁 Detalhes
+                            </button>
+
+                            <button type="button"
+                                    class="btn-editar"
+                                    th:attr="onclick=|abrirModal('modal-editar-${c.id}')|">
+                                ✏ Editar
+                            </button>
+
+                            <button type="button"
+                                    class="btn-excluir"
+                                    th:attr="onclick=|abrirModalExclusao('/clientes/excluir/${c.id}')|">
+                                🗑 Excluir
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="paginacao" th:if="${totalPaginas > 1}">
+                <a th:if="${paginaAtual > 0}"
+                   th:href="@{/compradores(pagina=${paginaAtual - 1}, busca=${busca})}">
+                    Anterior
+                </a>
+
+                <span>
+                    Página <span th:text="${paginaAtual + 1}"></span>
+                    de <span th:text="${totalPaginas}"></span>
+                </span>
+
+                <a th:if="${paginaAtual + 1 < totalPaginas}"
+                   th:href="@{/compradores(pagina=${paginaAtual + 1}, busca=${busca})}">
+                    Próxima
+                </a>
+            </div>  
+
+            <!-- MODAL NOVO -->
+            <div class="modal" id="modal-novo">
+                <div class="modal-conteudo modal-grande">
+
+                    <span class="fechar" onclick="fecharModal('modal-novo')">X</span>
+
+                    <h2>👤 Novo Cliente</h2>
+
+                    <form action="/clientes/salvar" method="post" class="card-form">
+
+                        <div class="form-grid">
+                            <div class="campo">
+                                <label>Nome</label>
+                                <input type="text" name="nome" placeholder="Nome do cliente">
+                            </div>
+
+                            <div class="campo">
+                                <label>CPF</label>
+                                <input type="text" name="cpf" placeholder="CPF">
+                            </div>
+
+                            <div class="campo">
+                                <label>Telefone</label>
+                                <input type="text" name="telefone" placeholder="Telefone">
+                            </div>
+
+                            <div class="campo">
+                                <label>Email</label>
+                                <input type="email" name="email" placeholder="Email">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-salvar">💾 Salvar</button>
+                    </form>
+
+                </div>
+            </div>
+
+            <!-- MODAIS DETALHES -->
+            <div th:each="c : ${clientes}">
+                <div class="modal" th:id="|modal-detalhes-${c.id}|">
+                    <div class="modal-conteudo modal-grande">
+
+                        <span class="fechar"
+                              th:attr="onclick=|fecharModal('modal-detalhes-${c.id}')|">
+                            X
+                        </span>
+
+                        <h2>👤 Detalhes do Cliente</h2>
+
+                        <div class="detalhes-grid">
+                            <div class="card-detalhe">
+                                <h3>👤 Cliente</h3>
+
+                                <p><strong>ID:</strong> <span th:text="${c.id}"></span></p>
+                                <p><strong>Nome:</strong> <span th:text="${c.nome}"></span></p>
+                                <p><strong>CPF:</strong> <span th:text="${c.cpf}"></span></p>
+                                <p><strong>Telefone:</strong> <span th:text="${c.telefone}"></span></p>
+                                <p><strong>Email:</strong> <span th:text="${c.email}"></span></p>
+                            </div>
+                        </div>
+                        <h3>🚗 Histórico de Compras</h3>
+
+                        <div th:if="${#lists.isEmpty(vendaRepository.findByClienteIdOrderByIdDesc(c.id))}">
+                            <p>Este comprador ainda não realizou compras.</p>
+                        </div>
+
+                        <div th:if="${!#lists.isEmpty(vendaRepository.findByClienteIdOrderByIdDesc(c.id))}">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Veículo</th>
+                                        <th>Data</th>
+                                        <th>Valor</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    <tr th:each="venda : ${vendaRepository.findByClienteIdOrderByIdDesc(c.id)}">
+                                        <td th:text="${venda.veiculo.nome + ' (' + venda.veiculo.ano + ')'}"></td>
+                                        <td th:text="${#temporals.format(venda.dataVenda, 'dd/MM/yyyy')}"></td>
+                                        <td th:text="${'R$ ' + #numbers.formatDecimal(venda.valor, 1, 'POINT', 2, 'COMMA')}"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODAIS EDITAR -->
+            <div th:each="c : ${clientes}">
+                <div class="modal" th:id="|modal-editar-${c.id}|">
+                    <div class="modal-conteudo modal-grande">
+
+                        <span class="fechar"
+                              th:attr="onclick=|fecharModal('modal-editar-${c.id}')|">
+                            X
+                        </span>
+
+                        <h2>✏ Editar Cliente</h2>
+
+                        <form action="/clientes/salvar" method="post" class="card-form">
+
+                            <input type="hidden" name="id" th:value="${c.id}">
+
+                            <div class="form-grid">
+                                <div class="campo">
+                                    <label>Nome</label>
+                                    <input type="text" name="nome" th:value="${c.nome}">
+                                </div>
+
+                                <div class="campo">
+                                    <label>CPF</label>
+                                    <input type="text" name="cpf" th:value="${c.cpf}">
+                                </div>
+
+                                <div class="campo">
+                                    <label>Telefone</label>
+                                    <input type="text" name="telefone" th:value="${c.telefone}">
+                                </div>
+
+                                <div class="campo">
+                                    <label>Email</label>
+                                    <input type="email" name="email" th:value="${c.email}">
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn-salvar">💾 Salvar Alterações</button>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal" id="modal-exclusao">
+                <div class="modal-conteudo modal-confirmacao">
+
+                    <h2>⚠ Confirmar Exclusão</h2>
+
+                    <p>Deseja realmente excluir este registro?</p>
+
+                    <div class="acoes">
+                        <button type="button"
+                                class="btn-voltar"
+                                onclick="fecharModal('modal-exclusao')">
+                            Cancelar
+                        </button>
+
+                        <a id="btn-confirmar-exclusao"
+                           class="btn-excluir">
+                            Excluir
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <script>
+            function abrirModal(id) {
+                const modal = document.getElementById(id);
+
+                if (modal) {
+                    modal.style.display = "block";
+                }
+            }
+
+            function fecharModal(id) {
+                const modal = document.getElementById(id);
+
+                if (modal) {
+                    modal.style.display = "none";
+                }
+            }
+
+            window.onclick = function (event) {
+                if (event.target.classList.contains("modal")) {
+                    event.target.style.display = "none";
+                }
+            }
+
+            document.addEventListener("keydown", function (event) {
+                if (event.key === "Escape") {
+                    document.querySelectorAll(".modal").forEach(function (modal) {
+                        modal.style.display = "none";
+                    });
+                }
+            });
+
+            document.querySelectorAll('input[name="cpf"]').forEach(function (cpf) {
+                cpf.addEventListener("input", function () {
+                    let v = cpf.value.replace(/\D/g, "");
+
+                    v = v.replace(/(\d{3})(\d)/, "$1.$2");
+                    v = v.replace(/(\d{3})(\d)/, "$1.$2");
+                    v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+
+                    cpf.value = v;
+                });
+            });
+
+            document.querySelectorAll('input[name="telefone"]').forEach(function (telefone) {
+                telefone.addEventListener("input", function () {
+                    let v = telefone.value.replace(/\D/g, "");
+
+                    v = v.replace(/^(\d{2})(\d)/g, "($1) $2");
+                    v = v.replace(/(\d{5})(\d{4})$/, "$1-$2");
+
+                    telefone.value = v;
+                });
+            });
+
+            const campoBuscaCompradores = document.getElementById("campoBuscaCompradores");
+            const formBuscaCompradores = document.getElementById("formBuscaCompradores");
+
+            let tempoCompradores;
+
+            campoBuscaCompradores.addEventListener("input", function () {
+                clearTimeout(tempoCompradores);
+
+                tempoCompradores = setTimeout(function () {
+                    formBuscaCompradores.submit();
+                }, 500);
+            });
+
+            function abrirModalExclusao(url) {
+                const botao = document.getElementById("btn-confirmar-exclusao");
+                botao.href = url;
+
+                abrirModal("modal-exclusao");
+            }
+        </script>
+
+    </body>
+</html>

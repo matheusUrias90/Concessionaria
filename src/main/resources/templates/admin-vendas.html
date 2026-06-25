@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <title>Histórico de Vendas</title>
+        <link rel="stylesheet" href="/css/style.css">
+    </head>
+    <body>
+
+        <div th:replace="~{fragments/menu :: menu}"></div>
+
+        <div class="container">
+
+            <h1>📋 Histórico de Vendas</h1>
+
+            <form method="get" action="/admin/vendas" class="form-busca" id="formBuscaVendas">
+                <input type="text"
+                       name="busca"
+                       id="campoBuscaVendas"
+                       placeholder="Buscar por comprador, veículo ou vendedor"
+                       th:value="${busca}">
+
+                <a href="/admin/vendas" class="btn-limpar">Limpar</a>
+            </form>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Veículo</th>
+                        <th>Comprador</th>
+                        <th>Vendedor</th>
+                        <th>Data</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+
+                <tbody id="tabelaVendas">
+                    <tr th:each="v : ${vendas}">
+                        <td th:text="${v.veiculo.nome + ' (' + v.veiculo.ano + ')'}"></td>
+                        <td th:text="${v.cliente.nome}"></td>
+                        <td th:text="${v.vendedor.nome}"></td> 
+                        <td th:text="${#temporals.format(v.dataVenda, 'dd/MM/yyyy')}"></td>
+                        <td>
+                            <button class="btn-detalhes"
+                                    type="button"
+                                    th:attr="onclick=|abrirModal(${v.id})|">
+                                Detalhes
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="paginacao" th:if="${totalPaginas > 1}">
+
+                <a th:if="${paginaAtual > 0}"
+                   th:href="@{/admin/vendas(pagina=${paginaAtual - 1}, busca=${busca})}">
+                    Anterior
+                </a>
+
+                <span>
+                    Página <span th:text="${paginaAtual + 1}"></span>
+                    de <span th:text="${totalPaginas}"></span>
+                </span>
+
+                <a th:if="${paginaAtual + 1 < totalPaginas}"
+                   th:href="@{/admin/vendas(pagina=${paginaAtual + 1}, busca=${busca})}">
+                    Próxima
+                </a>
+
+            </div>
+
+            <div th:each="v : ${vendas}">
+                <div class="modal" th:id="|modal-${v.id}|">
+                    <div class="modal-conteudo modal-grande">
+
+                        <span class="fechar"
+                              th:attr="onclick=|fecharModal(${v.id})|">
+                            X
+                        </span>
+
+                        <h2>📋 Detalhes da Venda</h2>
+
+                        <div class="detalhes-grid">
+
+                            <div class="card-detalhe">
+                                <h3>👤 Cliente</h3>
+                                <p><strong>Nome:</strong> <span th:text="${v.cliente.nome}"></span></p>
+                                <p><strong>CPF:</strong> <span th:text="${v.cliente.cpf}"></span></p>
+                                <p><strong>Telefone:</strong> <span th:text="${v.cliente.telefone}"></span></p>
+                            </div>
+
+                            <div class="card-detalhe">
+                                <h3>🚗 Veículo</h3>
+                                <p><strong>Nome:</strong> <span th:text="${v.veiculo.nome}"></span></p>
+                                <p><strong>Marca:</strong> <span th:text="${v.veiculo.marca}"></span></p>
+                                <p><strong>Ano:</strong> <span th:text="${v.veiculo.ano}"></span></p>
+                                <p><strong>Placa:</strong> <span th:text="${v.veiculo.placa}"></span></p>
+                            </div>
+
+                            <div class="card-detalhe">
+                                <h3>👤 Proprietário</h3>
+                                <p><strong>Nome:</strong> <span th:text="${v.veiculo.nomeProprietario}"></span></p>
+                                <p><strong>CPF:</strong> <span th:text="${v.veiculo.cpfProprietario}"></span></p>
+                                <p><strong>Telefone:</strong> <span th:text="${v.veiculo.telefoneProprietario}"></span></p>
+                                <p><strong>Email:</strong> <span th:text="${v.veiculo.emailProprietario}"></span></p>
+                            </div>
+                            
+                            <div class="card-detalhe">
+                                <h3>👨‍💼 Vendedor</h3>
+
+                                <p>
+                                    <strong>Nome:</strong>
+                                    <span th:text="${v.vendedor.nome}"></span>
+                                </p>
+
+                                <p>
+                                    <strong>Perfil:</strong>
+                                    <span th:text="${v.vendedor.perfil}"></span>
+                                </p>
+                            </div>
+
+                            <div class="card-detalhe">
+                                <h3>💳 Pagamento</h3>
+
+                                <div th:if="${v.pagamento != null}">
+                                    <p><strong>Tipo:</strong> <span th:text="${v.pagamento.tipo}"></span></p>
+
+                                    <p th:if="${v.pagamento.entrada != null}">
+                                        <strong>Entrada:</strong>
+                                        R$ <span th:text="${v.pagamento.entrada}"></span>
+                                    </p>
+
+                                    <p th:if="${v.pagamento.parcelas != null}">
+                                        <strong>Parcelas:</strong>
+                                        <span th:text="${v.pagamento.parcelas}"></span>x
+                                    </p>
+
+                                    <p th:if="${v.pagamento.valorParcela != null}">
+                                        <strong>Valor Parcela:</strong>
+                                        R$ <span th:text="${v.pagamento.valorParcela}"></span>
+                                    </p>
+                                </div>
+
+                                <div th:if="${v.pagamento == null}">
+                                    <p>Pagamento não cadastrado.</p>
+                                </div>
+                            </div>
+
+                            <div class="card-detalhe">
+                                <h3>💰 Venda</h3>
+                                <p><strong>Data:</strong> <span th:text="${#temporals.format(v.dataVenda, 'dd/MM/yyyy')}"></span></span></p>
+                                <p><strong>Valor:</strong> R$ <span th:text="${v.valor}"></span></p>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <script>
+            function abrirModal(id) {
+                document.getElementById("modal-" + id).style.display = "block";
+            }
+
+            function fecharModal(id) {
+                document.getElementById("modal-" + id).style.display = "none";
+            }
+
+            window.onclick = function (event) {
+                if (event.target.classList.contains("modal")) {
+                    event.target.style.display = "none";
+                }
+            }
+
+            document.addEventListener("keydown", function (event) {
+                if (event.key === "Escape") {
+
+                    document.querySelectorAll(".modal").forEach(function (modal) {
+                        modal.style.display = "none";
+                    });
+                }
+            });
+
+            const campoBuscaVendas = document.getElementById("campoBuscaVendas");
+            const formBuscaVendas = document.getElementById("formBuscaVendas");
+
+            let tempoVendas;
+
+            campoBuscaVendas.addEventListener("input", function () {
+                clearTimeout(tempoVendas);
+
+                tempoVendas = setTimeout(function () {
+                    formBuscaVendas.submit();
+                }, 500);
+            });
+        </script>
+    </body>
+</html>

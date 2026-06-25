@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <title>Painel do Vendedor</title>
+        <link rel="stylesheet" href="/css/style.css">
+    </head>
+
+    <body>
+
+        <div th:replace="~{fragments/menu :: menu}"></div>
+
+        <div class="container">
+
+            <h1>🚗 Painel do Vendedor</h1>
+
+            <div class="dashboard-grid">
+
+                <div class="card-dashboard">
+                    <h3>🚗 Veículos Disponíveis</h3>
+                    <p th:text="${totalVeiculosDisponiveis}"></p>
+                </div>
+
+                <div class="card-dashboard">
+                    <h3>👤 Compradores</h3>
+                    <p th:text="${totalCompradores}"></p>
+                </div>
+
+            </div>
+
+            <h2>⚡ Acesso Rápido</h2>
+
+            <div class="dashboard-grid">
+
+                <a href="/vendas/form" class="card-dashboard link-card">
+                    <h3>💰 Nova Venda</h3>
+                    <p>Registrar uma venda</p>
+                </a>
+
+                <a href="/compradores" class="card-dashboard link-card">
+                    <h3>👤 Compradores</h3>
+                    <p>Consultar compradores</p>
+                </a>
+
+                <a href="/veiculos" class="card-dashboard link-card">
+                    <h3>🚗 Veículos</h3>
+                    <p>Consultar estoque</p>
+                </a>
+
+            </div>
+            
+            <h2>📊 Meu Desempenho</h2>
+
+            <div class="dashboard-grid">
+
+                <div class="card-dashboard">
+                    <h3>🏆 Minhas Vendas</h3>
+                    <p th:text="${totalMinhasVendas}"></p>
+                </div>
+
+                <div class="card-dashboard">
+                    <h3>💵 Valor Vendido</h3>
+                    <p>
+                        R$
+                        <span th:text="${#numbers.formatDecimal(valorVendidoPorMim, 1, 'POINT', 2, 'COMMA')}"></span>
+                    </p>
+                </div>
+
+            </div>
+
+            <h2>📋 Histórico das Minhas Vendas</h2>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Veículo</th>
+                        <th>Comprador</th>
+                        <th>Data</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr th:each="v : ${minhasVendas}">
+                        <td th:text="${v.veiculo.nome + ' (' + v.veiculo.ano + ')'}"></td>
+
+                        <td th:text="${v.cliente.nome}"></td>
+
+                        <td th:text="${#temporals.format(v.dataVenda, 'dd/MM/yyyy')}"></td>
+
+                        <td>
+                            <button class="btn-detalhes"
+                                    type="button"
+                                    th:onclick="'abrirModal(' + ${v.id} + ')'">
+                                Detalhes
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- MODAIS -->
+            <div th:each="v : ${minhasVendas}">
+                <div class="modal" th:id="|modal-${v.id}|">
+
+                    <div class="modal-conteudo modal-grande">
+
+                        <span class="fechar"
+                              th:attr="onclick=|fecharModal(${v.id})|">
+                            X
+                        </span>
+
+                        <h2>📋 Detalhes da Minha Venda</h2>
+
+                        <div class="detalhes-grid">
+
+                            <div class="card-detalhe">
+                                <h3>🚗 Veículo</h3>
+
+                                <p><strong>Nome:</strong>
+                                    <span th:text="${v.veiculo.nome}"></span>
+                                </p>
+
+                                <p><strong>Marca:</strong>
+                                    <span th:text="${v.veiculo.marca}"></span>
+                                </p>
+
+                                <p><strong>Ano:</strong>
+                                    <span th:text="${v.veiculo.ano}"></span>
+                                </p>
+
+                                <p><strong>Placa:</strong>
+                                    <span th:text="${v.veiculo.placa}"></span>
+                                </p>
+                            </div>
+
+                            <div class="card-detalhe">
+                                <h3>👤 Comprador</h3>
+
+                                <p><strong>Nome:</strong>
+                                    <span th:text="${v.cliente.nome}"></span>
+                                </p>
+
+                                <p><strong>CPF:</strong>
+                                    <span th:text="${v.cliente.cpf}"></span>
+                                </p>
+
+                                <p><strong>Telefone:</strong>
+                                    <span th:text="${v.cliente.telefone}"></span>
+                                </p>
+                            </div>
+
+                            <div class="card-detalhe">
+                                <h3>💳 Pagamento</h3>
+
+                                <div th:if="${v.pagamento != null}">
+
+                                    <p>
+                                        <strong>Tipo:</strong>
+                                        <span th:text="${v.pagamento.tipo}"></span>
+                                    </p>
+
+                                    <p th:if="${v.pagamento.entrada != null}">
+                                        <strong>Entrada:</strong>
+                                        R$ <span th:text="${v.pagamento.entrada}"></span>
+                                    </p>
+
+                                    <p th:if="${v.pagamento.parcelas != null}">
+                                        <strong>Parcelas:</strong>
+                                        <span th:text="${v.pagamento.parcelas}"></span>x
+                                    </p>
+
+                                    <p th:if="${v.pagamento.valorParcela != null}">
+                                        <strong>Valor Parcela:</strong>
+                                        R$ <span th:text="${v.pagamento.valorParcela}"></span>
+                                    </p>
+
+                                </div>
+
+                                <div th:if="${v.pagamento == null}">
+                                    <p>Pagamento não cadastrado.</p>
+                                </div>
+                            </div>
+
+                            <div class="card-detalhe">
+                                <h3>💰 Venda</h3>
+
+                                <p>
+                                    <strong>Data:</strong>
+                                    <span th:text="${#temporals.format(v.dataVenda, 'dd/MM/yyyy')}"></span>
+                                </p>
+
+                                <p>
+                                    <strong>Valor:</strong>
+                                    R$ <span th:text="${v.valor}"></span>
+                                </p>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+        
+          <script>
+            function abrirModal(id) {
+                const modal = document.getElementById("modal-" + id);
+
+                if (modal) {
+                    modal.style.display = "block";
+                }
+            }
+
+            function fecharModal(id) {
+                const modal = document.getElementById("modal-" + id);
+
+                if (modal) {
+                    modal.style.display = "none";
+                }
+            }
+
+            window.onclick = function (event) {
+                if (event.target.classList.contains("modal")) {
+                    event.target.style.display = "none";
+                }
+            }
+
+            document.addEventListener("keydown", function (event) {
+                if (event.key === "Escape") {
+                    document.querySelectorAll(".modal").forEach(function (modal) {
+                        modal.style.display = "none";
+                    });
+                }
+            });
+        </script>
+
+    </body>
+</html>
