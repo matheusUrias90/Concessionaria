@@ -1,8 +1,11 @@
 package br.com.urias.cadastro_veiculos.controller;
 
 import br.com.urias.cadastro_veiculos.model.Usuario;
+import br.com.urias.cadastro_veiculos.model.Venda;
 import br.com.urias.cadastro_veiculos.repository.UsuarioRepository;
+import br.com.urias.cadastro_veiculos.repository.VendaRepository;
 import jakarta.servlet.http.HttpSession;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -15,6 +18,9 @@ public class UsuarioController {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private VendaRepository vendaRepository;
 
     private boolean semPermissao(HttpSession session) {
 
@@ -87,5 +93,38 @@ public class UsuarioController {
         usuarioRepository.deleteById(id);
 
         return "redirect:/usuarios";
+    }
+
+    @GetMapping("/usuarios/{id}/historico")
+    public String historicoUsuario(@PathVariable Long id, Model model, HttpSession session) {
+
+        Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
+
+        if (usuarioLogado == null) {
+            return "redirect:/login";
+        }
+
+        if (!usuarioLogado.getPerfil().equals("DONO")) {
+            return "redirect:/dashboard";
+        }
+
+        Usuario usuario = usuarioRepository.findById(id).orElse(null);
+
+        if (usuario == null) {
+            return "redirect:/usuarios";
+        }
+
+        List<Venda> vendas = vendaRepository.findByVendedorIdOrderByDataVendaDesc(id);
+
+        double valorTotalVendido = vendas.stream()
+                .mapToDouble(v -> v.getValor())
+                .sum();
+
+        model.addAttribute("usuario", usuario);
+        model.addAttribute("vendas", vendas);
+        model.addAttribute("totalVendas", vendas.size());
+        model.addAttribute("valorTotalVendido", valorTotalVendido);
+
+        return "historico";
     }
 }

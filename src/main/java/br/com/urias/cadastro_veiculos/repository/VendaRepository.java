@@ -24,4 +24,6 @@ public interface VendaRepository extends JpaRepository<Venda, Long> {
     List<Venda> findByClienteIdOrderByIdDesc(Long clienteId);
     
     List<Venda> findByVendedorIdOrderByIdDesc(Long vendedorId);
+    
+    List<Venda> findByVendedorIdOrderByDataVendaDesc(Long vendedorId);
 }

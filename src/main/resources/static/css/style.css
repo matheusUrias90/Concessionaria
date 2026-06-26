@@ -194,27 +194,6 @@ h2 {
     background: white;
 }
 
-/* ==========================================
-   BOTÃO SALVAR (E TAMBEM O BOTÃO DE "NOVO")
-============================================= */
-
-.btn-salvar {
-    margin-top: 25px;
-    width: 100%;
-    background: #4169E1;
-    color: white;
-    border: none;
-    padding: 10px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 18px;
-    font-weight: bold;
-}
-
-.btn-salvar:hover {
-    background: #1E90FF;
-}
-
 /* ==========================
    TABELA
 ========================== */
@@ -283,6 +262,36 @@ tr:hover {
 .btn-editar:hover {
     background: #FF8C00;
     color: white;
+}
+
+.btn-salvar {
+    margin-top: 25px;
+    width: 100%;
+    background: #4169E1;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.btn-salvar:hover {
+    background: #1E90FF;
+}
+
+.btn-voltar {
+    background: #555;
+    color: white;
+    padding: 10px 14px;
+    border-radius: 6px;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-voltar:hover {
+    background: #333;
 }
 
 .btn-excluir {
