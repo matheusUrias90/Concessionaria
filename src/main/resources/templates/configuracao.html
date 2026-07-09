@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Configuração da Concessionária</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+    <div th:replace="~{fragments/menu :: menu}"></div>
+
+    <div class="container">
+
+        <h1>🏢 Configuração da Concessionária</h1>
+
+        <p class="subtitulo">
+            Os dados cadastrados serão utilizados automaticamente em documentos,
+            comprovantes e relatórios emitidos pelo sistema.
+        </p>
+
+        <form th:action="@{/configuracao/salvar}"
+              th:object="${configuracao}"
+              method="post">
+
+            <input type="hidden" th:field="*{id}">
+
+            <div class="campo">
+                <label>Nome da Concessionária</label>
+                <input type="text"
+                       th:field="*{nomeEmpresa}"
+                       placeholder="Ex: Urias Veículos"
+                       required>
+            </div>
+
+            <div class="campo">
+                <label>CNPJ</label>
+                <input type="text"
+                       id="cnpj"
+                       th:field="*{cnpj}"
+                       placeholder="00.000.000/0000-00"
+                       maxlength="18">
+            </div>
+
+            <div class="campo">
+                <label>Endereço</label>
+                <input type="text"
+                       th:field="*{endereco}"
+                       placeholder="Rua, número, bairro, cidade">
+            </div>
+
+            <div class="campo">
+                <label>Telefone</label>
+                <input type="text"
+                       id="telefone"
+                       th:field="*{telefone}"
+                       placeholder="(00) 00000-0000"
+                       maxlength="15">
+            </div>
+
+            <div class="campo">
+                <label>E-mail</label>
+                <input type="email"
+                       th:field="*{email}"
+                       placeholder="contato@concessionaria.com">
+            </div>
+
+            <button type="submit" class="btn-salvar">
+                💾 Salvar Configuração
+            </button>
+
+        </form>
+
+    </div>
+
+    <script>
+
+        // Máscara CNPJ
+        const cnpj = document.getElementById("cnpj");
+
+        cnpj.addEventListener("input", function () {
+            let valor = this.value.replace(/\D/g, "");
+
+            valor = valor.replace(/^(\d{2})(\d)/, "$1.$2");
+            valor = valor.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3");
+            valor = valor.replace(/\.(\d{3})(\d)/, ".$1/$2");
+            valor = valor.replace(/(\d{4})(\d)/, "$1-$2");
+
+            this.value = valor;
+        });
+
+        // Máscara Telefone
+        const telefone = document.getElementById("telefone");
+
+        telefone.addEventListener("input", function () {
+            let valor = this.value.replace(/\D/g, "");
+
+            valor = valor.replace(/^(\d{2})(\d)/g, "($1) $2");
+            valor = valor.replace(/(\d{5})(\d)/, "$1-$2");
+
+            this.value = valor;
+        });
+
+    </script>
+
+</body>
+</html>

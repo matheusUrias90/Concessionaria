@@ -1,8 +1,10 @@
 package br.com.urias.cadastro_veiculos.controller;
 
 import br.com.urias.cadastro_veiculos.model.Usuario;
+import br.com.urias.cadastro_veiculos.repository.ConfiguracaoConcessionariaRepository;
 import br.com.urias.cadastro_veiculos.repository.UsuarioRepository;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +13,9 @@ import org.springframework.web.bind.annotation.*;
 public class LoginController {
 
     private final UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private ConfiguracaoConcessionariaRepository configuracaoRepository;
 
     public LoginController(UsuarioRepository usuarioRepository) {
         this.usuarioRepository = usuarioRepository;
@@ -28,8 +33,8 @@ public class LoginController {
             HttpSession session,
             Model model) {
 
-        Usuario usuarioLogado =
-                usuarioRepository.findByLoginAndSenha(login, senha);
+        Usuario usuarioLogado
+                = usuarioRepository.findByLoginAndSenha(login, senha);
 
         if (usuarioLogado == null) {
 
@@ -40,11 +45,20 @@ public class LoginController {
 
         session.setAttribute("usuarioLogado", usuarioLogado);
 
-        if (usuarioLogado.getPerfil().equals("VENDEDOR")) {
-            return "redirect:/dashboard-vendedor";
+        if (usuarioLogado.getPerfil().equals("DONO")) {
+
+            if (configuracaoRepository.count() == 0) {
+                return "redirect:/configuracao";
+            }
+
+            return "redirect:/admin";
         }
 
-        return "redirect:/admin";
+        if (usuarioLogado.getPerfil().equals("GERENTE")) {
+            return "redirect:/admin";
+        }
+
+        return "redirect:/dashboard-vendedor";
     }
 
     @GetMapping("/logout")

@@ -21,22 +21,27 @@
                     Admin
                 </a>
 
-    <a class="menu-link"
-       th:if="${session.usuarioLogado.perfil == 'VENDEDOR'}"
-       href="/dashboard-vendedor">
-        Painel
-    </a>
-</div>
+                <a class="menu-link"
+                   th:if="${session.usuarioLogado.perfil == 'VENDEDOR'}"
+                   href="/dashboard-vendedor">
+                    Painel
+                </a>
+            </div>
 
             <div class="menu-usuario" th:if="${session.usuarioLogado != null}">
 
                 <span class="usuario-nome">
                     <span th:if="${session.usuarioLogado != null}"
-                             th:text="'👤 ' + ${session.usuarioLogado.nome} + ' (' + ${session.usuarioLogado.perfil} + ')'">
+                          th:text="'👤 ' + ${session.usuarioLogado.nome} + ' (' + ${session.usuarioLogado.perfil} + ')'">
                     </span> ▼
                 </span>
 
                 <div class="submenu-usuario">
+                    <a th:if="${session.usuarioLogado.perfil == 'DONO'}"
+                    href="/configuracao">
+                    ⚙ Configuração da Concessionária
+                    </a>
+
                     <a href="/logout">🚪 Sair</a>
                 </div>
 
