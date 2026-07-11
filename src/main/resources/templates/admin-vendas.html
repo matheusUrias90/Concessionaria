@@ -104,7 +104,7 @@
                                 <p><strong>Telefone:</strong> <span th:text="${v.veiculo.telefoneProprietario}"></span></p>
                                 <p><strong>Email:</strong> <span th:text="${v.veiculo.emailProprietario}"></span></p>
                             </div>
-                            
+
                             <div class="card-detalhe">
                                 <h3>👨‍💼 Vendedor</h3>
 
@@ -154,6 +154,12 @@
 
                         </div>
 
+                        <a th:href="@{/documentos/comprovante-venda/{id}(id=${v.id})}"
+                           class="btn-imprimir"
+                           target="_blank">
+                            📄 Comprovante
+                        </a>
+
                     </div>
                 </div>
             </div>
@@ -162,26 +168,26 @@
 
         <script>
             function abrirModal(id) {
-                document.getElementById("modal-" + id).style.display = "block";
+            document.getElementById("modal-" + id).style.display = "block";
             }
 
             function fecharModal(id) {
-                document.getElementById("modal-" + id).style.display = "none";
+            document.getElementById("modal-" + id).style.display = "none";
             }
 
             window.onclick = function (event) {
-                if (event.target.classList.contains("modal")) {
-                    event.target.style.display = "none";
-                }
+            if (event.target.classList.contains("modal")) {
+            event.target.style.display = "none";
+            }
             }
 
             document.addEventListener("keydown", function (event) {
-                if (event.key === "Escape") {
+            if (event.key === "Escape") {
 
-                    document.querySelectorAll(".modal").forEach(function (modal) {
-                        modal.style.display = "none";
-                    });
-                }
+            document.querySelectorAll(".modal").forEach(function (modal) {
+            modal.style.display = "none";
+            });
+            }
             });
 
             const campoBuscaVendas = document.getElementById("campoBuscaVendas");
@@ -190,12 +196,32 @@
             let tempoVendas;
 
             campoBuscaVendas.addEventListener("input", function () {
-                clearTimeout(tempoVendas);
+            clearTimeout(tempoVendas);
 
-                tempoVendas = setTimeout(function () {
-                    formBuscaVendas.submit();
-                }, 500);
+            tempoVendas = setTimeout(function () {
+            formBuscaVendas.submit();
+            }, 500);
             });
+
+            const parametros = new URLSearchParams(window.location.search);
+            const comprovanteId = parametros.get("comprovante");
+
+            if (comprovanteId) {
+            window.open(
+            "/documentos/comprovante-venda/" + comprovanteId,
+            "_blank"
+            );
+
+            parametros.delete("comprovante");
+
+            const novaUrl =
+            window.location.pathname +
+            (parametros.toString()
+            ? "?" + parametros.toString()
+            : "");
+
+            window.history.replaceState({}, "", novaUrl);
+            }
         </script>
     </body>
 </html>

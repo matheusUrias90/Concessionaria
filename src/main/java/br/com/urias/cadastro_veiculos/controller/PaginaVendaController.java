@@ -15,6 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -62,24 +63,53 @@ public class PaginaVendaController {
             return "redirect:/vendas/form";
         }
 
-        if (pagamento.getTipo() == null || pagamento.getTipo().trim().isEmpty()) {
+        if (pagamento.getTipo() == null
+                || pagamento.getTipo().trim().isEmpty()) {
+
             return "redirect:/vendas/form";
         }
 
         pagamentoRepository.save(pagamento);
 
         venda.setPagamento(pagamento);
-        
-        Usuario usuarioLogado =
-        (Usuario) session.getAttribute("usuarioLogado");
+
+        Usuario usuarioLogado
+                = (Usuario) session.getAttribute("usuarioLogado");
+
         venda.setVendedor(usuarioLogado);
 
         venda.getVeiculo().setVendido(true);
         veiculoRepository.save(venda.getVeiculo());
 
-        vendaRepository.save(venda);
+        Venda vendaSalva = vendaRepository.save(venda);
 
-        return "redirect:/vendas/form";
+        if ("VENDEDOR".equals(usuarioLogado.getPerfil())) {
+            return "redirect:/dashboard-vendedor?comprovante="
+                    + vendaSalva.getId();
+        }
+
+        return "redirect:/admin/vendas?comprovante="
+                + vendaSalva.getId();
+    }
+
+    @GetMapping("/vendas/sucesso/{id}")
+    public String vendaSalvaComSucesso(
+            @PathVariable Long id,
+            HttpSession session,
+            Model model) {
+
+        Usuario usuarioLogado
+                = (Usuario) session.getAttribute("usuarioLogado");
+
+        model.addAttribute("vendaId", id);
+
+        if ("VENDEDOR".equals(usuarioLogado.getPerfil())) {
+            model.addAttribute("voltar", "/dashboard-vendedor");
+        } else {
+            model.addAttribute("voltar", "/admin/vendas");
+        }
+
+        return "venda-sucesso";
     }
 
     @GetMapping("/admin/vendas")
@@ -88,7 +118,7 @@ public class PaginaVendaController {
             @RequestParam(defaultValue = "0") int pagina,
             Model model,
             HttpSession session) {
-        
+
         Usuario usuarioLogado
                 = (Usuario) session.getAttribute("usuarioLogado");
 
@@ -109,9 +139,9 @@ public class PaginaVendaController {
         } else {
             vendasPage = vendaRepository
                     .findByClienteNomeContainingIgnoreCaseOrVeiculoNomeContainingIgnoreCaseOrVendedorNomeContainingIgnoreCase(
-                            busca, 
                             busca,
-                            busca, 
+                            busca,
+                            busca,
                             pageable
                     );
         }

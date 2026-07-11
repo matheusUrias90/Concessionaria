@@ -1,0 +1,262 @@
+/* ==========================
+   PÁGINA
+========================== */
+
+@page {
+    size: A4;
+    margin: 10mm;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: #dfe3e8;
+    font-family: Arial, sans-serif;
+    color: #111;
+}
+
+/* ==========================
+   DOCUMENTO NA TELA
+========================== */
+
+.documento {
+    width: 794px;
+    min-height: 1123px;
+    margin: 30px auto;
+    padding: 35px 45px;
+    background: #fff;
+    box-sizing: border-box;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.18);
+}
+
+/* ==========================
+   DOCUMENTO
+========================== */
+
+.documento {
+    width: 760px;
+    margin: 20px auto;
+    padding: 24px 30px;
+    background: #fff;
+    box-sizing: border-box;
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.15);
+}
+
+/* ==========================
+   CABEÇALHO
+========================== */
+
+.cabecalho-documento {
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+.area-logo {
+    margin-bottom: 8px;
+}
+
+.area-logo img {
+    display: block;
+    max-width: 130px;
+    max-height: 70px;
+    margin: 0 auto;
+}
+
+.area-logo h2 {
+    margin: 0;
+    font-size: 15px;
+    color: #333;
+}
+
+.cabecalho-documento h1 {
+    margin: 6px 0 0;
+    font-size: 21px;
+    color: #111;
+    text-transform: uppercase;
+}
+
+/* ==========================
+   SEÇÕES
+========================== */
+
+.secao-documento {
+    margin-bottom: 14px;
+    break-inside: avoid;
+    page-break-inside: avoid;
+}
+
+.secao-documento h2 {
+    margin: 0 0 10px;
+    padding-bottom: 5px;
+    border-bottom: 2px solid #0a7a0a;
+    text-align: center;
+    font-size: 16px;
+    color: #0a7a0a;
+}
+
+/* ==========================
+   DADOS EM DUAS COLUNAS
+========================== */
+
+.grade-dados {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    column-gap: 22px;
+    row-gap: 9px;
+}
+
+.campo {
+    min-width: 0;
+}
+
+.campo strong {
+    display: block;
+    margin-bottom: 2px;
+    font-size: 11px;
+    color: #111;
+}
+
+.campo span {
+    display: block;
+    min-height: 16px;
+    padding-bottom: 3px;
+    border-bottom: 1px solid #aaa;
+    font-size: 11px;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+}
+
+.campo-largo {
+    grid-column: 1 / -1;
+}
+
+/* ==========================
+   DECLARAÇÃO
+========================== */
+
+.declaracao {
+    margin: 18px 0 12px;
+    text-align: justify;
+    font-size: 11px;
+    line-height: 1.45;
+    break-inside: avoid;
+    page-break-inside: avoid;
+}
+
+.declaracao p {
+    margin: 0;
+}
+
+/* ==========================
+   ASSINATURAS
+========================== */
+
+.assinaturas {
+    display: flex;
+    justify-content: space-between;
+    gap: 35px;
+    margin-top: 38px;
+    break-inside: avoid;
+    page-break-inside: avoid;
+}
+
+.assinatura {
+    width: 45%;
+    text-align: center;
+}
+
+.linha-assinatura {
+    border-top: 1px solid #000;
+}
+
+.assinatura p {
+    margin: 5px 0 0;
+    font-size: 11px;
+}
+
+/* ==========================
+   AÇÕES
+========================== */
+
+.acoes-documento {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.acoes-documento button {
+    padding: 9px 18px;
+    border: none;
+    border-radius: 6px;
+    background: #0a7a0a;
+    color: #fff;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.acoes-documento button:hover {
+    background: #086408;
+}
+
+/* ==========================
+   IMPRESSÃO
+========================== */
+
+@media print {
+
+    html,
+    body {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        background: #fff;
+    }
+
+    body {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .documento {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        box-shadow: none;
+    }
+
+    .acoes-documento {
+        display: none;
+    }
+
+    .cabecalho-documento {
+        margin-bottom: 12px;
+    }
+
+    .secao-documento {
+        margin-bottom: 11px;
+    }
+
+    .secao-documento h2 {
+        margin-bottom: 7px;
+        padding-bottom: 4px;
+        font-size: 15px;
+    }
+
+    .grade-dados {
+        row-gap: 7px;
+    }
+
+    .declaracao {
+        margin: 14px 0 10px;
+    }
+
+    .assinaturas {
+        margin-top: 30px;
+    }
+}

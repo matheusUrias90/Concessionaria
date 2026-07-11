@@ -101,7 +101,7 @@ nav {
     top: 62px;
 
     background: white;
-    min-width: 150px;
+    min-width: 250px;
     border-radius: 6px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     z-index: 999;
@@ -109,9 +109,11 @@ nav {
 
 .submenu-usuario a {
     display: block;
-    padding: 10px;
-    color: black;
+    padding: 12px 16px;
+    color: #333;
     text-decoration: none;
+    white-space: normal;
+    transition: background .2s;
 }
 
 .submenu-usuario a:hover {
@@ -122,6 +124,11 @@ nav {
 .menu-usuario:hover .submenu-usuario {
     display: block;
 }
+
+.submenu-usuario a:last-child {
+    border-top: 1px solid #ddd;
+}
+
 /* ==========================
    CONTAINER
 ========================== */
@@ -307,6 +314,21 @@ tr:hover {
 .btn-excluir:hover {
     background: #dc3545;
     color: white;
+}
+
+.btn-imprimir{
+    display:inline-block;
+    margin-top:20px;
+    padding:10px 18px;
+    background:#0a7a0a;
+    color:#fff;
+    border-radius:6px;
+    text-decoration:none;
+    font-weight:bold;
+}
+
+.btn-imprimir:hover{
+    background:#086408;
 }
 
 /* ==========================

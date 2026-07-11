@@ -14,12 +14,12 @@
             <h1>📊 Dashboard Administrativo</h1>
 
             <div class="dashboard-grid">
-                
+
                 <div class="card-dashboard">
                     <h3>🚗 Veículos</h3>
                     <p th:text="${totalVeiculos}"></p>
                 </div>
-                
+
                 <div class="card-dashboard">
                     <h3>👥 Compradores</h3>
                     <p th:text="${totalClientes}"></p>
@@ -29,8 +29,8 @@
                     <h3>💰 Vendas</h3>
                     <p th:text="${totalVendas}"></p>
                 </div>
-                
-               </div>
+
+            </div>
 
             <h2>📋 Últimas Vendas</h2>
 
@@ -99,7 +99,7 @@
                                 <p><strong>Telefone:</strong> <span th:text="${v.veiculo.telefoneProprietario}"></span></p>
                                 <p><strong>Email:</strong> <span th:text="${v.veiculo.emailProprietario}"></span></p>
                             </div>
-                            
+
                             <div class="card-detalhe">
                                 <h3>👨‍💼 Vendedor</h3>
 
@@ -148,6 +148,11 @@
                             </div>
 
                         </div>
+                        <a th:href="@{/documentos/comprovante-venda/{id}(id=${v.id})}"
+                           class="btn-imprimir"
+                           target="_blank">
+                            📄 Comprovante
+                        </a>
 
                     </div>
                 </div>
@@ -158,11 +163,11 @@
             <a href="/admin/vendas" class="btn-salvar link-botao">
                 📋 Ver Histórico Completo
             </a>
-            
+
             <h2>🚗 Estoque e Vendas</h2>
             <div class="dashboard-grid">
-                
-                 <div class="card-dashboard">
+
+                <div class="card-dashboard">
                     <h3>✅ Disponíveis</h3>
                     <p th:text="${veiculosDisponiveis}"></p>
                 </div>
@@ -177,7 +182,7 @@
                     <p th:text="${'R$ ' + #numbers.formatDecimal(valorEstoque, 1, 'POINT', 2, 'COMMA')}"></p>
                 </div>    
             </div>
-            
+
             <h2>💰 Financeiro</h2>
             <div class="dashboard-grid-financeiro">
                 <div class="card-dashboard">
@@ -194,33 +199,61 @@
         </div>
         <script>
             function abrirModal(id) {
-                const modal = document.getElementById("modal-" + id);
+            const modal = document.getElementById("modal-" + id);
 
-                if (modal) {
-                    modal.style.display = "block";
-                }
+            if (modal) {
+            modal.style.display = "block";
+            }
             }
 
             function fecharModal(id) {
-                const modal = document.getElementById("modal-" + id);
+            const modal = document.getElementById("modal-" + id);
 
-                if (modal) {
-                    modal.style.display = "none";
-                }
+            if (modal) {
+            modal.style.display = "none";
+            }
             }
 
             window.onclick = function (event) {
-                if (event.target.classList.contains("modal")) {
-                    event.target.style.display = "none";
-                }
+            if (event.target.classList.contains("modal")) {
+            event.target.style.display = "none";
+            }
             }
 
             document.addEventListener("keydown", function (event) {
-                if (event.key === "Escape") {
-                    document.querySelectorAll(".modal").forEach(function (modal) {
-                        modal.style.display = "none";
-                    });
-                }
+            if (event.key === "Escape") {
+            document.querySelectorAll(".modal").forEach(function (modal) {
+            modal.style.display = "none";
+            });
+            }
+            });
+
+            document.addEventListener("DOMContentLoaded", function () {
+
+            const parametros = new URLSearchParams(window.location.search);
+            const comprovanteId = parametros.get("comprovante");
+
+            if (comprovanteId) {
+
+            const urlComprovante =
+            "/documentos/comprovante-venda/"
+            + encodeURIComponent(comprovanteId);
+
+            window.open(
+            urlComprovante,
+            "comprovanteVenda"
+            );
+
+            parametros.delete("comprovante");
+
+            const novaUrl =
+            window.location.pathname
+            + (parametros.toString()
+            ? "?" + parametros.toString()
+            : "");
+
+            window.history.replaceState({}, "", novaUrl);
+            }
             });
         </script>
     </body>

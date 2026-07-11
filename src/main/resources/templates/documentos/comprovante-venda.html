@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <title>Comprovante de Venda</title>
+
+        <link rel="stylesheet" th:href="@{/css/style.css}">
+        <link rel="stylesheet" th:href="@{/css/impressao.css}">
+    </head>
+
+    <body>
+
+        <div class="documento">
+
+            <header class="cabecalho-documento">
+                <h1>COMPROVANTE DE VENDA DE VEÍCULO</h1>
+
+            </header>
+
+            <section class="secao-documento">
+
+                <h2>Dados da Empresa</h2>
+
+                <div class="grade-dados">
+
+                    <div class="campo">
+                        <strong>Nome da empresa:</strong>
+                        <span th:text="${configuracao.nomeEmpresa}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>CNPJ:</strong>
+                        <span th:text="${configuracao.cnpj}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Telefone:</strong>
+                        <span th:text="${configuracao.telefone}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Endereço:</strong>
+                        <span th:text="${configuracao.endereco}"></span>
+                    </div>
+
+                </div>
+
+            </section>
+
+            <section class="secao-documento">
+
+                <h2>Dados da Venda</h2>
+
+                <div class="grade-dados">
+
+                    <div class="campo">
+                        <strong>Número da venda:</strong>
+                        <span th:text="${venda.id}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Data da venda:</strong>
+                        <span th:text="${#temporals.format(venda.dataVenda, 'dd/MM/yyyy')}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Vendedor:</strong>
+                        <span th:text="${vendedor != null ? vendedor.nome : 'Não informado'}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Valor da venda:</strong>
+                        <span th:text="${#numbers.formatCurrency(venda.valor)}"></span>
+                    </div>
+
+                </div>
+
+            </section>
+
+            <section class="secao-documento">
+
+                <h2>Dados do Comprador</h2>
+
+                <div class="grade-dados">
+
+                    <div class="campo">
+                        <strong>Nome:</strong>
+                        <span th:text="${cliente.nome}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>CPF:</strong>
+                        <span th:text="${cliente.cpf}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Telefone:</strong>
+                        <span th:text="${cliente.telefone}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>E-mail:</strong>
+                        <span th:text="${cliente.email}"></span>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <section class="secao-documento">
+
+                <h2>Dados do Veículo</h2>
+
+                <div class="grade-dados">
+
+                    <div class="campo">
+                        <strong>Veículo:</strong>
+                        <span th:text="${veiculo.nome}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Marca:</strong>
+                        <span th:text="${veiculo.marca}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Ano:</strong>
+                        <span th:text="${veiculo.ano}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Cor:</strong>
+                        <span th:text="${veiculo.cor}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Placa:</strong>
+                        <span th:text="${veiculo.placa}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Valor anunciado:</strong>
+                        <span th:text="${#numbers.formatCurrency(veiculo.preco)}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Proprietário:</strong>
+                        <span th:text="${veiculo.nomeProprietario}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>CPF do proprietário:</strong>
+                        <span th:text="${veiculo.cpfProprietario}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Telefone:</strong>
+                        <span th:text="${veiculo.telefoneProprietario}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>E-mail:</strong>
+                        <span th:text="${veiculo.emailProprietario}"></span>
+                    </div>
+
+                </div>
+
+            </section>
+
+            <section class="secao-documento">
+
+                <h2>Forma de Pagamento</h2>
+
+                <div class="grade-dados" th:if="${pagamento != null}">
+
+                    <div class="campo">
+                        <strong>Tipo:</strong>
+                        <span th:text="${pagamento.tipo}"></span>
+                    </div>
+
+                    <th:block th:if="${pagamento.tipo == 'FINANCIAMENTO'}">
+
+                        <div class="campo">
+                            <strong>Entrada:</strong>
+                            <span th:text="${#numbers.formatCurrency(pagamento.entrada)}"></span>
+                        </div>
+
+                        <div class="campo">
+                            <strong>Parcelas:</strong>
+                            <span th:text="${pagamento.parcelas}"></span>
+                        </div>
+
+                        <div class="campo">
+                            <strong>Valor da parcela:</strong>
+                            <span th:text="${#numbers.formatCurrency(pagamento.valorParcela)}"></span>
+                        </div>
+
+                    </th:block>
+
+                    <div class="campo campo-largo">
+
+                        <strong>Observação:</strong>
+
+                        <span th:if="${pagamento.tipo == 'PIX'}">
+                            Pagamento realizado via PIX.
+                        </span>
+
+                        <span th:if="${pagamento.tipo == 'DINHEIRO'}">
+                            Pagamento realizado à vista em dinheiro.
+                        </span>
+
+                        <span th:if="${pagamento.tipo == 'CARTÃO'}">
+                            Pagamento realizado por cartão.
+                        </span>
+
+                        <span th:if="${pagamento.tipo == 'CONSORCIO'}">
+                            Pagamento realizado por carta de crédito de consórcio.
+                        </span>
+
+                        <span th:if="${pagamento.tipo == 'FINANCIAMENTO'}">
+                            Pagamento financiado conforme condições da instituição financeira.
+                        </span>
+
+                    </div>
+
+
+
+                </div>
+
+                <p th:if="${pagamento == null}">
+                    Forma de pagamento não informada.
+                </p>
+
+            </section>
+
+            <section class="declaracao">
+
+                <p>
+                    Declaro, para os devidos fins, que o veículo descrito neste
+                    documento foi vendido ao comprador identificado acima,
+                    conforme as condições e valores apresentados.
+                </p>
+
+            </section>
+
+            <section class="assinaturas">
+
+                <div class="assinatura">
+                    <div class="linha-assinatura"></div>
+                    <p>Assinatura do comprador</p>
+                </div>
+
+                <div class="assinatura">
+                    <div class="linha-assinatura"></div>
+                    <p>Assinatura da concessionária</p>
+                </div>
+
+            </section>
+
+            <div class="acoes-documento">
+
+                <button type="button" onclick="window.print()">
+                    Imprimir comprovante
+                </button>
+
+            </div>
+
+        </div>
+
+    </body>
+</html>

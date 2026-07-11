@@ -13,7 +13,7 @@
 
             <h1>💰 Registro de Vendas</h1>
 
-            <form action="/vendas/salvar" method="post" class="card-form">
+            <form action="/vendas/salvar" method="post" class="card-form" onsubmit="prepararGuiaComprovante()">
 
                 <h2>📋 Dados da Venda</h2>
 
@@ -160,6 +160,13 @@
             entrada.addEventListener("input", calcularParcela);
             parcelas.addEventListener("input", calcularParcela);
             valorVenda.addEventListener("input", calcularParcela);
+            
+            function prepararGuiaComprovante() {
+            window.open(
+            "about:blank",
+            "comprovanteVenda"
+            );
+            }
         </script>
 
     </body>
