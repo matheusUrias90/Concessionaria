@@ -46,6 +46,9 @@ public class PaginaVeiculoController {
         model.addAttribute("paginaAtual", pagina);
         model.addAttribute("totalPaginas", veiculosPage.getTotalPages());
         model.addAttribute("busca", busca);
+        
+        // Objeto vazio usado no formulário de novo veículo
+        model.addAttribute("veiculo", new Veiculo());
 
         return "veiculo";
     }
@@ -76,12 +79,18 @@ public class PaginaVeiculoController {
         if (veiculo.getPreco() == null || veiculo.getPreco() <= 0) {
             return "redirect:/veiculos";
         }
-   
-        if (veiculo.getId() == null) {
+
+        boolean novoVeiculo = veiculo.getId() == null;
+
+        if (novoVeiculo) {
             veiculo.setDataEntrada(LocalDate.now());
         }
 
-        veiculoRepository.save(veiculo);
+        Veiculo veiculoSalvo = veiculoRepository.save(veiculo);
+
+        if (novoVeiculo) {
+            return "redirect:/veiculos?contrato=" + veiculoSalvo.getId();
+        }
 
         return "redirect:/veiculos";
     }

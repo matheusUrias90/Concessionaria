@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <title>Contrato de Consignação</title>
+
+        <link rel="stylesheet" th:href="@{/css/impressao.css}">
+    </head>
+
+    <body>
+
+       <div class="documento contrato-consignacao">
+
+            <header class="cabecalho-documento">
+
+                <h1>CONTRATO DE CONSIGNAÇÃO DE VEÍCULO</h1>
+
+            </header>
+
+            <section class="secao-documento">
+
+                <h2>Dados da Concessionária</h2>
+
+                <div class="grade-dados">
+
+                    <div class="campo">
+                        <strong>Empresa:</strong>
+                        <span th:text="${configuracao.nomeEmpresa}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>CNPJ:</strong>
+                        <span th:text="${configuracao.cnpj}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Telefone:</strong>
+                        <span th:text="${configuracao.telefone}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Endereço:</strong>
+                        <span th:text="${configuracao.endereco}"></span>
+                    </div>
+
+                </div>
+
+            </section>
+
+            <section class="secao-documento">
+
+                <h2>Dados do Proprietário</h2>
+
+                <div class="grade-dados">
+
+                    <div class="campo">
+                        <strong>Nome:</strong>
+                        <span th:text="${veiculo.nomeProprietario}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>CPF:</strong>
+                        <span th:text="${veiculo.cpfProprietario}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Telefone:</strong>
+                        <span th:text="${veiculo.telefoneProprietario}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>E-mail:</strong>
+                        <span th:text="${veiculo.emailProprietario}"></span>
+                    </div>
+
+                </div>
+
+            </section>
+
+            <section class="secao-documento">
+
+                <h2>Dados do Veículo</h2>
+
+                <div class="grade-dados">
+
+                    <div class="campo">
+                        <strong>Veículo:</strong>
+                        <span th:text="${veiculo.nome}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Marca:</strong>
+                        <span th:text="${veiculo.marca}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Ano:</strong>
+                        <span th:text="${veiculo.ano}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Cor:</strong>
+                        <span th:text="${veiculo.cor}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Placa:</strong>
+                        <span th:text="${veiculo.placa}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Valor Pretendido:</strong>
+                        <span th:text="${#numbers.formatCurrency(veiculo.preco)}"></span>
+                    </div>
+
+                </div>
+
+            </section>
+
+            <section class="clausulas-contrato">
+
+                <h2>Cláusulas do Contrato</h2>
+
+                <p>
+                    <strong>1. DO OBJETO:</strong>
+                    O proprietário entrega à concessionária, em regime de consignação,
+                    o veículo identificado neste contrato, autorizando sua exposição,
+                    divulgação e intermediação para venda.
+                </p>
+
+                <p>
+                    <strong>2. DO VALOR:</strong>
+                    Em caso de venda, o proprietário deverá receber o valor líquido de
+                    <strong th:text="${#numbers.formatCurrency(veiculo.preco)}"></strong>,
+                    conforme acordado entre as partes.
+                </p>
+
+                <p>
+                    <strong>3. DA INTERMEDIAÇÃO:</strong>
+                    A concessionária fica autorizada a negociar e anunciar o veículo,
+                    respeitando o valor líquido destinado ao proprietário.
+                </p>
+
+                <p>
+                    <strong>4. DA REGULARIDADE:</strong>
+                    O proprietário declara ser legítimo possuidor do veículo e afirma
+                    que as informações fornecidas são verdadeiras, responsabilizando-se
+                    por débitos, restrições, impedimentos ou irregularidades anteriores
+                    à venda.
+                </p>
+
+                <p>
+                    <strong>5. DA CONSERVAÇÃO:</strong>
+                    A concessionária compromete-se a manter o veículo sob seus cuidados
+                    durante o período da consignação, permitindo sua apresentação a
+                    possíveis compradores.
+                </p>
+
+                <p>
+                    <strong>6. DO REPASSE:</strong>
+                    Concluída a venda e confirmado o recebimento do pagamento, a
+                    concessionária realizará o repasse do valor acordado ao proprietário.
+                </p>
+
+                <p>
+                    <strong>7. DO ENCERRAMENTO:</strong>
+                    A consignação poderá ser encerrada mediante acordo entre as partes,
+                    desde que o veículo ainda não tenha sido vendido ou exista negociação
+                    em andamento.
+                </p>
+
+            </section>
+
+            <section class="declaracao">
+
+                <p>
+                    As partes declaram que leram e concordam com as condições deste
+                    contrato, assinando-o para registro da entrega do veículo em
+                    consignação.
+                </p>
+
+            </section>
+
+            <section class="assinaturas">
+
+                <div class="assinatura">
+                    <div class="linha-assinatura"></div>
+
+                    <p th:text="${veiculo.nomeProprietario}"></p>
+                    <p>Proprietário</p>
+                </div>
+
+                <div class="assinatura">
+                    <div class="linha-assinatura"></div>
+
+                    <p th:text="${configuracao.nomeEmpresa}"></p>
+                    <p>Concessionária</p>
+                </div>
+
+            </section>
+
+            <div class="acoes-documento">
+
+                <button type="button" onclick="window.print()">
+                    Imprimir contrato
+                </button>
+            </div>
+
+        </div>
+
+    </body>
+</html>

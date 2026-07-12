@@ -5,6 +5,8 @@ import br.com.urias.cadastro_veiculos.model.Usuario;
 import br.com.urias.cadastro_veiculos.model.Venda;
 import br.com.urias.cadastro_veiculos.repository.ConfiguracaoConcessionariaRepository;
 import br.com.urias.cadastro_veiculos.repository.VendaRepository;
+import br.com.urias.cadastro_veiculos.model.Veiculo;
+import br.com.urias.cadastro_veiculos.repository.VeiculoRepository;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,13 +17,16 @@ import org.springframework.web.bind.annotation.PathVariable;
 public class DocumentoController {
 
     private final VendaRepository vendaRepository;
+    private final VeiculoRepository veiculoRepository;
     private final ConfiguracaoConcessionariaRepository configuracaoRepository;
 
     public DocumentoController(
             VendaRepository vendaRepository,
+            VeiculoRepository veiculoRepository,
             ConfiguracaoConcessionariaRepository configuracaoRepository) {
 
         this.vendaRepository = vendaRepository;
+        this.veiculoRepository = veiculoRepository;
         this.configuracaoRepository = configuracaoRepository;
     }
 
@@ -31,8 +36,8 @@ public class DocumentoController {
             HttpSession session,
             Model model) {
 
-        Usuario usuarioLogado =
-                (Usuario) session.getAttribute("usuarioLogado");
+        Usuario usuarioLogado
+                = (Usuario) session.getAttribute("usuarioLogado");
 
         if (usuarioLogado == null) {
             return "redirect:/login";
@@ -59,8 +64,8 @@ public class DocumentoController {
             }
         }
 
-        ConfiguracaoConcessionaria configuracao =
-                configuracaoRepository.findById(1L).orElse(null);
+        ConfiguracaoConcessionaria configuracao
+                = configuracaoRepository.findById(1L).orElse(null);
 
         model.addAttribute("venda", venda);
         model.addAttribute("cliente", venda.getCliente());
@@ -70,5 +75,33 @@ public class DocumentoController {
         model.addAttribute("configuracao", configuracao);
 
         return "documentos/comprovante-venda";
+    }
+
+    @GetMapping("/documentos/contrato-consignacao/{id}")
+    public String contratoConsignacao(
+            @PathVariable Long id,
+            HttpSession session,
+            Model model) {
+
+        Usuario usuarioLogado
+                = (Usuario) session.getAttribute("usuarioLogado");
+
+        if (usuarioLogado == null) {
+            return "redirect:/login";
+        }
+
+        Veiculo veiculo = veiculoRepository.findById(id).orElse(null);
+
+        if (veiculo == null) {
+            return "redirect:/veiculos";
+        }
+
+        ConfiguracaoConcessionaria configuracao
+                = configuracaoRepository.findById(1L).orElse(null);
+
+        model.addAttribute("veiculo", veiculo);
+        model.addAttribute("configuracao", configuracao);
+
+        return "documentos/contrato-consignacao";
     }
 }

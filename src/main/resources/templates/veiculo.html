@@ -93,9 +93,17 @@
 
                     <h2>🚗 Novo Veículo</h2>
 
-                    <form action="/veiculos/salvar" method="post" class="card-form">
+                    <form action="/veiculos/salvar"
+                          method="post"
+                          class="card-form"
+                          onsubmit="prepararGuiaContrato()">
 
                         <h3>🚗 Dados do Veículo</h3>
+                        
+                        <input type="hidden"
+                               id="id"
+                               name="id"
+                               th:value="${veiculo.id}">
 
                         <div class="form-grid">
                             <div class="campo">
@@ -195,6 +203,11 @@
                             </div>
 
                         </div>
+                        <a th:href="@{/documentos/contrato-consignacao/{id}(id=${v.id})}"
+                           class="btn-imprimir"
+                           target="_blank">
+                            📑 Contrato de Consignação
+                        </a>
 
                     </div>
                 </div>
@@ -308,69 +321,69 @@
 
         <script>
             function abrirModal(id) {
-                const modal = document.getElementById(id);
+            const modal = document.getElementById(id);
 
-                if (modal) {
-                    modal.style.display = "block";
-                }
+            if (modal) {
+            modal.style.display = "block";
+            }
             }
 
             function fecharModal(id) {
-                const modal = document.getElementById(id);
+            const modal = document.getElementById(id);
 
-                if (modal) {
-                    modal.style.display = "none";
-                }
+            if (modal) {
+            modal.style.display = "none";
+            }
             }
 
             document.querySelectorAll('input[name="cpfProprietario"]').forEach(function (cpf) {
 
-                cpf.addEventListener("input", function () {
-                    let v = cpf.value.replace(/\D/g, "");
+            cpf.addEventListener("input", function () {
+            let v = cpf.value.replace(/\D/g, "");
 
-                    v = v.replace(/(\d{3})(\d)/, "$1.$2");
-                    v = v.replace(/(\d{3})(\d)/, "$1.$2");
-                    v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+            v = v.replace(/(\d{3})(\d)/, "$1.$2");
+            v = v.replace(/(\d{3})(\d)/, "$1.$2");
+            v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
 
-                    cpf.value = v;
-                });
+            cpf.value = v;
+            });
 
             });
 
             document.querySelectorAll('input[name="telefoneProprietario"]').forEach(function (telefone) {
 
-                telefone.addEventListener("input", function () {
-                    let v = telefone.value.replace(/\D/g, "");
+            telefone.addEventListener("input", function () {
+            let v = telefone.value.replace(/\D/g, "");
 
-                    v = v.replace(/^(\d{2})(\d)/, "($1) $2");
-                    v = v.replace(/(\d{5})(\d{4})$/, "$1-$2");
+            v = v.replace(/^(\d{2})(\d)/, "($1) $2");
+            v = v.replace(/(\d{5})(\d{4})$/, "$1-$2");
 
-                    telefone.value = v;
-                });
+            telefone.value = v;
+            });
 
             });
 
             window.onclick = function (event) {
-                if (event.target.classList.contains("modal")) {
-                    event.target.style.display = "none";
-                }
+            if (event.target.classList.contains("modal")) {
+            event.target.style.display = "none";
+            }
             }
 
             document.addEventListener("keydown", function (event) {
-                if (event.key === "Escape") {
-                    document.querySelectorAll(".modal").forEach(function (modal) {
-                        modal.style.display = "none";
-                    });
-                }
+            if (event.key === "Escape") {
+            document.querySelectorAll(".modal").forEach(function (modal) {
+            modal.style.display = "none";
+            });
+            }
             });
 
             document.querySelectorAll('input[name="placa"]').forEach(function (campoPlaca) {
-                campoPlaca.addEventListener("input", function () {
-                    campoPlaca.value = campoPlaca.value
-                            .toUpperCase()
-                            .replace(/[^A-Z0-9]/g, "")
-                            .slice(0, 7);
-                });
+            campoPlaca.addEventListener("input", function () {
+            campoPlaca.value = campoPlaca.value
+            .toUpperCase()
+            .replace(/[^A-Z0-9]/g, "")
+            .slice(0, 7);
+            });
             });
 
             const campoBuscaVeiculos = document.getElementById("campoBuscaVeiculos");
@@ -379,19 +392,55 @@
             let tempoVeiculos;
 
             campoBuscaVeiculos.addEventListener("input", function () {
-                clearTimeout(tempoVeiculos);
+            clearTimeout(tempoVeiculos);
 
-                tempoVeiculos = setTimeout(function () {
-                    formBuscaVeiculos.submit();
-                }, 500);
+            tempoVeiculos = setTimeout(function () {
+            formBuscaVeiculos.submit();
+            }, 500);
             });
 
             function abrirModalExclusao(url) {
-                const botao = document.getElementById("btn-confirmar-exclusao");
-                botao.href = url;
+            const botao = document.getElementById("btn-confirmar-exclusao");
+            botao.href = url;
 
-                abrirModal("modal-exclusao");
+            abrirModal("modal-exclusao");
             }
+
+            function prepararGuiaContrato() {
+
+            const id = document.getElementById("id").value;
+
+            if (id === "") {
+            window.open(
+            "about:blank",
+            "contratoConsignacao"
+            );
+            }
+            }
+
+            document.addEventListener("DOMContentLoaded", function () {
+
+            const parametros = new URLSearchParams(window.location.search);
+            const contratoId = parametros.get("contrato");
+
+            if (contratoId) {
+
+            window.open(
+            "/documentos/contrato-consignacao/" + contratoId,
+            "contratoConsignacao"
+            );
+
+            parametros.delete("contrato");
+
+            const novaUrl =
+            window.location.pathname +
+            (parametros.toString()
+            ? "?" + parametros.toString()
+            : "");
+
+            window.history.replaceState({}, "", novaUrl);
+            }
+            });
         </script>
 
     </body>
