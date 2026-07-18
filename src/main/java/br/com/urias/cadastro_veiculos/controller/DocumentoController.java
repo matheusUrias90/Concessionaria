@@ -1,13 +1,18 @@
 package br.com.urias.cadastro_veiculos.controller;
 
 import br.com.urias.cadastro_veiculos.model.ConfiguracaoConcessionaria;
+import br.com.urias.cadastro_veiculos.model.PagamentoRepasse;
+import br.com.urias.cadastro_veiculos.model.Repasse;
 import br.com.urias.cadastro_veiculos.model.Usuario;
+import br.com.urias.cadastro_veiculos.model.Veiculo;
 import br.com.urias.cadastro_veiculos.model.Venda;
 import br.com.urias.cadastro_veiculos.repository.ConfiguracaoConcessionariaRepository;
-import br.com.urias.cadastro_veiculos.repository.VendaRepository;
-import br.com.urias.cadastro_veiculos.model.Veiculo;
+import br.com.urias.cadastro_veiculos.repository.PagamentoRepasseRepository;
+import br.com.urias.cadastro_veiculos.repository.RepasseRepository;
 import br.com.urias.cadastro_veiculos.repository.VeiculoRepository;
+import br.com.urias.cadastro_veiculos.repository.VendaRepository;
 import jakarta.servlet.http.HttpSession;
+import java.util.List;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,15 +24,21 @@ public class DocumentoController {
     private final VendaRepository vendaRepository;
     private final VeiculoRepository veiculoRepository;
     private final ConfiguracaoConcessionariaRepository configuracaoRepository;
+    private final RepasseRepository repasseRepository;
+    private final PagamentoRepasseRepository pagamentoRepasseRepository;
 
     public DocumentoController(
             VendaRepository vendaRepository,
             VeiculoRepository veiculoRepository,
-            ConfiguracaoConcessionariaRepository configuracaoRepository) {
+            ConfiguracaoConcessionariaRepository configuracaoRepository,
+            RepasseRepository repasseRepository,
+            PagamentoRepasseRepository pagamentoRepasseRepository) {
 
         this.vendaRepository = vendaRepository;
         this.veiculoRepository = veiculoRepository;
         this.configuracaoRepository = configuracaoRepository;
+        this.repasseRepository = repasseRepository;
+        this.pagamentoRepasseRepository = pagamentoRepasseRepository;
     }
 
     @GetMapping("/documentos/comprovante-venda/{id}")
@@ -103,5 +114,56 @@ public class DocumentoController {
         model.addAttribute("configuracao", configuracao);
 
         return "documentos/contrato-consignacao";
+    }
+
+    @GetMapping("/repasses/{id}/recibo")
+    public String emitirRecibo(
+            @PathVariable Long id,
+            HttpSession session,
+            Model model) {
+
+        Usuario usuarioLogado
+                = (Usuario) session.getAttribute("usuarioLogado");
+
+        if (usuarioLogado == null) {
+            return "redirect:/";
+        }
+
+        if ("VENDEDOR".equals(usuarioLogado.getPerfil())) {
+            return "redirect:/dashboard-vendedor";
+        }
+
+        Repasse repasse
+                = repasseRepository.findById(id).orElse(null);
+
+        if (repasse == null) {
+            return "redirect:/repasses";
+        }
+
+        if (!"PAGO".equals(repasse.getStatus())) {
+            return "redirect:/repasses/" + id;
+        }
+
+        List<PagamentoRepasse> pagamentos
+                = pagamentoRepasseRepository
+                        .findByRepasseIdOrderByDataPagamentoDesc(id);
+
+        if (pagamentos.isEmpty()) {
+            return "redirect:/repasses/" + id;
+        }
+
+        PagamentoRepasse ultimoPagamento = pagamentos.get(0);
+
+        ConfiguracaoConcessionaria configuracao
+                = configuracaoRepository.findById(1L).orElse(null);
+
+        model.addAttribute("repasse", repasse);
+        model.addAttribute("configuracao", configuracao);
+        model.addAttribute(
+                "dataQuitacao",
+                ultimoPagamento.getDataPagamento()
+        );
+
+        return "documentos/recibo-quitacao";
     }
 }

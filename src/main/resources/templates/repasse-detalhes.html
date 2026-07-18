@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <title>Detalhes do Repasse</title>
+
+        <link rel="stylesheet" th:href="@{/css/style.css}">
+    </head>
+
+    <body>
+
+        <div th:replace="~{fragments/menu :: menu}"></div>
+
+        <div class="container">
+
+            <h1>💸 Detalhes do Repasse</h1>
+
+            <!-- RESUMO DO REPASSE -->
+            <h2>📋 Dados do Repasse</h2>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Proprietário</th>
+                        <th>Veículo</th>
+                        <th>Placa</th>
+                        <th>Venda</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr>
+                        <td th:text="${repasse.venda.veiculo.nomeProprietario}"></td>
+
+                        <td th:text="${repasse.venda.veiculo.nome
+                            + ' (' + repasse.venda.veiculo.ano + ')'}">
+                        </td>
+
+                        <td th:text="${repasse.venda.veiculo.placa}"></td>
+
+                        <td th:text="${'#' + repasse.venda.id}"></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>💰 Resumo Financeiro</h2>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Valor devido</th>
+                        <th>Total pago</th>
+                        <th>Saldo</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr>
+                        <td>
+                            R$
+                            <span th:text="${#numbers.formatDecimal(
+                                repasse.valorDevido,
+                                1,
+                                'POINT',
+                                2,
+                                'COMMA'
+                            )}">
+                            </span>
+                        </td>
+
+                        <td>
+                            R$
+                            <span th:text="${#numbers.formatDecimal(
+                                repasse.totalPago,
+                                1,
+                                'POINT',
+                                2,
+                                'COMMA'
+                            )}">
+                            </span>
+                        </td>
+
+                        <td th:class="${repasse.saldo > 0}
+                            ? 'saldo-pendente'
+                            : 'saldo-quitado'">
+
+                            R$
+                            <span th:text="${#numbers.formatDecimal(
+                                  repasse.saldo,
+                                  1,
+                                  'POINT',
+                                  2,
+                                  'COMMA')}">
+                            </span>
+
+                        </td>
+
+                        <td th:class="${repasse.status == 'PAGO'}
+                            ? 'status-pago'
+                            : (repasse.status == 'PARCIAL'
+                            ? 'status-parcial'
+                            : 'status-pendente')">
+
+                            <span th:text="${repasse.status}"></span>
+
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- FORMULÁRIO DE PAGAMENTO -->
+            <section th:if="${repasse.saldo > 0}">
+
+                <h2>💳 Registrar Pagamento</h2>
+
+                <form th:action="@{/repasses/pagar}"
+                      method="post"
+                      class="card-form">
+
+                    <input type="hidden"
+                           name="repasseId"
+                           th:value="${repasse.id}">
+
+                    <div class="form-grid">
+
+                        <div class="campo">
+                            <label>Data do pagamento</label>
+
+                            <input type="date"
+                                   name="dataPagamento"
+                                   required>
+                        </div>
+
+                        <div class="campo">
+                            <label>Forma de pagamento</label>
+
+                            <select name="formaPagamento" required>
+                                <option value="">Selecione...</option>
+                                <option value="PIX">PIX</option>
+                                <option value="DINHEIRO">Dinheiro</option>
+                                <option value="TRANSFERENCIA">
+                                    Transferência bancária
+                                </option>
+                                <option value="TED">TED</option>
+                                <option value="DOC">DOC</option>
+                            </select>
+                        </div>
+
+                        <div class="campo">
+                            <label>Valor</label>
+
+                            <input type="number"
+                                   name="valor"
+                                   step="0.01"
+                                   min="0.01"
+                                   th:max="${repasse.saldo}"
+                                   th:placeholder="'Saldo máximo: R$ '
+                                   + ${#numbers.formatDecimal(
+                                       repasse.saldo,
+                                       1,
+                                       'POINT',
+                                       2,
+                                       'COMMA'
+                                   )}"
+                                   required>
+                        </div>
+
+                        <div class="campo">
+                            <label>Observação</label>
+
+                            <input type="text"
+                                   name="observacao"
+                                   maxlength="500"
+                                   placeholder="Opcional">
+                        </div>
+
+                    </div>
+
+                    <button type="submit" class="btn-salvar">
+                        💾 Registrar pagamento
+                    </button>
+
+                </form>
+
+            </section>
+
+            <!-- REPASSE QUITADO -->
+            <div th:if="${repasse.saldo <= 0}"
+                 class="mensagem-sucesso">
+
+                ✅ Repasse totalmente quitado.
+            </div>
+            
+            <a th:if="${repasse.status == 'PAGO'}"
+               th:href="@{/repasses/{id}/recibo(id=${repasse.id})}"
+               target="_blank"
+               class="btn btn-imprimir">
+                🧾 Emitir Recibo de Quitação
+            </a>
+
+            <!-- HISTÓRICO -->
+            <h2>📜 Histórico de Pagamentos</h2>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Forma de pagamento</th>
+                        <th>Valor</th>
+                        <th>Observação</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <tr th:each="p : ${pagamentos}">
+
+                        <td th:text="${#temporals.format(
+                            p.dataPagamento,
+                            'dd/MM/yyyy'
+                        )}">
+                        </td>
+
+                        <td th:text="${p.formaPagamento}"></td>
+
+                        <td>
+                            R$
+                            <span th:text="${#numbers.formatDecimal(
+                                p.valor,
+                                1,
+                                'POINT',
+                                2,
+                                'COMMA'
+                            )}">
+                            </span>
+                        </td>
+
+                        <td th:text="${p.observacao != null
+                            and !#strings.isEmpty(p.observacao)
+                            ? p.observacao
+                            : '-'}">
+                        </td>
+
+                    </tr>
+
+                    <tr th:if="${#lists.isEmpty(pagamentos)}">
+                        <td colspan="4">
+                            Nenhum pagamento registrado.
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+
+            <div class="acoes-pagina">
+
+                <a th:href="@{/repasses}"
+                   class="btn-voltar">
+                    Voltar
+                </a>
+
+            </div>
+
+        </div>
+
+    </body>
+</html>

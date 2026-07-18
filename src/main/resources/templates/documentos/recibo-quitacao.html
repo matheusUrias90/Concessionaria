@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <title>Recibo de Quitação</title>
+
+        <link rel="stylesheet" th:href="@{/css/style.css}">
+        <link rel="stylesheet" th:href="@{/css/impressao.css}">
+    </head>
+
+    <body>
+
+        <div class="documento recibo-quitacao">
+
+            <header class="cabecalho-documento">
+
+                <h1>RECIBO DE QUITAÇÃO DE REPASSE</h1>
+
+                <p>
+                    Referente à Venda nº
+                    <strong th:text="${repasse.venda.id}"></strong>
+                </p>
+
+            </header>
+
+            <section class="secao-documento">
+
+                <h2>Dados da Empresa</h2>
+
+                <div class="grade-dados">
+
+                    <div class="campo">
+                        <strong>Nome da empresa:</strong>
+                        <span th:text="${configuracao.nomeEmpresa}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>CNPJ:</strong>
+                        <span th:text="${configuracao.cnpj}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Telefone:</strong>
+                        <span th:text="${configuracao.telefone}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Endereço:</strong>
+                        <span th:text="${configuracao.endereco}"></span>
+                    </div>
+
+                </div>
+
+            </section>
+
+            <section class="secao-documento">
+
+                <h2>Dados do Proprietário</h2>
+
+                <div class="grade-dados">
+
+                    <div class="campo">
+                        <strong>Nome:</strong>
+                        <span th:text="${repasse.venda.veiculo.nomeProprietario}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>CPF:</strong>
+                        <span th:text="${repasse.venda.veiculo.cpfProprietario}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Telefone:</strong>
+                        <span th:text="${repasse.venda.veiculo.telefoneProprietario}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>E-mail:</strong>
+                        <span th:text="${repasse.venda.veiculo.emailProprietario}"></span>
+                    </div>
+
+                </div>
+
+            </section>
+
+            <section class="secao-documento">
+
+                <h2>Dados do Veículo</h2>
+
+                <div class="grade-dados">
+
+                    <div class="campo">
+                        <strong>Veículo:</strong>
+                        <span th:text="${repasse.venda.veiculo.nome}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Marca:</strong>
+                        <span th:text="${repasse.venda.veiculo.marca}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Ano:</strong>
+                        <span th:text="${repasse.venda.veiculo.ano}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Cor:</strong>
+                        <span th:text="${repasse.venda.veiculo.cor}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Placa:</strong>
+                        <span th:text="${repasse.venda.veiculo.placa}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Valor anunciado:</strong>
+                        <span th:text="${#numbers.formatCurrency(repasse.venda.veiculo.preco)}"></span>
+                    </div>
+
+                </div>
+
+            </section>
+
+            <section class="secao-documento">
+
+                <h2>Dados do Repasse</h2>
+
+                <div class="grade-dados">
+
+                    <div class="campo">
+                        <strong>Número da venda:</strong>
+                        <span th:text="${repasse.venda.id}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Data da venda:</strong>
+                        <span th:text="${#temporals.format(
+                              repasse.venda.dataVenda,
+                              'dd/MM/yyyy'
+                        )}">
+                        </span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Valor devido:</strong>
+                        <span th:text="${#numbers.formatCurrency(
+                              repasse.valorDevido
+                        )}">
+                        </span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Total pago:</strong>
+                        <span th:text="${#numbers.formatCurrency(
+                              repasse.totalPago
+                        )}">
+                        </span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Saldo:</strong>
+                        <span th:text="${#numbers.formatCurrency(
+                              repasse.saldo
+                        )}">
+                        </span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Data da quitação:</strong>
+                        <span th:text="${#temporals.format(
+                              dataQuitacao,
+                              'dd/MM/yyyy'
+                        )}">
+                        </span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Status:</strong>
+                        <span th:text="${repasse.status}"></span>
+                    </div>
+
+                </div>
+
+            </section>
+
+            <section class="declaracao">
+
+                <p>
+                    Declaro, para os devidos fins, que recebi integralmente da
+                    empresa
+                    <strong th:text="${configuracao.nomeEmpresa}"></strong>
+                    o valor correspondente ao repasse da venda do veículo
+                    <strong th:text="${repasse.venda.veiculo.nome}"></strong>,
+                    placa
+                    <strong th:text="${repasse.venda.veiculo.placa}"></strong>,
+                    dando plena, geral e irrevogável quitação, não havendo
+                    qualquer valor pendente entre as partes referente a esta
+                    negociação.
+                </p>
+
+            </section>
+
+            <section class="assinaturas">
+
+                <div class="assinatura">
+
+                    <div class="linha-assinatura"></div>
+
+                    <p th:text="${repasse.venda.veiculo.nomeProprietario}"></p>
+
+                    <small>Proprietário</small>
+
+                </div>
+
+                <div class="assinatura">
+
+                    <div class="linha-assinatura"></div>
+
+                    <p th:text="${configuracao.nomeEmpresa}"></p>
+
+                    <small>Concessionária</small>
+
+                </div>
+
+            </section>
+
+            <div class="acoes-documento">
+
+                <button type="button"
+                        onclick="window.print()">
+
+                    Imprimir recibo
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </body>
+</html>

@@ -14,7 +14,23 @@
                    href="/usuarios">
                     Usuários
                 </a>
+                
+                <div th:if="${session.usuarioLogado != null
+                     and (session.usuarioLogado.perfil == 'DONO'
+                     or session.usuarioLogado.perfil == 'GERENTE')}"
+                     class="menu-dropdown">
 
+                    <button type="button" class="menu-dropdown-botao">
+                        Financeiro
+                    </button>
+
+                    <div class="menu-dropdown-conteudo">
+                        <a th:href="@{/repasses}">
+                            💸 Repasses ao Proprietário
+                        </a>
+                    </div>
+                </div>
+                
                 <a class="menu-link"
                    th:if="${session.usuarioLogado.perfil == 'DONO' or session.usuarioLogado.perfil == 'GERENTE'}"
                    href="/admin">

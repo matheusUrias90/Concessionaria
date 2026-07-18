@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <title>Repasses ao Proprietário</title>
+
+        <link rel="stylesheet" th:href="@{/css/style.css}">
+    </head>
+
+    <body>
+
+        <div th:replace="~{fragments/menu :: menu}"></div>
+
+        <div class="container">
+
+            <h1>💸 Repasses ao Proprietário</h1>
+
+
+            <!-- =========================================
+                 VENDAS AGUARDANDO INÍCIO DO REPASSE
+            ========================================== -->
+
+            <h2>⏳ Vendas aguardando repasse</h2>
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>Venda</th>
+                        <th>Proprietário</th>
+                        <th>Veículo</th>
+                        <th>Valor devido</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <tr th:each="v : ${vendasAguardandoRepasse}">
+
+                        <td th:text="${'#' + v.id}"></td>
+
+                        <td th:text="${v.veiculo.nomeProprietario}"></td>
+
+                        <td th:text="${v.veiculo.nome + ' - ' + v.veiculo.placa}"></td>
+
+                        <td>
+                            R$
+                            <span th:text="${#numbers.formatDecimal(
+                                  v.veiculo.preco,
+                                  1,
+                                  'POINT',
+                                  2,
+                                  'COMMA')}">
+                            </span>
+                        </td>
+
+                        <td>
+                            <a th:href="@{/repasses/iniciar/{id}(id=${v.id})}"
+                               class="btn-detalhes">
+                                Iniciar repasse
+                            </a>
+                        </td>
+
+                    </tr>
+
+                    <tr th:if="${#lists.isEmpty(vendasAguardandoRepasse)}">
+                        <td colspan="5">
+                            Nenhuma venda aguardando repasse.
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+
+            <!-- =========================================
+                 REPASSES EM ANDAMENTO
+            ========================================== -->
+
+            <h2>🔴 Repasses em andamento</h2>
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>Proprietário</th>
+                        <th>Veículo</th>
+                        <th>Valor devido</th>
+                        <th>Pago</th>
+                        <th>Saldo</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <th:block th:each="r : ${repasses}">
+
+                        <tr th:if="${r.status != 'PAGO'}">
+
+                            <td th:text="${r.venda.veiculo.nomeProprietario}"></td>
+
+                            <td th:text="${r.venda.veiculo.nome
+                                  + ' - '
+                                  + r.venda.veiculo.placa}">
+                            </td>
+
+                            <td>
+                                R$
+                                <span th:text="${#numbers.formatDecimal(
+                                      r.valorDevido,
+                                      1,
+                                      'POINT',
+                                      2,
+                                      'COMMA')}">
+                                </span>
+                            </td>
+
+                            <td>
+                                R$
+                                <span th:text="${#numbers.formatDecimal(
+                                      r.totalPago,
+                                      1,
+                                      'POINT',
+                                      2,
+                                      'COMMA')}">
+                                </span>
+                            </td>
+
+                            <td>
+                                R$
+                                <span th:text="${#numbers.formatDecimal(
+                                      r.saldo,
+                                      1,
+                                      'POINT',
+                                      2,
+                                      'COMMA')}">
+                                </span>
+                            </td>
+
+                            <td th:text="${r.status}"></td>
+
+                            <td>
+                                <a th:href="@{/repasses/{id}(id=${r.id})}"
+                                   class="btn-detalhes">
+                                    Gerenciar
+                                </a>
+                            </td>
+
+                        </tr>
+
+                    </th:block>
+
+                    <tr th:if="${#lists.isEmpty(
+                        repasses.?[status != 'PAGO']
+                    )}">
+                        <td colspan="7">
+                            Nenhum repasse em andamento.
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+
+            <!-- =========================================
+                 REPASSES FINALIZADOS
+            ========================================== -->
+
+            <h2>🟢 Repasses finalizados</h2>
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>Proprietário</th>
+                        <th>Veículo</th>
+                        <th>Valor devido</th>
+                        <th>Total pago</th>
+                        <th>Saldo</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <th:block th:each="r : ${repasses}">
+
+                        <tr th:if="${r.status == 'PAGO'}">
+
+                            <td th:text="${r.venda.veiculo.nomeProprietario}"></td>
+
+                            <td th:text="${r.venda.veiculo.nome
+                                  + ' - '
+                                  + r.venda.veiculo.placa}">
+                            </td>
+
+                            <td>
+                                R$
+                                <span th:text="${#numbers.formatDecimal(
+                                      r.valorDevido,
+                                      1,
+                                      'POINT',
+                                      2,
+                                      'COMMA')}">
+                                </span>
+                            </td>
+
+                            <td>
+                                R$
+                                <span th:text="${#numbers.formatDecimal(
+                                      r.totalPago,
+                                      1,
+                                      'POINT',
+                                      2,
+                                      'COMMA')}">
+                                </span>
+                            </td>
+
+                            <td>
+                                R$
+                                <span th:text="${#numbers.formatDecimal(
+                                      r.saldo,
+                                      1,
+                                      'POINT',
+                                      2,
+                                      'COMMA')}">
+                                </span>
+                            </td>
+
+                            <td th:text="${r.status}"></td>
+
+                            <td>
+                                <a th:href="@{/repasses/{id}(id=${r.id})}"
+                                   class="btn-detalhes">
+                                    Detalhes
+                                </a>
+                            </td>
+
+                        </tr>
+
+                    </th:block>
+
+                    <tr th:if="${#lists.isEmpty(
+                        repasses.?[status == 'PAGO']
+                    )}">
+                        <td colspan="7">
+                            Nenhum repasse finalizado.
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </body>
+</html>
