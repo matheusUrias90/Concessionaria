@@ -1,13 +1,9 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-    <head>
-        <meta charset="UTF-8">
-        <title>Detalhes do Repasse</title>
+    
+    <head th:replace="~{fragments/head :: head('Detalhes do Repasse')}"></head>
 
-        <link rel="stylesheet" th:href="@{/css/style.css}">
-    </head>
-
-    <body>
+    <body class="pagina-com-menu">
 
         <div th:replace="~{fragments/menu :: menu}"></div>
 

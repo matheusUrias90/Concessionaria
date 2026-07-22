@@ -35,6 +35,8 @@ public class ConfiguracaoController {
                         .orElse(new ConfiguracaoConcessionaria());
 
         model.addAttribute("configuracao", configuracao);
+        
+        model.addAttribute("paginaAtiva", "configuracao");
 
         return "configuracao";
     }

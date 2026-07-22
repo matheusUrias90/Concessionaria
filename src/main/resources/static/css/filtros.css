@@ -1,0 +1,35 @@
+.form-busca {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 10px;
+    margin-bottom: 20px;
+    align-items: center;
+}
+
+.form-busca input {
+    width: 100%;
+    height: 42px;
+    padding: 8px 12px;
+    margin: 0;
+    max-width: none;
+    box-sizing: border-box;
+}
+
+.form-busca button,
+.form-busca a {
+    height: 42px;
+    padding: 0 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+}
+
+.btn-limpar {
+    border: 2px solid #0066ff;
+    color: #0066ff;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: bold;
+}
+

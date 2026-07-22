@@ -1,0 +1,22 @@
+
+@media (max-width: 768px) {
+
+    .container {
+        margin: 15px;
+        padding: 20px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    nav a {
+        display: block;
+        margin: 10px 0;
+    }
+
+    .acoes a {
+        display: block;
+        margin-bottom: 5px;
+    }
+}

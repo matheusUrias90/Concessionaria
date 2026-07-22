@@ -63,6 +63,8 @@ public class PaginaClienteController {
         model.addAttribute("busca", busca);
         
         model.addAttribute("vendaRepository", vendaRepository);
+        
+        model.addAttribute("paginaAtiva", "compradores");
 
         return "cliente";
     }

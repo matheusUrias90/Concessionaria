@@ -1,0 +1,85 @@
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+
+    top: 0;
+    left: 260px;
+
+    width: calc(100% - 260px);
+    height: 100%;
+
+    background: rgba(0, 0, 0, 0.6);
+
+    box-sizing: border-box;
+}
+
+.modal-conteudo {
+    background: white;
+    width: calc(100% - 60px);
+    max-width: 1000px;
+
+    margin: 3% auto;
+    padding: 25px;
+
+    border-radius: 12px;
+    box-sizing: border-box;
+
+    max-height: 85vh;
+    overflow-y: auto;
+}
+
+.modal-grande h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.fechar {
+    float: right;
+    font-size: 30px;
+    cursor: pointer;
+    color: red;
+    font-weight: bold;
+}
+
+.detalhes-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.card-detalhe {
+    background: #f8f9fa;
+    padding: 15px;
+    border-left: 5px solid #c8a24d;
+    border-radius: 8px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.card-detalhe h3 {
+    margin-top: 0;
+    color: #c0392b;
+}
+
+.menu-lateral.modal-aberta{
+
+    pointer-events:none;
+
+    opacity:.6;
+
+    transition:.2s;
+}
+
+/* ==========================
+   MODAL DE EXCLUSÃO
+========================== */
+.modal-confirmacao {
+    max-width: 450px;
+    text-align: center;
+}
+
+.modal-confirmacao p {
+    font-size: 18px;
+    margin: 20px 0;
+}

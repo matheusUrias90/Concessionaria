@@ -127,6 +127,8 @@ public class RepasseController {
          * a lista completa de repasses.
          */
         model.addAttribute("repasses", repasses);
+        
+         model.addAttribute("paginaAtiva", "repasses");
 
         return "repasses";
     }

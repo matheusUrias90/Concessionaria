@@ -1,0 +1,54 @@
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.card-dashboard {
+    background: white;
+    border-left: 5px solid #c8a24d;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    text-align: center;
+
+    transition: all 0.3s ease;
+}
+
+.card-dashboard:hover {
+    transform: translateY(-5px);
+
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+
+    cursor: pointer;
+}
+
+.card-dashboard h3 {
+    margin-bottom: 10px;
+    color: #c0392b;
+}
+
+.card-dashboard p {
+    font-size: 32px;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.dashboard-grid-financeiro {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.link-botao {
+    display: block;
+    text-align: center;
+    text-decoration: none;
+}
+
+.acoes-admin {
+    margin-bottom: 20px;
+}
+

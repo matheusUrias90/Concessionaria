@@ -1,11 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Configuração da Concessionária</title>
-    <link rel="stylesheet" href="/css/style.css">
-</head>
-<body>
+<head th:replace="~{fragments/head :: head('>Configuração da Concessionária')}"></head>
+
+<body class="pagina-com-menu">
 
     <div th:replace="~{fragments/menu :: menu}"></div>
 

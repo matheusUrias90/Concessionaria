@@ -62,6 +62,8 @@ public class AdminController {
         model.addAttribute("faturamento", faturamento);
         model.addAttribute("ticketMedio", ticketMedio);
         model.addAttribute("valorEstoque", veiculoRepository.somarEstoqueDisponivel());
+        
+        model.addAttribute("paginaAtiva", "admin");
 
         return "admin";
     }

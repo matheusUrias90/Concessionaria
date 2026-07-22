@@ -47,6 +47,8 @@ public class PaginaVeiculoController {
         model.addAttribute("totalPaginas", veiculosPage.getTotalPages());
         model.addAttribute("busca", busca);
         
+        model.addAttribute("paginaAtiva", "veiculos");
+        
         // Objeto vazio usado no formulário de novo veículo
         model.addAttribute("veiculo", new Veiculo());
 

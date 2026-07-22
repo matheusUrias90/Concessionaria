@@ -44,6 +44,8 @@ public class PaginaVendaController {
         model.addAttribute("clientes", clienteRepository.findAll());
         model.addAttribute("veiculos", veiculoRepository.findByVendidoFalse());
         model.addAttribute("vendas", vendaRepository.findAll());
+        
+        model.addAttribute("paginaAtiva", "vendas");
 
         return "venda";
     }

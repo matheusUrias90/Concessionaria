@@ -1,76 +1,151 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Histórico do Usuário</title>
-    <link rel="stylesheet" href="/css/style.css">
-</head>
-<body>
 
-<div th:replace="~{fragments/menu :: menu}"></div>
+<head th:replace="~{fragments/head :: head('Histórico do Usuário')}"></head>
 
-<div class="container">
+<body class="pagina-com-menu">
 
-    <h1>📊 Histórico do Usuário</h1>
+    <div th:replace="~{fragments/menu :: menu}"></div>
 
-    <div class="detalhes-grid">
+    <div class="container">
 
-        <div class="card-detalhe">
-            <h3>👤 Usuário</h3>
-            <p><strong>Nome:</strong> <span th:text="${usuario.nome}"></span></p>
-            <p><strong>Perfil:</strong> <span th:text="${usuario.perfil}"></span></p>
+        <h1>📊 Histórico do Usuário</h1>
+
+        <div class="detalhes-grid">
+
+            <div class="card-detalhe">
+                <h3>👤 Usuário</h3>
+
+                <p>
+                    <strong>Nome:</strong>
+                    <span th:text="${usuario.nome}"></span>
+                </p>
+
+                <p>
+                    <strong>Perfil:</strong>
+                    <span th:text="${usuario.perfil}"></span>
+                </p>
+            </div>
+
+            <div class="card-detalhe">
+                <h3>💰 Resumo de Vendas</h3>
+
+                <p>
+                    <strong>Total de vendas:</strong>
+                    <span th:text="${totalVendas}"></span>
+                </p>
+
+                <p>
+                    <strong>Valor total vendido:</strong>
+
+                    R$
+                    <span th:text="${#numbers.formatDecimal(
+                          valorTotalVendido,
+                          1,
+                          'POINT',
+                          2,
+                          'COMMA'
+                    )}">
+                    </span>
+                </p>
+            </div>
+
         </div>
 
-        <div class="card-detalhe">
-            <h3>💰 Resumo de Vendas</h3>
-            <p><strong>Total de vendas:</strong> <span th:text="${totalVendas}"></span></p>
-            <p>
-                <strong>Valor total vendido:</strong>
-                R$ <span th:text="${#numbers.formatDecimal(valorTotalVendido, 1, 'POINT', 2, 'COMMA')}"></span>
-            </p>
+        <h2>📋 Vendas realizadas</h2>
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>Veículo</th>
+                    <th>Cliente</th>
+                    <th>Data</th>
+                    <th>Valor</th>
+                    <th>Pagamento</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                <tr th:each="v : ${vendas}">
+
+                    <td th:text="${v.veiculo.nome + ' - ' + v.veiculo.placa}">
+                    </td>
+
+                    <td th:text="${v.cliente.nome}">
+                    </td>
+
+                    <td th:text="${#temporals.format(
+                        v.dataVenda,
+                        'dd/MM/yyyy'
+                    )}">
+                    </td>
+
+                    <td>
+                        R$
+                        <span th:text="${#numbers.formatDecimal(
+                              v.valor,
+                              1,
+                              'POINT',
+                              2,
+                              'COMMA'
+                        )}">
+                        </span>
+                    </td>
+
+                    <td th:text="${v.pagamento != null
+                        ? v.pagamento.tipo
+                        : 'Não informado'}">
+                    </td>
+
+                </tr>
+
+                <tr th:if="${#lists.isEmpty(vendas)}">
+                    <td colspan="5">
+                        Nenhuma venda realizada por este usuário.
+                    </td>
+                </tr>
+
+            </tbody>
+
+        </table>
+
+        <!-- PAGINAÇÃO -->
+        <div class="paginacao" th:if="${totalPaginas > 1}">
+
+            <a th:if="${paginaAtual > 0}"
+               th:href="@{/usuarios/{id}/historico(
+                    id=${usuario.id},
+                    pagina=${paginaAtual - 1}
+               )}">
+                Anterior
+            </a>
+
+            <span>
+                Página
+                <span th:text="${paginaAtual + 1}"></span>
+                de
+                <span th:text="${totalPaginas}"></span>
+            </span>
+
+            <a th:if="${paginaAtual + 1 < totalPaginas}"
+               th:href="@{/usuarios/{id}/historico(
+                    id=${usuario.id},
+                    pagina=${paginaAtual + 1}
+               )}">
+                Próxima
+            </a>
+
         </div>
+
+        <br>
+
+        <a href="/usuarios" class="btn-voltar">
+            ⬅ Voltar
+        </a>
 
     </div>
-
-    <h2>📋 Vendas realizadas</h2>
-
-    <table>
-        <thead>
-            <tr>
-                <th>Veículo</th>
-                <th>Cliente</th>                
-                <th>Data</th>
-                <th>Valor</th>
-                <th>Pagamento</th>
-            </tr>
-        </thead>
-
-        <tbody>
-            <tr th:each="v : ${vendas}">
-                <td th:text="${v.veiculo.nome + ' - ' + v.veiculo.placa}"></td>
-               
-                <td th:text="${v.cliente.nome}"></td>
-
-                <td th:text="${#temporals.format(v.dataVenda, 'dd/MM/yyyy')}"></td>
-
-                <td>
-                    R$ <span th:text="${#numbers.formatDecimal(v.valor, 1, 'POINT', 2, 'COMMA')}"></span>
-                </td>
-
-                <td th:text="${v.pagamento != null ? v.pagamento.tipo : 'Não informado'}"></td>
-            </tr>
-
-            <tr th:if="${#lists.isEmpty(vendas)}">
-                <td colspan="5">Nenhuma venda realizada por este usuário.</td>
-            </tr>
-        </tbody>
-    </table>
-
-    <br>
-
-    <a href="/usuarios" class="btn-voltar">⬅ Voltar</a>
-
-</div>
 
 </body>
 </html>

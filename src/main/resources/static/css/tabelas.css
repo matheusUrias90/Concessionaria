@@ -1,0 +1,60 @@
+table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: center;
+    margin-top: 15px;
+}
+
+th {
+    background: #0a7a0a;
+    color: white;
+    padding: 12px;
+}
+
+td {
+    padding: 12px;
+    border: 1px solid #ddd;
+}
+
+tr:nth-child(even) {
+    background: #f9f9f9;
+}
+
+tr:hover {
+    background: #eef8ee;
+}
+
+.saldo-pendente{
+    color:#d62828;
+    font-weight:bold;
+}
+
+.saldo-quitado{
+    color:#198754;
+    font-weight:bold;
+}
+
+.status-pago{
+    color:#198754;
+    font-weight:bold;
+}
+
+.status-parcial{
+    color:#ff9800;
+    font-weight:bold;
+}
+
+.status-pendente{
+    color:#d62828;
+    font-weight:bold;
+}
+
+.saldo-pendente{
+    color:#d62828;
+    font-weight:bold;
+}
+
+.saldo-quitado{
+    color:#198754;
+    font-weight:bold;
+}

@@ -59,6 +59,8 @@ public class UsuarioController {
 
         model.addAttribute("usuarios", usuarios);
         model.addAttribute("busca", busca);
+        
+        model.addAttribute("paginaAtiva", "usuarios");
 
         return "usuarios";
     }

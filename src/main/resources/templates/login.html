@@ -1,40 +1,48 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Login - Concessionária</title>
-    <link rel="stylesheet" href="/css/style.css">
-</head>
+
+<head th:replace="~{fragments/head-login :: headLogin('Login')}"></head>
 
 <body>
 
-<div class="container login-container">
+    <div class="container login-container">
 
-    <h1>🔐 Login</h1>
+        <h1>🔐 Login</h1>
 
-    <form action="/login" method="post" class="card-form login-form">
+        <form action="/login" method="post" class="login-form">
 
-        <div th:if="${erro}" class="mensagem-erro">
-            <p th:text="${erro}"></p>
-        </div>
+            <div th:if="${erro}" class="mensagem-erro">
+                <p th:text="${erro}"></p>
+            </div>
 
-        <div class="campo">
-            <label>Usuário</label>
-            <input type="text" name="login" placeholder="Digite seu usuário">
-        </div>
+            <div class="campo">
+                <label for="login">Usuário</label>
+                <input
+                    type="text"
+                    id="login"
+                    name="login"
+                    placeholder="Digite seu usuário"
+                    autocomplete="username">
+            </div>
 
-        <div class="campo">
-            <label>Senha</label>
-            <input type="password" name="senha" placeholder="Digite sua senha">
-        </div>
+            <div class="campo">
+                <label for="senha">Senha</label>
+                <input
+                    type="password"
+                    id="senha"
+                    name="senha"
+                    placeholder="Digite sua senha"
+                    autocomplete="current-password">
+            </div>
 
-        <button type="submit" class="btn-salvar">
-            Entrar
-        </button>
+            <button type="submit" class="btn-salvar">
+                Entrar
+            </button>
 
-    </form>
+        </form>
 
-</div>
+    </div>
 
 </body>
+
 </html>

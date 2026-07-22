@@ -1,12 +1,9 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-    <head>
-        <meta charset="UTF-8">
-        <title>Usuários</title>
-        <link rel="stylesheet" href="/css/style.css">
-    </head>
+    <head th:replace="~{fragments/head :: head('Usuários')}"></head>
 
-    <body>
+        <body class="pagina-com-menu">
+
 
         <div th:replace="~{fragments/menu :: menu}"></div>
 
@@ -206,36 +203,6 @@
         </div>
 
         <script>
-            function abrirModal(id) {
-                const modal = document.getElementById(id);
-
-                if (modal) {
-                    modal.style.display = "block";
-                }
-            }
-
-            function fecharModal(id) {
-                const modal = document.getElementById(id);
-
-                if (modal) {
-                    modal.style.display = "none";
-                }
-            }
-
-            window.onclick = function (event) {
-                if (event.target.classList.contains("modal")) {
-                    event.target.style.display = "none";
-                }
-            }
-
-            document.addEventListener("keydown", function (event) {
-                if (event.key === "Escape") {
-                    document.querySelectorAll(".modal").forEach(function (modal) {
-                        modal.style.display = "none";
-                    });
-                }
-            });
-
             const campoBuscaUsuarios = document.getElementById("campoBuscaUsuarios");
             const formBuscaUsuarios = document.getElementById("formBuscaUsuarios");
 
