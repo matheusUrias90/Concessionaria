@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-    
-    <head th:replace="~{fragments/head :: head('Registro de Vendas')}"></head>
-    
-    <body class="pagina-com-menu">
 
+    <head th:replace="~{fragments/head :: head('Registro de Vendas')}"></head>
+
+    <body class="pagina-com-menu">
 
         <div th:replace="~{fragments/menu :: menu}"></div>
 
@@ -12,27 +11,34 @@
 
             <h1>💰 Registro de Vendas</h1>
 
-            <form action="/vendas/salvar" method="post" class="card-form" onsubmit="prepararGuiaComprovante()">
+            <form action="/vendas/salvar"
+                  method="post"
+                  class="card-form"
+                  onsubmit="prepararGuiaComprovante()">
 
                 <h2>📋 Dados da Venda</h2>
 
                 <div class="form-grid">
 
                     <div class="campo">
-                        <label>Comprador</label>
-                        <select name="cliente">
+                        <label for="cliente">Comprador</label>
+
+                        <select id="cliente" name="cliente" required>
                             <option value="">Selecione...</option>
+
                             <option th:each="c : ${clientes}"
                                     th:value="${c.id}"
-                                    th:text="${c.nome + ' - ' + c.telefone}"
+                                    th:text="${c.nome + ' - ' + c.telefone}">
                             </option>
                         </select>
                     </div>
 
                     <div class="campo">
-                        <label>Veículo</label>
-                        <select id="veiculoSelect" name="veiculo">
+                        <label for="veiculoSelect">Veículo</label>
+
+                        <select id="veiculoSelect" name="veiculo" required>
                             <option value="">Selecione...</option>
+
                             <option th:each="v : ${veiculos}"
                                     th:value="${v.id}"
                                     th:text="${v.nome + ' (' + v.ano + ') - ' + v.placa}"
@@ -42,53 +48,79 @@
                     </div>
 
                     <div class="campo">
-                        <label>Data da Venda</label>
-                        <input type="date" name="dataVenda">
+                        <label for="dataVenda">Data da Venda</label>
+
+                        <input type="date"
+                               id="dataVenda"
+                               name="dataVenda"
+                               required>
                     </div>
 
                     <div class="campo">
-                        <label>Valor da Venda</label>
+                        <label for="valorVenda">Valor da Venda</label>
+
                         <input type="number"
                                step="0.01"
+                               min="0.01"
                                id="valorVenda"
                                name="valor"
-                               placeholder="Calculado automaticamente">
+                               placeholder="Calculado automaticamente"
+                               required>
                     </div>
 
                 </div>
 
                 <hr>
 
-                <h2>💳 Dados do Pagamento</h2>
+                <h2>💳 Condições da Venda</h2>
 
                 <div class="form-grid">
 
                     <div class="campo">
-                        <label>Tipo de Pagamento</label>
-                        <select name="tipo">
+                        <label for="tipoPagamento">Tipo de Pagamento</label>
+
+                        <select id="tipoPagamento" name="tipo" required>
+                            <option value="">Selecione...</option>
                             <option value="PIX">PIX</option>
                             <option value="DINHEIRO">DINHEIRO</option>
                             <option value="CARTAO">CARTÃO</option>
                             <option value="FINANCIAMENTO">FINANCIAMENTO</option>
                             <option value="CONSORCIO">CONSÓRCIO</option>
+                            <option value="CREDIARIO">CREDIÁRIO DA LOJA</option>
                         </select>
                     </div>
 
-                    <div class="campo">
-                        <label>Entrada</label>
+                    <div class="campo"
+                         id="campoEntrada"
+                         style="display: none;">
+
+                        <label for="entrada">Entrada em dinheiro</label>
+
                         <input type="number"
                                step="0.01"
+                               min="0"
                                id="entrada"
                                name="entrada"
-                               placeholder="Valor da entrada">
+                               placeholder="Valor da entrada"
+                               disabled>
                     </div>
 
-                    <div class="campo">
-                        <label>Parcelas</label>
-                        <select id="parcelas" name="parcelas">
+                    <div class="campo"
+                         id="campoParcelas"
+                         style="display: none;">
+
+                        <label for="parcelas">Parcelas</label>
+
+                        <select id="parcelas"
+                                name="parcelas"
+                                disabled>
 
                             <option value="">Selecione...</option>
-
+                            <option value="1">1x</option>
+                            <option value="2">2x</option>
+                            <option value="3">3x</option>
+                            <option value="4">4x</option>
+                            <option value="5">5x</option>
                             <option value="6">6x</option>
                             <option value="12">12x</option>
                             <option value="18">18x</option>
@@ -104,13 +136,20 @@
                         </select>
                     </div>
 
-                    <div class="campo">
-                        <label>Valor da Parcela</label>
+                    <div class="campo"
+                         id="campoValorParcela"
+                         style="display: none;">
+
+                        <label for="valorParcela">Valor da Parcela</label>
+
                         <input type="number"
                                step="0.01"
+                               min="0"
                                id="valorParcela"
                                name="valorParcela"
-                               placeholder="Calculado automaticamente">
+                               placeholder="Calculado automaticamente"
+                               readonly
+                               disabled>
                     </div>
 
                 </div>
@@ -126,26 +165,110 @@
         <script>
             const veiculoSelect = document.getElementById("veiculoSelect");
             const valorVenda = document.getElementById("valorVenda");
+            const dataVenda = document.getElementById("dataVenda");
+
+            const tipoPagamento = document.getElementById("tipoPagamento");
+
+            const campoEntrada = document.getElementById("campoEntrada");
+            const campoParcelas = document.getElementById("campoParcelas");
+            const campoValorParcela = document.getElementById("campoValorParcela");
+
             const entrada = document.getElementById("entrada");
             const parcelas = document.getElementById("parcelas");
             const valorParcela = document.getElementById("valorParcela");
 
+            function definirDataAtual() {
+                if (!dataVenda.value) {
+                    const hoje = new Date();
+                    const ano = hoje.getFullYear();
+                    const mes = String(hoje.getMonth() + 1).padStart(2, "0");
+                    const dia = String(hoje.getDate()).padStart(2, "0");
+
+                    dataVenda.value = `${ano}-${mes}-${dia}`;
+                }
+            }
+
+            function limparCampo(campo) {
+                campo.value = "";
+                campo.disabled = true;
+            }
+
+            function ocultarCamposPagamento() {
+                campoEntrada.style.display = "none";
+                campoParcelas.style.display = "none";
+                campoValorParcela.style.display = "none";
+
+                limparCampo(entrada);
+                limparCampo(parcelas);
+                limparCampo(valorParcela);
+
+                entrada.required = false;
+                parcelas.required = false;
+            }
+
+            function exibirCampoEntrada() {
+                campoEntrada.style.display = "block";
+                entrada.disabled = false;
+            }
+
+            function exibirCamposParcelamento() {
+                campoParcelas.style.display = "block";
+                campoValorParcela.style.display = "block";
+
+                parcelas.disabled = false;
+                valorParcela.disabled = false;
+                parcelas.required = true;
+            }
+
+            function atualizarCamposPagamento() {
+                const tipo = tipoPagamento.value;
+
+                ocultarCamposPagamento();
+
+                if (tipo === "CARTAO") {
+                    exibirCamposParcelamento();
+                }
+
+                if (tipo === "FINANCIAMENTO"
+                        || tipo === "CREDIARIO") {
+
+                    exibirCampoEntrada();
+                    exibirCamposParcelamento();
+                }
+
+                calcularParcela();
+            }
+
             function calcularParcela() {
                 const valor = parseFloat(valorVenda.value) || 0;
                 const valorEntrada = parseFloat(entrada.value) || 0;
-                const qtdParcelas = parseInt(parcelas.value) || 0;
+                const quantidadeParcelas = parseInt(parcelas.value) || 0;
 
-                if (valor > 0 && qtdParcelas > 0) {
-                    const valorFinanciado = valor - valorEntrada;
-                    valorParcela.value = (valorFinanciado / qtdParcelas).toFixed(2);
+                if (valorEntrada > valor) {
+                    entrada.value = valor.toFixed(2);
+                }
+
+                const entradaAtual = parseFloat(entrada.value) || 0;
+                const saldo = valor - entradaAtual;
+
+                if (valor > 0
+                        && quantidadeParcelas > 0
+                        && saldo >= 0) {
+
+                    valorParcela.value =
+                            (saldo / quantidadeParcelas).toFixed(2);
+
                 } else {
                     valorParcela.value = "";
                 }
             }
 
             veiculoSelect.addEventListener("change", function () {
-                const option = veiculoSelect.options[veiculoSelect.selectedIndex];
-                const preco = parseFloat(option.getAttribute("data-preco"));
+                const opcaoSelecionada =
+                        veiculoSelect.options[veiculoSelect.selectedIndex];
+
+                const preco =
+                        parseFloat(opcaoSelecionada.getAttribute("data-preco"));
 
                 if (!isNaN(preco)) {
                     valorVenda.value = (preco * 1.08).toFixed(2);
@@ -156,16 +279,24 @@
                 calcularParcela();
             });
 
-            entrada.addEventListener("input", calcularParcela);
-            parcelas.addEventListener("input", calcularParcela);
-            valorVenda.addEventListener("input", calcularParcela);
-            
-            function prepararGuiaComprovante() {
-            window.open(
-            "about:blank",
-            "comprovanteVenda"
+            tipoPagamento.addEventListener(
+                    "change",
+                    atualizarCamposPagamento
             );
+
+            entrada.addEventListener("input", calcularParcela);
+            parcelas.addEventListener("change", calcularParcela);
+            valorVenda.addEventListener("input", calcularParcela);
+
+            function prepararGuiaComprovante() {
+                window.open(
+                        "about:blank",
+                        "comprovanteVenda"
+                );
             }
+
+            definirDataAtual();
+            atualizarCamposPagamento();
         </script>
 
     </body>

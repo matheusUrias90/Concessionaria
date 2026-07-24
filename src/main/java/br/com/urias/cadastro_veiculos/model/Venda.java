@@ -12,22 +12,23 @@ public class Venda {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "cliente_id")
+    @JoinColumn(name = "cliente_id", nullable = false)
     private Cliente cliente;
-    
+
     @ManyToOne
+    @JoinColumn(name = "vendedor_id", nullable = false)
     private Usuario vendedor;
 
     @ManyToOne
-    @JoinColumn(name = "veiculo_id")
+    @JoinColumn(name = "veiculo_id", nullable = false)
     private Veiculo veiculo;
 
     private LocalDate dataVenda;
 
     private Double valor;
 
-    @ManyToOne
-    @JoinColumn(name = "pagamento_id")
+    @OneToOne
+    @JoinColumn(name = "pagamento_id", unique = true)
     private Pagamento pagamento;
 
     public Venda() {
@@ -44,7 +45,7 @@ public class Venda {
     public Usuario getVendedor() {
         return vendedor;
     }
-  
+
     public Veiculo getVeiculo() {
         return veiculo;
     }

@@ -31,4 +31,4 @@ public interface VendaRepository extends JpaRepository<Venda, Long> {
             Long vendedorId,
             Pageable pageable
     );
-} 
+}

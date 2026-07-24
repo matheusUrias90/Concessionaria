@@ -18,6 +18,8 @@ public class Pagamento {
 
     private Double valorParcela;
 
+    private String instituicaoFinanceira;
+
     public Pagamento() {
     }
 
@@ -41,6 +43,10 @@ public class Pagamento {
         return valorParcela;
     }
 
+    public String getInstituicaoFinanceira() {
+        return instituicaoFinanceira;
+    }
+
     public void setId(Long id) {
         this.id = id;
     }
@@ -59,5 +65,9 @@ public class Pagamento {
 
     public void setValorParcela(Double valorParcela) {
         this.valorParcela = valorParcela;
+    }
+
+    public void setInstituicaoFinanceira(String instituicaoFinanceira) {
+        this.instituicaoFinanceira = instituicaoFinanceira;
     }
 }
