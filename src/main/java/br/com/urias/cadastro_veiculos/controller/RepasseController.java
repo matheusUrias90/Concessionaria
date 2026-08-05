@@ -83,8 +83,8 @@ public class RepasseController {
          * Vendas que ainda não possuem um repasse iniciado.
          */
         List<Venda> vendasAguardandoRepasse = vendas.stream()
-                .filter(venda ->
-                        !vendasComRepasse.contains(venda.getId())
+                .filter(venda
+                        -> !vendasComRepasse.contains(venda.getId())
                 )
                 .toList();
 
@@ -93,8 +93,8 @@ public class RepasseController {
          * Inclui os status PENDENTE e PARCIAL.
          */
         List<Repasse> repassesPendentes = repasses.stream()
-                .filter(repasse ->
-                        !"PAGO".equals(repasse.getStatus())
+                .filter(repasse
+                        -> !"PAGO".equals(repasse.getStatus())
                 )
                 .toList();
 
@@ -102,8 +102,8 @@ public class RepasseController {
          * Repasses totalmente quitados.
          */
         List<Repasse> repassesFinalizados = repasses.stream()
-                .filter(repasse ->
-                        "PAGO".equals(repasse.getStatus())
+                .filter(repasse
+                        -> "PAGO".equals(repasse.getStatus())
                 )
                 .toList();
 
@@ -127,8 +127,8 @@ public class RepasseController {
          * a lista completa de repasses.
          */
         model.addAttribute("repasses", repasses);
-        
-         model.addAttribute("paginaAtiva", "repasses");
+
+        model.addAttribute("paginaAtiva", "repasses");
 
         return "repasses";
     }
@@ -223,5 +223,56 @@ public class RepasseController {
         return "repasse-detalhes";
     }
 
-  
+    /*
+ * =====================================================
+ * REGISTRAR PAGAMENTO DO REPASSE
+ * =====================================================
+     */
+    @PostMapping("/repasses/pagar")
+    public String registrarPagamento(
+            @RequestParam Long repasseId,
+            @RequestParam LocalDate dataPagamento,
+            @RequestParam String formaPagamento,
+            @RequestParam Double valor,
+            @RequestParam(required = false) String observacao,
+            HttpSession session) {
+
+        Usuario usuarioLogado
+                = (Usuario) session.getAttribute("usuarioLogado");
+
+        if (usuarioLogado == null) {
+            return "redirect:/";
+        }
+
+        if ("VENDEDOR".equals(usuarioLogado.getPerfil())) {
+            return "redirect:/dashboard-vendedor";
+        }
+
+        Repasse repasse
+                = repasseRepository.findById(repasseId).orElse(null);
+
+        if (repasse == null) {
+            return "redirect:/repasses";
+        }
+
+        if (valor == null || valor <= 0) {
+            return "redirect:/repasses/" + repasseId;
+        }
+
+        if (valor > repasse.getSaldo()) {
+            return "redirect:/repasses/" + repasseId;
+        }
+
+        PagamentoRepasse pagamento = new PagamentoRepasse();
+
+        pagamento.setRepasse(repasse);
+        pagamento.setDataPagamento(dataPagamento);
+        pagamento.setFormaPagamento(formaPagamento);
+        pagamento.setValor(valor);
+        pagamento.setObservacao(observacao);
+
+        pagamentoRepasseRepository.save(pagamento);
+
+        return "redirect:/repasses/" + repasseId;
+    }
 }

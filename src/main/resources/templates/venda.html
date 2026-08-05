@@ -90,9 +90,8 @@
                         </select>
                     </div>
 
-                    <div class="campo"
-                         id="campoEntrada"
-                         style="display: none;">
+                    <div class="campo oculto"
+                         id="campoEntrada">
 
                         <label for="entrada">Entrada em dinheiro</label>
 
@@ -105,9 +104,8 @@
                                disabled>
                     </div>
 
-                    <div class="campo"
-                         id="campoParcelas"
-                         style="display: none;">
+                    <div class="campo oculto"
+                         id="campoParcelas">
 
                         <label for="parcelas">Parcelas</label>
 
@@ -136,9 +134,8 @@
                         </select>
                     </div>
 
-                    <div class="campo"
-                         id="campoValorParcela"
-                         style="display: none;">
+                    <div class="campo oculto"
+                         id="campoValorParcela">
 
                         <label for="valorParcela">Valor da Parcela</label>
 
@@ -194,9 +191,9 @@
             }
 
             function ocultarCamposPagamento() {
-                campoEntrada.style.display = "none";
-                campoParcelas.style.display = "none";
-                campoValorParcela.style.display = "none";
+                campoEntrada.classList.add("oculto");
+                campoParcelas.classList.add("oculto");
+                campoValorParcela.classList.add("oculto");
 
                 limparCampo(entrada);
                 limparCampo(parcelas);
@@ -207,13 +204,13 @@
             }
 
             function exibirCampoEntrada() {
-                campoEntrada.style.display = "block";
+                campoEntrada.classList.remove("oculto");
                 entrada.disabled = false;
             }
 
             function exibirCamposParcelamento() {
-                campoParcelas.style.display = "block";
-                campoValorParcela.style.display = "block";
+                campoParcelas.classList.remove("oculto");
+                campoValorParcela.classList.remove("oculto");
 
                 parcelas.disabled = false;
                 valorParcela.disabled = false;
@@ -282,7 +279,7 @@
             tipoPagamento.addEventListener(
                     "change",
                     atualizarCamposPagamento
-            );
+                    );
 
             entrada.addEventListener("input", calcularParcela);
             parcelas.addEventListener("change", calcularParcela);
@@ -292,7 +289,7 @@
                 window.open(
                         "about:blank",
                         "comprovanteVenda"
-                );
+                        );
             }
 
             definirDataAtual();

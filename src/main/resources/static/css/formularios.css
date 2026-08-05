@@ -34,6 +34,10 @@
     background: white;
 }
 
+.oculto {
+    display: none;
+}
+
 @media (max-width: 768px) {
     .form-grid {
         grid-template-columns: 1fr;
