@@ -1,0 +1,547 @@
+<head th:replace="~{fragments/head :: head('Nova Negociação')}"></head>
+
+<body class="pagina-com-menu">
+
+    <div th:replace="~{fragments/menu :: menu}"></div>
+
+    <div class="container">
+
+        <h1>🤝 Nova Negociação</h1>
+
+        <form th:action="@{/negociacoes/iniciar}"
+              method="post"
+              class="card-form">
+
+            <h2>📋 Dados da Negociação</h2>
+
+            <div class="form-grid">
+
+                <div class="campo">
+                    <label for="clienteId">Comprador</label>
+
+                    <select id="clienteId"
+                            name="clienteId"
+                            required>
+
+                        <option value="">Selecione...</option>
+
+                        <option th:each="c : ${clientes}"
+                                th:value="${c.id}"
+                                th:text="${c.nome + ' - ' + c.telefone}">
+                        </option>
+
+                    </select>
+                </div>
+
+                <div class="campo">
+                    <label for="veiculoId">Veículo</label>
+
+                    <select id="veiculoId"
+                            name="veiculoId"
+                            required>
+
+                        <option value="">Selecione...</option>
+
+                        <option th:each="v : ${veiculos}"
+                                th:value="${v.id}"
+                                th:text="${v.nome + ' (' + v.ano + ') - ' + v.placa}"
+                                th:data-preco="${v.preco}">
+                        </option>
+
+                    </select>
+                </div>
+
+                <div class="campo">
+                    <label for="valorProposto">Valor Proposto</label>
+
+                    <input type="number"
+                           id="valorProposto"
+                           name="valorProposto"
+                           step="0.01"
+                           min="0.01"
+                           placeholder="Preenchido pelo veículo"
+                           required>
+                </div>
+
+            </div>
+
+
+            <h2>💰 Formas de Pagamento</h2>
+
+            <div id="formasPagamento">
+
+                <div class="form-grid forma-pagamento">
+
+                    <div class="campo">
+                        <label>Forma de Pagamento</label>
+
+                        <select name="formasPagamento[0].tipo"
+                                data-campo="tipo"
+                                onchange="atualizarCamposPagamento(this)"
+                                required>
+
+                            <option value="">Selecione...</option>
+                            <option value="DINHEIRO">Dinheiro</option>
+                            <option value="PIX">PIX</option>
+                            <option value="CARTAO">Cartão</option>
+                            <option value="FINANCIAMENTO">Financiamento</option>
+                            <option value="CONSORCIO">Consórcio</option>
+                            <option value="VEICULO_ENTRADA">Veículo como Entrada</option>
+
+                        </select>
+                    </div>
+
+                    <div class="campo">
+                        <label>Valor</label>
+
+                        <input type="number"
+                               oninput="recalcularFinanciamento(this)"
+                               name="formasPagamento[0].valor"
+                               data-campo="valor"
+                               step="0.01"
+                               min="0.01"
+                               placeholder="0,00"
+                               required>
+                    </div>
+
+                    <div class="campos-especificos"
+                         style="display: contents;">
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <button type="button"
+                    class="btn-detalhes btn-adicionar"
+                    onclick="adicionarFormaPagamento()">
+                ➕ Adicionar Forma de Pagamento
+            </button>
+
+            <button type="submit"
+                    class="btn-salvar">
+                🤝 Iniciar Negociação
+            </button>
+
+        </form>
+
+    </div>
+
+
+    <script>
+
+        const veiculoSelect =
+                document.getElementById("veiculoId");
+
+        const valorProposto =
+                document.getElementById("valorProposto");
+
+
+        veiculoSelect.addEventListener("change", function () {
+
+            const opcaoSelecionada =
+                    veiculoSelect.options[veiculoSelect.selectedIndex];
+
+            const preco =
+                    parseFloat(
+                            opcaoSelecionada.getAttribute("data-preco")
+                            );
+
+            if (!isNaN(preco)) {
+
+                valorProposto.value =
+                        preco.toFixed(2);
+
+            } else {
+
+                valorProposto.value = "";
+
+            }
+
+        });
+
+
+        let indiceFormaPagamento = 1;
+
+
+        function adicionarFormaPagamento() {
+
+            const container =
+                    document.getElementById("formasPagamento");
+
+            const novaForma =
+                    document.createElement("div");
+
+            novaForma.classList.add(
+                    "form-grid",
+                    "forma-pagamento"
+                    );
+
+
+            novaForma.innerHTML = `
+
+                <div class="campo">
+                    <label>Forma de Pagamento</label>
+
+                    <select
+                        name="formasPagamento[${indiceFormaPagamento}].tipo"
+                        data-campo="tipo"
+                        onchange="atualizarCamposPagamento(this)"
+                        required>
+
+                        <option value="">Selecione...</option>
+                        <option value="DINHEIRO">Dinheiro</option>
+                        <option value="PIX">PIX</option>
+                        <option value="CARTAO">Cartão</option>
+                        <option value="FINANCIAMENTO">Financiamento</option>
+                        <option value="CONSORCIO">Consórcio</option>
+                        <option value="VEICULO_ENTRADA">Veículo como Entrada</option>
+
+                    </select>
+                </div>
+
+
+                <div class="campo">
+                    <label>Valor</label>
+
+                    <input
+                        type="number"
+                        oninput="recalcularFinanciamento(this)"
+                        name="formasPagamento[${indiceFormaPagamento}].valor"
+                        data-campo="valor"
+                        step="0.01"
+                        min="0.01"
+                        placeholder="0,00"
+                        required>
+                </div>
+
+
+                <div class="campos-especificos"
+                     style="display: contents;">
+                </div>
+
+
+                <div class="campo">
+                    <button type="button"
+                            class="btn-excluir"
+                            onclick="removerFormaPagamento(this)">
+                        🗑 Remover
+                    </button>
+                </div>
+            `;
+
+
+            container.appendChild(novaForma);
+
+            indiceFormaPagamento++;
+
+        }
+
+
+        function atualizarCamposPagamento(select) {
+
+            const formaPagamento =
+                    select.closest(".forma-pagamento");
+
+            const camposEspecificos =
+                    formaPagamento.querySelector(".campos-especificos");
+
+            const formas =
+                    Array.from(
+                            document.querySelectorAll(".forma-pagamento")
+                            );
+
+            const indice =
+                    formas.indexOf(formaPagamento);
+
+            const tipo =
+                    select.value;
+
+
+            camposEspecificos.innerHTML = "";
+
+
+            if (tipo === "CARTAO") {
+
+                camposEspecificos.innerHTML = `
+
+                    <div class="campo">
+                        <label>Bandeira do Cartão</label>
+
+                        <input type="text"
+                               name="formasPagamento[${indice}].bandeiraCartao"
+                               data-campo="bandeiraCartao"
+                               required>
+                    </div>
+
+                     <div class="campo">
+                    <label>Parcelas</label>
+
+                    <select name="formasPagamento[${indice}].parcelas"
+                            data-campo="parcelas"
+                            onchange="calcularParcela(this)"
+                            required>
+                        <option value="">Selecione...</option>
+                        <option value="6">6x</option>
+                        <option value="12">12x</option>
+                        <option value="18">18x</option>
+                        <option value="24">24x</option>
+                        <option value="30">30x</option>
+                        <option value="36">36x</option>
+                        <option value="42">42x</option>
+                        <option value="48">48x</option>
+                        <option value="54">54x</option>
+                        <option value="60">60x</option>
+                        <option value="66">66x</option>
+                        <option value="72">72x</option>
+                        <option value="78">78x</option>
+                        <option value="84">84x</option>
+                        <option value="90">90x</option>
+                        <option value="96">96x</option>
+                    </select>
+                </div>
+
+                   <div class="campo">
+                    <label>Valor da Parcela</label>
+
+                    <input type="number"
+                           name="formasPagamento[${indice}].valorParcela"
+                           data-campo="valorParcela"
+                           step="0.01"
+                           readonly>
+                </div>
+                `;
+
+            }
+
+
+            if (tipo === "FINANCIAMENTO") {
+
+                camposEspecificos.innerHTML = `
+
+                    <div class="campo">
+                        <label>Instituição Financeira</label>
+
+                        <input type="text"
+                               name="formasPagamento[${indice}].instituicaoFinanceira"
+                               data-campo="instituicaoFinanceira"
+                               required>
+                    </div>
+
+                    <div class="campo">
+                    <label>Parcelas</label>
+
+                    <select name="formasPagamento[${indice}].parcelas"
+                            data-campo="parcelas"
+                            onchange="calcularParcela(this)"
+                            required>
+                        <option value="">Selecione...</option>
+                        <option value="6">6x</option>
+                        <option value="12">12x</option>
+                        <option value="18">18x</option>
+                        <option value="24">24x</option>
+                        <option value="30">30x</option>
+                        <option value="36">36x</option>
+                        <option value="42">42x</option>
+                        <option value="48">48x</option>
+                        <option value="54">54x</option>
+                        <option value="60">60x</option>
+                        <option value="66">66x</option>
+                        <option value="72">72x</option>
+                        <option value="78">78x</option>
+                        <option value="84">84x</option>
+                        <option value="90">90x</option>
+                        <option value="96">96x</option>
+                    </select>
+                </div>
+
+                   <div class="campo">
+                    <label>Valor da Parcela</label>
+
+                    <input type="number"
+                           name="formasPagamento[${indice}].valorParcela"
+                           data-campo="valorParcela"
+                           step="0.01"
+                           readonly>
+                </div>
+
+                `;
+
+            }
+
+
+            if (tipo === "CONSORCIO") {
+
+                camposEspecificos.innerHTML = `
+
+        <div class="campo">
+            <label>Administradora do Consórcio</label>
+
+            <input type="text"
+                   name="formasPagamento[${indice}].administradoraConsorcio"
+                   data-campo="administradoraConsorcio"
+                   required>
+        </div>
+
+        <div class="campo">
+            <label>Número da Carta de Crédito</label>
+
+            <input type="text"
+                   name="formasPagamento[${indice}].numeroCartaCredito"
+                   data-campo="numeroCartaCredito"
+                   required>
+        </div>
+    `;
+            }
+
+
+            if (tipo === "VEICULO_ENTRADA") {
+
+                camposEspecificos.innerHTML = `
+
+                    <div class="campo">
+                        <label>Veículo</label>
+
+                        <input type="text"
+                               name="formasPagamento[${indice}].veiculoEntrada.nome"
+                               data-campo="veiculoEntrada.nome"
+                               required>
+                    </div>
+
+                    <div class="campo">
+                        <label>Marca</label>
+
+                        <input type="text"
+                               name="formasPagamento[${indice}].veiculoEntrada.marca"
+                               data-campo="veiculoEntrada.marca"
+                               required>
+                    </div>
+
+                    <div class="campo">
+                        <label>Cor</label>
+
+                        <input type="text"
+                               name="formasPagamento[${indice}].veiculoEntrada.cor"
+                               data-campo="veiculoEntrada.cor"
+                               required>
+                    </div>
+
+                    <div class="campo">
+                        <label>Placa</label>
+
+                        <input type="text"
+                               name="formasPagamento[${indice}].veiculoEntrada.placa"
+                               data-campo="veiculoEntrada.placa"
+                               required>
+                    </div>
+
+                    <div class="campo">
+                        <label>Ano</label>
+
+                        <input type="number"
+                               name="formasPagamento[${indice}].veiculoEntrada.ano"
+                               data-campo="veiculoEntrada.ano"
+                               required>
+                    </div>
+                `;
+
+            }
+
+        }
+
+
+        function removerFormaPagamento(botao) {
+
+            const formaPagamento =
+                    botao.closest(".forma-pagamento");
+
+            formaPagamento.remove();
+
+            reindexarFormasPagamento();
+
+        }
+
+
+        function reindexarFormasPagamento() {
+
+            const formas =
+                    document.querySelectorAll(".forma-pagamento");
+
+
+            formas.forEach((forma, indice) => {
+
+                const campos =
+                        forma.querySelectorAll("[data-campo]");
+
+
+                campos.forEach(campo => {
+
+                    const propriedade =
+                            campo.getAttribute("data-campo");
+
+                    campo.name =
+                            `formasPagamento[${indice}].${propriedade}`;
+
+                });
+
+            });
+
+
+            indiceFormaPagamento =
+                    formas.length;
+
+        }
+
+        function recalcularFinanciamento(campoValor) {
+
+            const formaPagamento =
+                    campoValor.closest(".forma-pagamento");
+
+            const selectTipo =
+                    formaPagamento.querySelector('[data-campo="tipo"]');
+
+            if (selectTipo.value !== "FINANCIAMENTO") {
+                return;
+            }
+
+            const selectParcelas =
+                    formaPagamento.querySelector('[data-campo="parcelas"]');
+
+            if (selectParcelas) {
+                calcularParcelaFinanciamento(selectParcelas);
+            }
+        }
+
+        function calcularParcela(selectParcelas) {
+
+            const formaPagamento =
+                    selectParcelas.closest(".forma-pagamento");
+
+            const campoValor =
+                    formaPagamento.querySelector('[data-campo="valor"]');
+
+            const campoValorParcela =
+                    formaPagamento.querySelector('[data-campo="valorParcela"]');
+
+            const valor =
+                    parseFloat(campoValor.value);
+
+            const parcelas =
+                    parseInt(selectParcelas.value);
+
+            if (!isNaN(valor) && !isNaN(parcelas) && parcelas > 0) {
+
+                campoValorParcela.value =
+                        (valor / parcelas).toFixed(2);
+
+            } else {
+
+                campoValorParcela.value = "";
+
+            }
+        }
+
+    </script>
+
+</body>

@@ -29,11 +29,6 @@ tr:hover {
     font-weight:bold;
 }
 
-.saldo-quitado{
-    color:#198754;
-    font-weight:bold;
-}
-
 .status-pago{
     color:#198754;
     font-weight:bold;
@@ -49,12 +44,32 @@ tr:hover {
     font-weight:bold;
 }
 
-.saldo-pendente{
-    color:#d62828;
-    font-weight:bold;
-}
-
 .saldo-quitado{
     color:#198754;
     font-weight:bold;
+}
+
+.tabela-negociacoes {
+    width: 100%;
+    table-layout: fixed;
+}
+
+.tabela-negociacoes th,
+.tabela-negociacoes td {
+    padding: 10px 6px;
+    overflow-wrap: break-word;
+}
+
+.tabela-negociacoes th:last-child,
+.tabela-negociacoes td:last-child {
+    width: 90px;
+}
+
+.tabela-negociacoes td.acoes {
+    display: table-cell;
+    white-space: nowrap;
+}
+
+.tabela-negociacoes .btn-detalhes {
+    padding: 8px 10px;
 }

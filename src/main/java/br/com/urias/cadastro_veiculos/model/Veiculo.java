@@ -6,6 +6,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 
 @Entity
 @Table(name = "veiculos")
@@ -21,7 +23,8 @@ public class Veiculo {
     private String placa;
     private Integer ano;
     private Double preco;
-    private Boolean vendido = false;
+    @Enumerated(EnumType.STRING)
+    private StatusVeiculo status = StatusVeiculo.DISPONIVEL;
     private String nomeProprietario;
     private String cpfProprietario;
     private String telefoneProprietario;
@@ -100,13 +103,13 @@ public class Veiculo {
     public void setPreco(Double preco) {
         this.preco = preco;
     }
-
-    public Boolean getVendido() {
-        return vendido;
+    
+    public StatusVeiculo getStatus() {
+        return status;
     }
 
-    public void setVendido(Boolean vendido) {
-        this.vendido = vendido;
+    public void setStatus(StatusVeiculo status) {
+        this.status = status;
     }
 
     public String getNomeProprietario() {

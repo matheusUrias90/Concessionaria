@@ -1,5 +1,6 @@
 package br.com.urias.cadastro_veiculos.model;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -47,9 +48,9 @@ public class FormaPagamentoNegociacao {
 
     private String bandeiraCartao;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "veiculo_entrada_id", unique = true)
-    private Veiculo veiculoEntrada;
+    private VeiculoEntrada veiculoEntrada;
 
     public Long getId() {
         return id;
@@ -147,11 +148,11 @@ public class FormaPagamentoNegociacao {
         this.bandeiraCartao = bandeiraCartao;
     }
 
-    public Veiculo getVeiculoEntrada() {
+    public VeiculoEntrada getVeiculoEntrada() {
         return veiculoEntrada;
     }
 
-    public void setVeiculoEntrada(Veiculo veiculoEntrada) {
+    public void setVeiculoEntrada(VeiculoEntrada veiculoEntrada) {
         this.veiculoEntrada = veiculoEntrada;
     }
 }

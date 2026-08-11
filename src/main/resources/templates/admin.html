@@ -55,6 +55,12 @@
                             </button>
                         </td>
                     </tr>
+                    
+                 <tr th:if="${#lists.isEmpty(ultimasVendas)}">
+                    <td colspan="5">
+                        Nenhuma venda realizada ainda.
+                    </td>
+                </tr>
 
                 </tbody>
             </table>

@@ -3,13 +3,13 @@ package br.com.urias.cadastro_veiculos.controller;
 import br.com.urias.cadastro_veiculos.repository.ClienteRepository;
 import br.com.urias.cadastro_veiculos.repository.VeiculoRepository;
 import br.com.urias.cadastro_veiculos.repository.VendaRepository;
+import br.com.urias.cadastro_veiculos.model.StatusVeiculo;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import br.com.urias.cadastro_veiculos.model.Usuario;
 import br.com.urias.cadastro_veiculos.model.Venda;
 import jakarta.servlet.http.HttpSession;
-import java.math.BigDecimal;
 import java.util.List;
 
 @Controller
@@ -54,8 +54,15 @@ public class AdminController {
         model.addAttribute("totalVeiculos", veiculoRepository.count());
         model.addAttribute("totalVendas", totalVendas);
 
-        model.addAttribute("veiculosDisponiveis", veiculoRepository.countByVendidoFalse());
-        model.addAttribute("veiculosVendidos", veiculoRepository.countByVendidoTrue());
+        model.addAttribute(
+                "veiculosDisponiveis",
+                veiculoRepository.countByStatus(StatusVeiculo.DISPONIVEL)
+        );
+
+        model.addAttribute(
+                "veiculosVendidos",
+                veiculoRepository.countByStatus(StatusVeiculo.VENDIDO)
+        );
 
         model.addAttribute("ultimasVendas", vendaRepository.findTop5ByOrderByIdDesc());
 
@@ -77,7 +84,10 @@ public class AdminController {
             return "redirect:/login";
         }
 
-        model.addAttribute("totalVeiculosDisponiveis", veiculoRepository.countByVendidoFalse());
+        model.addAttribute(
+                "totalVeiculosDisponiveis",
+                veiculoRepository.countByStatus(StatusVeiculo.DISPONIVEL)
+        );
         model.addAttribute("totalCompradores", clienteRepository.count());
        
         List<Venda> minhasVendas

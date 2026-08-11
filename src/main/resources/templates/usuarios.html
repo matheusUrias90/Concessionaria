@@ -32,9 +32,8 @@
                     <tr>
                         <th>ID</th>
                         <th>Nome</th>
-                        <th>Login</th>
-                        <th>Senha</th>
                         <th>Perfil</th>
+                        <th>Login</th>                        
                         <th>Ações</th>
                     </tr>
                 </thead>
@@ -43,10 +42,9 @@
                     <tr th:each="u : ${usuarios.content}">
                         <td th:text="${u.id}"></td>
                         <td th:text="${u.nome}"></td>
-                        <td th:text="${u.login}"></td>
-                        <td th:text="${u.senha}"></td>
                         <td th:text="${u.perfil}"></td>
-
+                        <td th:text="${u.login}"></td>
+                        
                         <td class="acoes">
                             <button type="button"
                                     class="btn-editar"

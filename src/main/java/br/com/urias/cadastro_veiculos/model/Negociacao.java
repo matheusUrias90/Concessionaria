@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+
 @Entity
 public class Negociacao {
 
@@ -58,10 +59,22 @@ public class Negociacao {
             orphanRemoval = true
     )
     private List<PendenciaNegociacao> pendencias = new ArrayList<>();
+    
+    @OneToMany(
+            mappedBy = "negociacao",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<FormaPagamentoNegociacao> formasPagamento = new ArrayList<>();
 
     public void adicionarPendencia(PendenciaNegociacao pendencia) {
         pendencias.add(pendencia);
         pendencia.setNegociacao(this);
+    }
+    
+    public void adicionarFormaPagamento(FormaPagamentoNegociacao formaPagamento) {
+        formasPagamento.add(formaPagamento);
+        formaPagamento.setNegociacao(this);
     }
 
     public Long getId() {
@@ -150,5 +163,13 @@ public class Negociacao {
 
     public void setPendencias(List<PendenciaNegociacao> pendencias) {
         this.pendencias = pendencias;
+    }
+    
+    public List<FormaPagamentoNegociacao> getFormasPagamento() {
+        return formasPagamento;
+    }
+
+    public void setFormasPagamento(List<FormaPagamentoNegociacao> formasPagamento) {
+        this.formasPagamento = formasPagamento;
     }
 }

@@ -3,6 +3,7 @@ package br.com.urias.cadastro_veiculos.controller;
 import br.com.urias.cadastro_veiculos.model.Pagamento;
 import br.com.urias.cadastro_veiculos.model.Usuario;
 import br.com.urias.cadastro_veiculos.model.Venda;
+import br.com.urias.cadastro_veiculos.model.StatusVeiculo;
 import br.com.urias.cadastro_veiculos.repository.ClienteRepository;
 import br.com.urias.cadastro_veiculos.repository.VeiculoRepository;
 import br.com.urias.cadastro_veiculos.repository.VendaRepository;
@@ -53,7 +54,7 @@ public class PaginaVendaController {
 
         model.addAttribute(
                 "veiculos",
-                veiculoRepository.findByVendidoFalse()
+               veiculoRepository.findByStatus(StatusVeiculo.DISPONIVEL)
         );
 
         model.addAttribute("paginaAtiva", "vendas");
@@ -102,7 +103,7 @@ public class PaginaVendaController {
         venda.setPagamento(pagamento);
         venda.setVendedor(usuarioLogado);
 
-        venda.getVeiculo().setVendido(true);
+        venda.getVeiculo().setStatus(StatusVeiculo.VENDIDO);
 
         veiculoRepository.save(venda.getVeiculo());
 

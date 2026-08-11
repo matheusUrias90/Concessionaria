@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+    <head th:replace="~{fragments/head :: head('Negociações')}"></head>
+
+    <body class="pagina-com-menu">
+
+        <div th:replace="~{fragments/menu :: menu}"></div>
+
+        <div class="container">
+
+            <h1>🤝 Negociações</h1>
+
+            <a th:href="@{/negociacoes/nova}" class="btn-salvar">
+                + Nova Negociação
+            </a>
+
+            <br><br>
+
+            <h2>⏳ Negociações em Andamento</h2>
+
+            <div th:if="${#lists.isEmpty(negociacoes)}">
+                <p>Nenhuma negociação em andamento.</p>
+            </div>
+
+           <table class="tabela-negociacoes"
+                  th:unless="${#lists.isEmpty(negociacoes)}">
+
+                <thead>
+                    <tr>
+                        <th>Negociação</th>
+                        <th>Comprador</th>
+                        <th>Veículo</th>
+                        <th>Vendedor</th>
+                        <th>Valor</th>
+                        <th>Início</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr th:each="n : ${negociacoes}">
+
+                        <td th:text="|#${n.id}|"></td>
+
+                        <td th:text="${n.cliente.nome}"></td>
+
+                        <td th:text="${n.veiculo.nome}"></td>
+
+                        <td th:text="${n.vendedor.nome}"></td>
+
+                        <td th:text="${#numbers.formatCurrency(n.valorProposto)}"></td>
+
+                        <td th:text="${#temporals.format(
+                            n.dataInicio,
+                            'dd/MM/yyyy HH:mm'
+                            )}">
+                        </td>
+
+                        <td class="acoes">
+                            <a th:href="@{/negociacoes/{id}(id=${n.id})}"
+                               class="btn-detalhes">
+                                👁 Abrir
+                            </a>
+                        </td>
+
+                    </tr>
+                </tbody>
+
+            </table>
+        </div>
+
+    </body>
+
+</html>
