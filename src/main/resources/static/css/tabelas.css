@@ -53,23 +53,42 @@ tr:hover {
     width: 100%;
     table-layout: fixed;
 }
-
-.tabela-negociacoes th,
-.tabela-negociacoes td {
-    padding: 10px 6px;
-    overflow-wrap: break-word;
+.tabela-negociacoes th:nth-child(1) {
+    width: 6%;
 }
 
-.tabela-negociacoes th:last-child,
-.tabela-negociacoes td:last-child {
-    width: 90px;
+.tabela-negociacoes th:nth-child(2) {
+    width: 13%;
 }
 
-.tabela-negociacoes td.acoes {
-    display: table-cell;
+.tabela-negociacoes th:nth-child(3) {
+    width: 13%;
+}
+
+.tabela-negociacoes th:nth-child(4) {
+    width: 13%;
+}
+
+.tabela-negociacoes th:nth-child(5) {
+    width: 15%;
+}
+
+.tabela-negociacoes th:nth-child(6) {
+    width: 13%;
+}
+
+.tabela-negociacoes th:nth-child(7) {
+    width: 14%;
+}
+
+.tabela-negociacoes th:nth-child(8) {
+    width: 13%;
+}
+.tabela-negociacoes td:nth-child(5) {
     white-space: nowrap;
+    font-size: 16px;
 }
 
-.tabela-negociacoes .btn-detalhes {
-    padding: 8px 10px;
+.tabela-negociacoes td:last-child {
+    white-space: nowrap;
 }

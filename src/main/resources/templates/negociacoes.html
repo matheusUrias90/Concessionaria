@@ -15,24 +15,73 @@
                 + Nova Negociação
             </a>
 
-            <br><br>
+            <div class="filtros-status-negociacao">
 
-            <h2>⏳ Negociações em Andamento</h2>
+                <button type="button"
+                        class="filtro-status filtro-todas"
+                        data-status="TODAS">
+                    📋 Todas
+                </button>
 
-            <div th:if="${#lists.isEmpty(negociacoes)}">
+                <button type="button"
+                        class="filtro-status filtro-andamento ativo"
+                        data-status="EM_ANDAMENTO">
+                    ⏳ Em andamento
+                </button>
+
+                <button type="button"
+                        class="filtro-status filtro-concluidas"
+                        data-status="CONCLUIDA">
+                    ✅ Concluídas
+                </button>
+
+                <button type="button"
+                        class="filtro-status filtro-canceladas"
+                        data-status="CANCELADA">
+                    ❌ Canceladas
+                </button>
+
+            </div>
+
+            <form id="formBuscaNegociacoes"
+                  class="form-busca">
+                <input type="search"
+                       id="buscaNegociacao"
+                       placeholder="Buscar por comprador, veículo ou vendedor..."
+                       autocomplete="off">
+
+                <button type="button"
+                        id="btnLimparBusca"
+                        class="btn-limpar">
+                    Limpar
+                </button>
+            </form>
+
+            <h2 id="tituloListaNegociacoes">
+                ⏳ Negociações em andamento
+            </h2>
+
+            <div id="mensagemSemNegociacoes"
+                 th:style="${#lists.isEmpty(negociacoes)}
+                 ? 'display: block;'
+                 : 'display: none;'">
                 <p>Nenhuma negociação em andamento.</p>
             </div>
 
-           <table class="tabela-negociacoes"
-                  th:unless="${#lists.isEmpty(negociacoes)}">
+            <table id="tabelaNegociacoes"
+                   class="tabela-negociacoes"
+                   th:style="${#lists.isEmpty(negociacoes)}
+                   ? 'display: none;'
+                   : 'display: table;'">
 
                 <thead>
                     <tr>
-                        <th>Negociação</th>
-                        <th>Comprador</th>
+                        <th>Nº</th>
                         <th>Veículo</th>
+                        <th>Comprador</th>                        
                         <th>Vendedor</th>
                         <th>Valor</th>
+                        <th>Status</th>
                         <th>Início</th>
                         <th>Ações</th>
                     </tr>
@@ -43,13 +92,15 @@
 
                         <td th:text="|#${n.id}|"></td>
 
-                        <td th:text="${n.cliente.nome}"></td>
-
                         <td th:text="${n.veiculo.nome}"></td>
+
+                        <td th:text="${n.cliente.nome}"></td>
 
                         <td th:text="${n.vendedor.nome}"></td>
 
                         <td th:text="${#numbers.formatCurrency(n.valorProposto)}"></td>
+
+                        <td>Em andamento</td>
 
                         <td th:text="${#temporals.format(
                             n.dataInicio,
@@ -69,6 +120,225 @@
 
             </table>
         </div>
+
+        <script>
+
+            const botoesStatus =
+                    document.querySelectorAll(".filtro-status");
+
+            const campoBusca =
+                    document.getElementById("buscaNegociacao");
+
+            const botaoLimpar =
+                    document.getElementById("btnLimparBusca");
+
+            const corpoTabela =
+                    document.querySelector("#tabelaNegociacoes tbody");
+
+            const tabela =
+                    document.getElementById("tabelaNegociacoes");
+
+            const mensagemVazia =
+                    document.getElementById("mensagemSemNegociacoes");
+
+            const tituloLista =
+                    document.getElementById("tituloListaNegociacoes");
+
+            const formularioBusca =
+                    document.getElementById("formBuscaNegociacoes");
+
+            let statusAtual = "EM_ANDAMENTO";
+            let temporizadorBusca;
+
+            const titulosPorStatus = {
+                TODAS: "🤝 Todas as negociações",
+                EM_ANDAMENTO: "⏳ Negociações em andamento",
+                CONCLUIDA: "✅ Negociações concluídas",
+                CANCELADA: "❌ Negociações canceladas"
+            };
+
+            const mensagensVazias = {
+                TODAS: "Nenhuma negociação encontrada.",
+                EM_ANDAMENTO: "Nenhuma negociação em andamento.",
+                CONCLUIDA: "Nenhuma negociação concluída.",
+                CANCELADA: "Nenhuma negociação cancelada."
+            };
+
+            botoesStatus.forEach(botao => {
+
+                botao.addEventListener("click", function () {
+
+                    statusAtual = this.dataset.status;
+
+                    botoesStatus.forEach(item =>
+                        item.classList.remove("ativo")
+                    );
+
+                    this.classList.add("ativo");
+
+                    carregarNegociacoes();
+
+                });
+
+            });
+
+            campoBusca.addEventListener("input", function () {
+
+                clearTimeout(temporizadorBusca);
+
+                temporizadorBusca = setTimeout(
+                        carregarNegociacoes,
+                        350
+                        );
+
+            });
+
+            botaoLimpar.addEventListener("click", function () {
+
+                campoBusca.value = "";
+                campoBusca.focus();
+                carregarNegociacoes();
+
+            });
+
+            async function carregarNegociacoes() {
+
+                const parametros = new URLSearchParams();
+
+                if (statusAtual !== "TODAS") {
+                    parametros.append("status", statusAtual);
+                }
+
+                const busca = campoBusca.value.trim();
+
+                if (busca !== "") {
+                    parametros.append("busca", busca);
+                }
+
+                tituloLista.textContent =
+                        titulosPorStatus[statusAtual];
+
+                try {
+
+                    const resposta = await fetch(
+                            `/api/negociacoes?${parametros.toString()}`
+                            );
+
+                    if (!resposta.ok) {
+                        throw new Error("Não foi possível carregar as negociações.");
+                    }
+
+                    const negociacoes = await resposta.json();
+
+                    montarTabela(negociacoes);
+
+                } catch (erro) {
+
+                    corpoTabela.replaceChildren();
+                    tabela.style.display = "none";
+                    mensagemVazia.style.display = "block";
+                    mensagemVazia.querySelector("p").textContent =
+                            "Não foi possível atualizar a lista de negociações.";
+
+                }
+
+            }
+
+            function montarTabela(negociacoes) {
+
+                corpoTabela.replaceChildren();
+
+                if (negociacoes.length === 0) {
+
+                    tabela.style.display = "none";
+                    mensagemVazia.style.display = "block";
+                    mensagemVazia.querySelector("p").textContent =
+                            mensagensVazias[statusAtual];
+                    return;
+
+                }
+
+                tabela.style.display = "table";
+                mensagemVazia.style.display = "none";
+
+                negociacoes.forEach(negociacao => {
+
+                    const linha = document.createElement("tr");
+
+                    adicionarCelula(linha, `#${negociacao.id}`);
+                    adicionarCelula(linha, negociacao.veiculo);
+                    adicionarCelula(linha, negociacao.comprador);
+                    adicionarCelula(linha, negociacao.vendedor);
+                    adicionarCelula(
+                            linha,
+                            formatarMoeda(negociacao.valorProposto)
+                            );
+
+                    const celulaStatus = document.createElement("td");
+                    const status = document.createElement("span");
+                    status.className =
+                            `status-negociacao status-${negociacao.status.toLowerCase()}`;
+                    status.textContent =
+                            traduzirStatus(negociacao.status);
+                    celulaStatus.appendChild(status);
+                    linha.appendChild(celulaStatus);
+
+                    adicionarCelula(linha, negociacao.inicio);
+
+                    const celulaAcoes = document.createElement("td");
+                    celulaAcoes.className = "acoes";
+
+                    const linkAbrir = document.createElement("a");
+                    linkAbrir.href = `/negociacoes/${negociacao.id}`;
+                    linkAbrir.className = "btn-detalhes";
+                    linkAbrir.textContent = "👁 Abrir";
+
+                    celulaAcoes.appendChild(linkAbrir);
+                    linha.appendChild(celulaAcoes);
+
+                    corpoTabela.appendChild(linha);
+
+                });
+
+            }
+
+            function adicionarCelula(linha, texto) {
+
+                const celula = document.createElement("td");
+                celula.textContent = texto ?? "";
+                linha.appendChild(celula);
+
+            }
+
+            function formatarMoeda(valor) {
+
+                return Number(valor).toLocaleString("pt-BR", {
+                    style: "currency",
+                    currency: "BRL"
+                });
+
+            }
+
+            function traduzirStatus(status) {
+
+                const nomes = {
+                    EM_ANDAMENTO: "Em andamento",
+                    CONCLUIDA: "Concluída",
+                    CANCELADA: "Cancelada"
+                };
+
+                return nomes[status] ?? status;
+
+            }
+
+            formularioBusca.addEventListener("submit", function (event) {
+
+                event.preventDefault();
+                carregarNegociacoes();
+
+            });
+
+        </script>
 
     </body>
 

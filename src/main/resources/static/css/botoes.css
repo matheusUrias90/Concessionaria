@@ -97,3 +97,20 @@
 .btn-adicionar {
     margin-top: 20px;
 }
+
+.acoes-topo {
+    display: flex;
+    margin-bottom: 20px;
+}
+
+.acoes-topo .btn-voltar,
+.acoes-topo .btn-editar {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 12px !important;
+    justify-content: center;
+    height: 44px;
+    box-sizing: border-box;
+    padding: 0 16px;
+    font-size: 16px;
+}

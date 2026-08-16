@@ -42,6 +42,15 @@ public class PendenciaNegociacao {
     @JoinColumn(name = "resolvida_por_id")
     private Usuario resolvidaPor;
 
+    @ManyToOne
+    @JoinColumn(name = "forma_pagamento_id")
+    private FormaPagamentoNegociacao formaPagamento;
+
+    private Double valor;
+
+    @Column(length = 500)
+    private String descricao;
+
     public Long getId() {
         return id;
     }
@@ -104,5 +113,31 @@ public class PendenciaNegociacao {
 
     public void setResolvidaPor(Usuario resolvidaPor) {
         this.resolvidaPor = resolvidaPor;
+    }
+
+    public FormaPagamentoNegociacao getFormaPagamento() {
+        return formaPagamento;
+    }
+
+    public void setFormaPagamento(
+            FormaPagamentoNegociacao formaPagamento) {
+
+        this.formaPagamento = formaPagamento;
+    }
+
+    public Double getValor() {
+        return valor;
+    }
+
+    public void setValor(Double valor) {
+        this.valor = valor;
+    }
+
+    public String getDescricao() {
+        return descricao;
+    }
+
+    public void setDescricao(String descricao) {
+        this.descricao = descricao;
     }
 }

@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+    <head th:replace="~{fragments/head :: head('Acompanhar Negociação')}">
+    </head>
+
+    <body class="pagina-com-menu">
+
+        <div th:replace="~{fragments/menu :: menu}"></div>
+
+        <div class="container">
+
+            <h1>🤝 Acompanhar Negociação</h1>
+
+            <div class="acoes-topo">
+
+                <a th:href="@{/negociacoes}" class="btn-voltar">
+                    ← Voltar
+                </a>
+
+
+
+                <a th:if="${negociacao.status.name() == 'EM_ANDAMENTO'}"
+                   th:href="@{/negociacoes/{id}/editar(id=${negociacao.id})}"
+                   class="btn-editar">
+                    ✏️ Editar
+                </a>
+
+                <a th:if="${negociacao.status.name() == 'EM_ANDAMENTO'}"
+                   th:href="@{/negociacoes/{id}/cancelar(id=${negociacao.id})}"
+                   class="btn-excluir">
+                    ❌ Cancelar
+                </a>
+
+            </div>
+            
+            <div class="aviso-finalizada aviso-concluida"
+                 th:if="${negociacao.status.name() == 'CONCLUIDA'}">
+                ✅ Esta negociação foi concluída e está disponível somente para consulta.
+            </div>
+
+            <div class="aviso-finalizada aviso-cancelada"
+                 th:if="${negociacao.status.name() == 'CANCELADA'}">
+                ❌ Esta negociação foi cancelada e está disponível somente para consulta.
+            </div>
+            
+            <div class="motivo-cancelamento"
+                 th:if="${negociacao.status.name() == 'CANCELADA'
+                 and negociacao.motivoCancelamento != null
+                 and !negociacao.motivoCancelamento.isBlank()}">
+
+                <strong>Motivo do cancelamento:</strong>
+
+                <p th:text="${negociacao.motivoCancelamento}"></p>
+            </div>
+
+            <div class="detalhes-grid">
+
+                <div class="card-detalhe">
+
+                    <h3>🤝 Negociação</h3>
+
+                    <p>
+                        <strong>Número:</strong>
+                        <span th:text="|#${negociacao.id}|"></span>
+                    </p>
+
+                    <p>
+                        <strong>Status:</strong>
+                        <span th:text="${negociacao.status.name() == 'EM_ANDAMENTO'
+                              ? 'Em andamento'
+                              : negociacao.status.name() == 'CONCLUIDA'
+                              ? 'Concluída'
+                              : negociacao.status.name() == 'CANCELADA'
+                              ? 'Cancelada'
+                              : negociacao.status}">
+                        </span>
+                    </p>
+
+                    <p>
+                        <strong>Vendedor:</strong>
+                        <span th:text="${negociacao.vendedor.nome}"></span>
+                    </p>
+
+                    <p>
+                        <strong>Início:</strong>
+                        <span th:text="${#temporals.format(
+                              negociacao.dataInicio,
+                              'dd/MM/yyyy HH:mm'
+                              )}">
+                        </span>
+                    </p>
+
+                </div>
+
+                <div class="card-detalhe">
+
+                    <h3>🚗 Dados da negociação</h3>
+
+                    <p>
+                        <strong>Comprador:</strong>
+                        <span th:text="${negociacao.cliente.nome}"></span>
+                    </p>
+
+                    <p>
+                        <strong>Veículo:</strong>
+                        <span th:text="${negociacao.veiculo.nome}"></span>
+                    </p>
+
+                    <p>
+                        <strong>Valor proposto:</strong>
+                        <span th:text="${#numbers.formatCurrency(
+                              negociacao.valorProposto
+                              )}">
+                        </span>
+                    </p>
+
+                </div>
+
+            </div>
+
+            <h2>💳 Formas de Pagamento</h2>
+
+            <p th:if="${negociacao.status.name() == 'EM_ANDAMENTO'}"
+                class="descricao-pagamentos">
+                O valor proposto será composto pelas formas de pagamento abaixo.
+            </p>
+            
+            <p th:if="${negociacao.status.name() == 'CONCLUIDA'}"
+                class="descricao-pagamentos">
+                O valor proposto foi composto pelas formas de pagamento abaixo.
+            </p>
+            
+              <p th:if="${negociacao.status.name() == 'CANCELADA'}"
+                class="descricao-pagamentos">
+                O valor proposto seria composto pelas formas de pagamento abaixo.
+            </p>          
+
+            <div class="detalhes-grid">
+
+                <div class="card-detalhe"
+                     th:each="forma, iteracao : ${negociacao.formasPagamento}">
+
+                    <h3>
+                        💰 Parte <span th:text="${iteracao.count}"></span> do pagamento —
+                        <span th:text="${forma.tipo.name() == 'DINHEIRO'
+                              ? 'Dinheiro'
+                              : forma.tipo.name() == 'PIX'
+                              ? 'PIX'
+                              : forma.tipo.name() == 'CARTAO'
+                              ? 'Cartão'
+                              : forma.tipo.name() == 'FINANCIAMENTO'
+                              ? 'Financiamento'
+                              : forma.tipo.name() == 'CONSORCIO'
+                              ? 'Consórcio'
+                              : forma.tipo.name() == 'VEICULO_ENTRADA'
+                              ? 'Veículo de entrada'
+                              : forma.tipo}">
+                        </span>
+                    </h3>
+
+                    <p>
+                        <strong>Valor:</strong>
+                        <span th:text="${#numbers.formatCurrency(forma.valor)}"></span>
+                    </p>
+
+                    <p>
+                        <strong>Status:</strong>
+                        <span th:text="${forma.status.name() == 'PENDENTE'
+                              ? 'Pendente'
+                              : forma.status.name() == 'CONFIRMADA'
+                              ? 'Confirmada'
+                              : forma.status.name() == 'RECUSADA'
+                              ? 'Recusada'
+                              : forma.status}">
+                        </span>
+                    </p>
+
+                    <p th:if="${forma.instituicaoFinanceira != null
+                       and !forma.instituicaoFinanceira.isBlank()}">
+                        <strong>Instituição financeira:</strong>
+                        <span th:text="${forma.instituicaoFinanceira}"></span>
+                    </p>
+
+                    <p th:if="${forma.bandeiraCartao != null
+                       and !forma.bandeiraCartao.isBlank()}">
+                        <strong>Bandeira do cartão:</strong>
+                        <span th:text="${forma.bandeiraCartao}"></span>
+                    </p>
+
+                    <p th:if="${forma.parcelas != null}">
+                        <strong>Parcelas:</strong>
+                        <span th:text="|${forma.parcelas}x|"></span>
+                    </p>
+
+                    <p th:if="${forma.valorParcela != null}">
+                        <strong>Valor da parcela:</strong>
+                        <span th:text="${#numbers.formatCurrency(forma.valorParcela)}"></span>
+                    </p>
+
+                    <p th:if="${forma.dataPrevista != null}">
+                        <strong>Data prevista:</strong>
+                        <span th:text="${#temporals.format(
+                              forma.dataPrevista,
+                              'dd/MM/yyyy'
+                              )}">
+                        </span>
+                    </p>
+
+                    <p th:if="${forma.administradoraConsorcio != null
+                       and !forma.administradoraConsorcio.isBlank()}">
+                        <strong>Administradora do consórcio:</strong>
+                        <span th:text="${forma.administradoraConsorcio}"></span>
+                    </p>
+
+                    <p th:if="${forma.numeroCartaCredito != null
+                       and !forma.numeroCartaCredito.isBlank()}">
+                        <strong>Número da carta de crédito:</strong>
+                        <span th:text="${forma.numeroCartaCredito}"></span>
+                    </p>
+
+                    <th:block th:if="${forma.veiculoEntrada != null}">
+                        <p>
+                            <strong>Veículo de entrada:</strong>
+                            <span th:text="${forma.veiculoEntrada.nome}"></span>
+                        </p>
+
+                        <p>
+                            <strong>Marca:</strong>
+                            <span th:text="${forma.veiculoEntrada.marca}"></span>
+                        </p>
+
+                        <p>
+                            <strong>Ano:</strong>
+                            <span th:text="${forma.veiculoEntrada.ano}"></span>
+                        </p>
+
+                        <p>
+                            <strong>Cor:</strong>
+                            <span th:text="${forma.veiculoEntrada.cor}"></span>
+                        </p>
+
+                        <p>
+                            <strong>Placa:</strong>
+                            <span th:text="${forma.veiculoEntrada.placa}"></span>
+                        </p>
+                    </th:block>
+
+                    <div class="acoes-forma-pagamento"
+                         th:if="${forma.status.name() == 'PENDENTE'}">
+
+                        <form th:action="@{/negociacoes/formas-pagamento/{id}/confirmar(
+                              id=${forma.id}
+                              )}"
+                              method="post">
+
+                            <button type="submit" class="btn-salvar">
+                                ✅ Confirmar
+                            </button>
+
+                        </form>
+
+                        <form th:action="@{/negociacoes/formas-pagamento/{id}/recusar(
+                              id=${forma.id}
+                              )}"
+                              method="post">
+
+                            <button type="submit" class="btn-excluir">
+                                ❌ Recusar
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="total-pagamento">
+                <strong>Total das formas de pagamento:</strong>
+                <span th:text="${#numbers.formatCurrency(
+                      negociacao.valorProposto
+                      )}"></span>
+            </div>
+
+            <div class="situacao-negociacao">
+
+                <p class="aviso-recusada"
+                   th:if="${possuiFormaRecusada
+                            and negociacao.status.name() == 'EM_ANDAMENTO'}">
+                    ❌ Uma ou mais formas de pagamento foram recusadas.
+                    Edite a negociação para enviar uma nova proposta.
+                </p>
+
+                <p class="aviso-pendente"
+                   th:if="${!possuiFormaRecusada and possuiFormaPendente}">
+                    ⏳ Aguardando a confirmação de todas as formas de pagamento.
+                </p>
+
+                <p class="aviso-confirmada"
+                   th:if="${todasFormasConfirmadas 
+                          and negociacao.status.name() == 'EM_ANDAMENTO'} ">
+                    ✅ Todas as formas de pagamento foram confirmadas.
+                    A negociação está pronta para ser concluída.
+                </p>
+
+            </div>
+
+            <form th:if="${negociacao.status.name() == 'EM_ANDAMENTO'}"
+                  th:action="@{/negociacoes/{id}/concluir(
+                  id=${negociacao.id}
+                  )}"
+                  method="post"
+                  class="form-concluir-negociacao">
+
+                <button type="submit" class="btn-salvar">
+                    ✅ Concluir negociação
+                </button>
+
+            </form>
+                     
+
+
+
+        </div>
+
+    </body>
+</html>

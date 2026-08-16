@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+    <head th:replace="~{fragments/head :: head('Cancelar Negociação')}">
+    </head>
+
+    <body class="pagina-com-menu">
+
+        <div th:replace="~{fragments/menu :: menu}"></div>
+
+        <div class="container">
+
+            <h1>❌ Cancelar Negociação</h1>
+
+            <div class="card-form">
+
+                <h2 th:text="|Negociação #${negociacao.id}|"></h2>
+
+                <div class="detalhes-grid">
+
+                    <div class="card-detalhe">
+
+                        <h3>🤝 Negociação</h3>
+
+                        <p>
+                            <strong>Comprador:</strong>
+                            <span th:text="${negociacao.cliente.nome}"></span>
+                        </p>
+
+                        <p>
+                            <strong>Veículo:</strong>
+                            <span th:text="${negociacao.veiculo.nome}"></span>
+                        </p>
+
+                        <p>
+                            <strong>Valor proposto:</strong>
+                            <span th:text="${#numbers.formatCurrency(
+                                  negociacao.valorProposto
+                                  )}">
+                            </span>
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <p class="aviso-recusada">
+                    ⚠️ Ao cancelar, o veículo voltará a ficar disponível
+                    e nenhuma venda será gerada.
+                </p>
+
+                <form th:action="@{/negociacoes/{id}/cancelar(
+                      id=${negociacao.id}
+                      )}"
+                      method="post">
+
+                    <div class="card-detalhe"
+                         th:if="${negociacao.formasPagamento.?[
+                         status.name() == 'CONFIRMADA'
+                         ].size() > 0}">
+
+                        <h3>💰 Valores que precisam ser devolvidos</h3>
+
+                        <p>
+                            Marque somente as formas em que o valor já foi
+                            efetivamente recebido.
+                        </p>
+
+                        <label class="opcao-devolucao"
+                               th:each="forma : ${negociacao.formasPagamento}"
+                               th:if="${forma.status.name() == 'CONFIRMADA'}">
+
+                            <input type="checkbox"
+                                   name="formasParaDevolver"
+                                   th:value="${forma.id}">
+
+                            <span th:text="|${forma.tipo} — ${
+                                  #numbers.formatCurrency(forma.valor)
+                                  }|">
+                            </span>
+
+                        </label>
+
+                    </div>
+
+                    <div class="campo">
+                        <label for="motivoCancelamento">
+                            Motivo do cancelamento
+                        </label>
+
+                        <textarea id="motivoCancelamento"
+                                  name="motivoCancelamento"
+                                  rows="5"
+                                  maxlength="500"
+                                  placeholder="Informe por que a negociação foi cancelada..."
+                                  required>
+                        </textarea>
+                    </div>
+
+                    <div class="acoes-topo">
+
+                        <a th:href="@{/negociacoes/{id}(
+                           id=${negociacao.id}
+                           )}"
+                           class="btn-voltar">
+                            ← Voltar
+                        </a>
+
+                        <button type="submit"
+                                class="btn-excluir">
+                            ❌ Confirmar cancelamento
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </body>
+</html>

@@ -48,7 +48,10 @@ public class FormaPagamentoNegociacao {
 
     private String bandeiraCartao;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
     @JoinColumn(name = "veiculo_entrada_id", unique = true)
     private VeiculoEntrada veiculoEntrada;
 

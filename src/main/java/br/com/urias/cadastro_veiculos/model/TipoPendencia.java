@@ -4,7 +4,8 @@ public enum TipoPendencia {
 
     FINANCIAMENTO("Aprovação do financiamento"),
     CONSORCIO("Liberação da carta de crédito"),
-    VEICULO_ENTRADA("Avaliação do veículo de entrada");
+    VEICULO_ENTRADA("Avaliação do veículo de entrada"),
+    DEVOLUCAO_CLIENTE("Devolução ao comprador");
 
     private final String descricao;
 

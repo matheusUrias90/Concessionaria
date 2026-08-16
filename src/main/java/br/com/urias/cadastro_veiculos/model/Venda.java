@@ -31,6 +31,10 @@ public class Venda {
     @JoinColumn(name = "pagamento_id", unique = true)
     private Pagamento pagamento;
 
+    @OneToOne
+    @JoinColumn(name = "negociacao_id", unique = true)
+    private Negociacao negociacao;
+
     public Venda() {
     }
 
@@ -88,5 +92,13 @@ public class Venda {
 
     public void setPagamento(Pagamento pagamento) {
         this.pagamento = pagamento;
+    }
+
+    public Negociacao getNegociacao() {
+        return negociacao;
+    }
+
+    public void setNegociacao(Negociacao negociacao) {
+        this.negociacao = negociacao;
     }
 }

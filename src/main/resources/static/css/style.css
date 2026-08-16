@@ -55,3 +55,239 @@ h2 {
     margin-top: 40px;
     margin-bottom: 20px;
 }
+
+.acoes-topo {
+    margin-bottom: 20px;
+}
+
+.card-pagamentos {
+    margin-top: 25px;
+}
+
+.campo span {
+    display: block;
+    padding: 11px 12px;
+    background: #f7f7f7;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    min-height: 20px;
+}
+
+.campo-largura-total {
+    margin-top: 20px;
+}
+
+.lista-formas-pagamento {
+    display: grid;
+    gap: 20px;
+}
+
+.forma-pagamento-detalhes {
+    padding: 20px;
+    background: #fafafa;
+    border: 1px solid #ddd;
+    border-left: 5px solid #0a7a0a;
+    border-radius: 8px;
+}
+
+.forma-pagamento-detalhes h3 {
+    margin-top: 0;
+    color: #0a7a0a;
+}
+
+.total-pagamento {
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid #ddd;
+    text-align: right;
+    font-size: 16px;
+    color: #333;
+}
+
+.total-pagamento strong {
+    color: #0a7a0a;
+}
+
+.acoes-forma-pagamento {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 18px;
+}
+
+.acoes-forma-pagamento form {
+    display: inline-flex;
+    margin: 0;
+}
+
+.acoes-forma-pagamento .btn-salvar,
+.acoes-forma-pagamento .btn-excluir {
+    width: auto;
+    margin: 0;
+}
+
+.situacao-negociacao {
+    margin-top: 20px;
+}
+
+.situacao-negociacao p {
+    padding: 14px 16px;
+    border-radius: 6px;
+    font-weight: bold;
+}
+
+.aviso-pendente {
+    color: #856404;
+    background: #fff3cd;
+    border: 1px solid #ffe69c;
+}
+
+.aviso-recusada {
+    color: #842029;
+    background: #f8d7da;
+    border: 1px solid #f5c2c7;
+}
+
+.aviso-confirmada {
+    color: #0f5132;
+    background: #d1e7dd;
+    border: 1px solid #badbcc;
+}
+
+.form-concluir-negociacao {
+    margin-top: 14px;
+}
+
+.form-concluir-negociacao .btn-salvar {
+    width: auto;
+    margin: 0;
+}
+
+.filtros-status-negociacao {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 28px 0 18px;
+}
+
+.filtro-status {
+    padding: 10px 16px;
+    background: white;
+    border: 2px solid;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.filtro-todas {
+    color: #495057;
+    border-color: #6c757d;
+}
+
+.filtro-andamento {
+    color: #a76800;
+    border-color: #e0a800;
+}
+
+.filtro-concluidas {
+    color: #087a23;
+    border-color: #198754;
+}
+
+.filtro-canceladas {
+    color: #c82333;
+    border-color: #dc3545;
+}
+
+.filtro-todas.ativo {
+    color: white;
+    background: #6c757d;
+}
+
+.filtro-andamento.ativo {
+    color: #332600;
+    background: #ffc107;
+}
+
+.filtro-concluidas.ativo {
+    color: white;
+    background: #198754;
+}
+
+.filtro-canceladas.ativo {
+    color: white;
+    background: #dc3545;
+}
+
+.busca-negociacoes {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 24px;
+}
+
+.busca-negociacoes input {
+    flex: 1;
+}
+
+.status-negociacao {
+    font-weight: bold;
+}
+
+.status-em_andamento {
+    color: #a76800;
+}
+
+.status-concluida {
+    color: #198754;
+}
+
+.status-cancelada {
+    color: #dc3545;
+}
+
+.valores-devolucao {
+    margin-bottom: 20px;
+}
+
+.aviso-finalizada {
+    margin-top: 20px;
+    margin-bottom: 12px;
+    padding: 16px 20px;
+    border: 1px solid;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.aviso-concluida {
+    color: #145c36;
+    background-color: #e2f3ea;
+    border-color: #b8d8c8;
+}
+
+.aviso-cancelada {
+    color: #9b1c1c;
+    background-color: #fde8e8;
+    border-color: #f5bcbc;
+}
+
+.motivo-cancelamento {
+    margin-top: 12px;
+    margin-bottom: 12px;
+    padding: 16px 20px;
+    border-left: 5px solid #dc3545;
+    border-radius: 6px;
+    background-color: #fff3f3;
+    color: #721c24;
+}
+
+.motivo-cancelamento strong {
+    display: block;
+    margin-bottom: 8px;
+}
+
+.motivo-cancelamento p {
+    margin: 0;
+    line-height: 1.5;
+    white-space: pre-wrap;
+}

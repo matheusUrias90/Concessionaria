@@ -6,9 +6,14 @@
 
     <div class="container">
 
-        <h1>🤝 Nova Negociação</h1>
+        <h1 th:text="${editando == true}
+            ? '✏️ Editar Negociação'
+            : '🤝 Nova Negociação'">
+        </h1>
 
-        <form th:action="@{/negociacoes/iniciar}"
+        <form th:action="${editando == true}
+              ? @{/negociacoes/{id}/editar(id=${negociacao.id})}
+              : @{/negociacoes/iniciar}"
               method="post"
               class="card-form">
 
@@ -27,7 +32,9 @@
 
                         <option th:each="c : ${clientes}"
                                 th:value="${c.id}"
-                                th:text="${c.nome + ' - ' + c.telefone}">
+                                th:text="${c.nome + ' - ' + c.telefone}"
+                                th:selected="${editando == true
+                                and c.id == negociacao.cliente.id}">
                         </option>
 
                     </select>
@@ -45,7 +52,9 @@
                         <option th:each="v : ${veiculos}"
                                 th:value="${v.id}"
                                 th:text="${v.nome + ' (' + v.ano + ') - ' + v.placa}"
-                                th:data-preco="${v.preco}">
+                                th:data-preco="${v.preco}"
+                                th:selected="${editando == true
+                                and v.id == negociacao.veiculo.id}">
                         </option>
 
                     </select>
@@ -60,6 +69,9 @@
                            step="0.01"
                            min="0.01"
                            placeholder="Preenchido pelo veículo"
+                           th:value="${editando == true
+                           ? negociacao.valorProposto
+                           : null}"
                            required>
                 </div>
 
@@ -70,7 +82,9 @@
 
             <div id="formasPagamento">
 
-                <div class="form-grid forma-pagamento">
+                <!-- Uma forma vazia ao iniciar uma negociação nova -->
+                <div class="form-grid forma-pagamento"
+                     th:if="${editando != true}">
 
                     <div class="campo">
                         <label>Forma de Pagamento</label>
@@ -110,6 +124,230 @@
 
                 </div>
 
+                <!-- Formas já registradas ao editar uma negociação -->
+                <th:block th:if="${editando == true}">
+
+                <div class="form-grid forma-pagamento"
+                     th:each="forma, iteracao : ${negociacao.formasPagamento}">
+
+                    <input type="hidden"
+                           th:name="|formasPagamento[${iteracao.index}].id|"
+                           th:value="${forma.id}"
+                           data-campo="id">
+
+                    <div class="campo">
+                        <label>Forma de Pagamento</label>
+
+                        <select th:name="|formasPagamento[${iteracao.index}].tipo|"
+                                data-campo="tipo"
+                                onchange="atualizarCamposPagamento(this)"
+                                required>
+
+                            <option value="">Selecione...</option>
+                            <option value="DINHEIRO"
+                                    th:selected="${forma.tipo != null and forma.tipo.name() == 'DINHEIRO'}">
+                                Dinheiro
+                            </option>
+                            <option value="PIX"
+                                    th:selected="${forma.tipo != null and forma.tipo.name() == 'PIX'}">
+                                PIX
+                            </option>
+                            <option value="CARTAO"
+                                    th:selected="${forma.tipo != null and forma.tipo.name() == 'CARTAO'}">
+                                Cartão
+                            </option>
+                            <option value="FINANCIAMENTO"
+                                    th:selected="${forma.tipo != null and forma.tipo.name() == 'FINANCIAMENTO'}">
+                                Financiamento
+                            </option>
+                            <option value="CONSORCIO"
+                                    th:selected="${forma.tipo != null and forma.tipo.name() == 'CONSORCIO'}">
+                                Consórcio
+                            </option>
+                            <option value="VEICULO_ENTRADA"
+                                    th:selected="${forma.tipo != null and forma.tipo.name() == 'VEICULO_ENTRADA'}">
+                                Veículo como Entrada
+                            </option>
+
+                        </select>
+                    </div>
+
+                    <div class="campo">
+                        <label>Valor</label>
+
+                        <input type="number"
+                               th:name="|formasPagamento[${iteracao.index}].valor|"
+                               th:value="${forma.valor}"
+                               oninput="recalcularFinanciamento(this)"
+                               data-campo="valor"
+                               step="0.01"
+                               min="0.01"
+                               placeholder="0,00"
+                               required>
+                    </div>
+
+                    <div class="campos-especificos"
+                         style="display: contents;">
+
+                        <th:block th:if="${forma.tipo != null and forma.tipo.name() == 'CARTAO'}">
+                            <div class="campo">
+                                <label>Bandeira do Cartão</label>
+                                <input type="text"
+                                       th:name="|formasPagamento[${iteracao.index}].bandeiraCartao|"
+                                       th:value="${forma.bandeiraCartao}"
+                                       data-campo="bandeiraCartao"
+                                       required>
+                            </div>
+
+                            <div class="campo">
+                                <label>Parcelas</label>
+                                <select th:name="|formasPagamento[${iteracao.index}].parcelas|"
+                                        data-campo="parcelas"
+                                        onchange="calcularParcela(this)"
+                                        required>
+                                    <option value="">Selecione...</option>
+                                    <option th:each="quantidade : ${#numbers.sequence(6, 96, 6)}"
+                                            th:value="${quantidade}"
+                                            th:text="|${quantidade}x|"
+                                            th:selected="${quantidade == forma.parcelas}">
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="campo">
+                                <label>Valor da Parcela</label>
+                                <input type="number"
+                                       th:name="|formasPagamento[${iteracao.index}].valorParcela|"
+                                       th:value="${forma.valorParcela}"
+                                       data-campo="valorParcela"
+                                       step="0.01"
+                                       readonly>
+                            </div>
+                        </th:block>
+
+                        <th:block th:if="${forma.tipo != null and forma.tipo.name() == 'FINANCIAMENTO'}">
+                            <div class="campo">
+                                <label>Instituição Financeira</label>
+                                <input type="text"
+                                       th:name="|formasPagamento[${iteracao.index}].instituicaoFinanceira|"
+                                       th:value="${forma.instituicaoFinanceira}"
+                                       data-campo="instituicaoFinanceira"
+                                       required>
+                            </div>
+
+                            <div class="campo">
+                                <label>Parcelas</label>
+                                <select th:name="|formasPagamento[${iteracao.index}].parcelas|"
+                                        data-campo="parcelas"
+                                        onchange="calcularParcela(this)"
+                                        required>
+                                    <option value="">Selecione...</option>
+                                    <option th:each="quantidade : ${#numbers.sequence(6, 96, 6)}"
+                                            th:value="${quantidade}"
+                                            th:text="|${quantidade}x|"
+                                            th:selected="${quantidade == forma.parcelas}">
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="campo">
+                                <label>Valor da Parcela</label>
+                                <input type="number"
+                                       th:name="|formasPagamento[${iteracao.index}].valorParcela|"
+                                       th:value="${forma.valorParcela}"
+                                       data-campo="valorParcela"
+                                       step="0.01"
+                                       readonly>
+                            </div>
+                        </th:block>
+
+                        <th:block th:if="${forma.tipo != null and forma.tipo.name() == 'CONSORCIO'}">
+                            <div class="campo">
+                                <label>Administradora do Consórcio</label>
+                                <input type="text"
+                                       th:name="|formasPagamento[${iteracao.index}].administradoraConsorcio|"
+                                       th:value="${forma.administradoraConsorcio}"
+                                       data-campo="administradoraConsorcio"
+                                       required>
+                            </div>
+
+                            <div class="campo">
+                                <label>Número da Carta de Crédito</label>
+                                <input type="text"
+                                       th:name="|formasPagamento[${iteracao.index}].numeroCartaCredito|"
+                                       th:value="${forma.numeroCartaCredito}"
+                                       data-campo="numeroCartaCredito"
+                                       required>
+                            </div>
+                        </th:block>
+
+                        <th:block th:if="${forma.tipo != null and forma.tipo.name() == 'VEICULO_ENTRADA'}">
+                            <input type="hidden"
+                                   th:name="|formasPagamento[${iteracao.index}].veiculoEntrada.id|"
+                                   th:value="${forma.veiculoEntrada.id}"
+                                   data-campo="veiculoEntrada.id">
+
+                            <div class="campo">
+                                <label>Veículo</label>
+                                <input type="text"
+                                       th:name="|formasPagamento[${iteracao.index}].veiculoEntrada.nome|"
+                                       th:value="${forma.veiculoEntrada.nome}"
+                                       data-campo="veiculoEntrada.nome"
+                                       required>
+                            </div>
+
+                            <div class="campo">
+                                <label>Marca</label>
+                                <input type="text"
+                                       th:name="|formasPagamento[${iteracao.index}].veiculoEntrada.marca|"
+                                       th:value="${forma.veiculoEntrada.marca}"
+                                       data-campo="veiculoEntrada.marca"
+                                       required>
+                            </div>
+
+                            <div class="campo">
+                                <label>Cor</label>
+                                <input type="text"
+                                       th:name="|formasPagamento[${iteracao.index}].veiculoEntrada.cor|"
+                                       th:value="${forma.veiculoEntrada.cor}"
+                                       data-campo="veiculoEntrada.cor"
+                                       required>
+                            </div>
+
+                            <div class="campo">
+                                <label>Placa</label>
+                                <input type="text"
+                                       th:name="|formasPagamento[${iteracao.index}].veiculoEntrada.placa|"
+                                       th:value="${forma.veiculoEntrada.placa}"
+                                       data-campo="veiculoEntrada.placa"
+                                       required>
+                            </div>
+
+                            <div class="campo">
+                                <label>Ano</label>
+                                <input type="number"
+                                       th:name="|formasPagamento[${iteracao.index}].veiculoEntrada.ano|"
+                                       th:value="${forma.veiculoEntrada.ano}"
+                                       data-campo="veiculoEntrada.ano"
+                                       required>
+                            </div>
+                        </th:block>
+
+                    </div>
+
+                    <div class="campo"
+                         th:if="${#lists.size(negociacao.formasPagamento) > 1}">
+                        <button type="button"
+                                class="btn-excluir"
+                                onclick="removerFormaPagamento(this)">
+                            🗑 Remover
+                        </button>
+                    </div>
+
+                </div>
+
+                </th:block>
+
             </div>
 
 
@@ -119,9 +357,11 @@
                 ➕ Adicionar Forma de Pagamento
             </button>
 
-            <button type="submit"
-                    class="btn-salvar">
-                🤝 Iniciar Negociação
+            <button type="submit" class="btn-salvar">
+                <span th:text="${editando == true}
+                      ? '💾 Salvar alterações'
+                      : '🤝 Iniciar Negociação'">
+                </span>
             </button>
 
         </form>
@@ -138,7 +378,7 @@
                 document.getElementById("valorProposto");
 
 
-        veiculoSelect.addEventListener("change", function () {
+        function preencherValorDoVeiculo() {
 
             const opcaoSelecionada =
                     veiculoSelect.options[veiculoSelect.selectedIndex];
@@ -159,10 +399,21 @@
 
             }
 
-        });
+        }
 
 
-        let indiceFormaPagamento = 1;
+        veiculoSelect.addEventListener("change", preencherValorDoVeiculo);
+
+
+        if (veiculoSelect.value && !valorProposto.value) {
+
+            preencherValorDoVeiculo();
+
+        }
+
+
+        let indiceFormaPagamento =
+                document.querySelectorAll(".forma-pagamento").length;
 
 
         function adicionarFormaPagamento() {
@@ -501,7 +752,8 @@
             const selectTipo =
                     formaPagamento.querySelector('[data-campo="tipo"]');
 
-            if (selectTipo.value !== "FINANCIAMENTO") {
+            if (selectTipo.value !== "FINANCIAMENTO"
+                    && selectTipo.value !== "CARTAO") {
                 return;
             }
 
@@ -509,7 +761,7 @@
                     formaPagamento.querySelector('[data-campo="parcelas"]');
 
             if (selectParcelas) {
-                calcularParcelaFinanciamento(selectParcelas);
+                calcularParcela(selectParcelas);
             }
         }
 

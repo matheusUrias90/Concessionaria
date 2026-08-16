@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import java.util.Optional;
 
 public interface VendaRepository extends JpaRepository<Venda, Long> {
 
@@ -31,4 +32,6 @@ public interface VendaRepository extends JpaRepository<Venda, Long> {
             Long vendedorId,
             Pageable pageable
     );
+    
+    Optional<Venda> findByNegociacaoId(Long negociacaoId);
 }
