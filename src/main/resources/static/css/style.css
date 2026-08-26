@@ -64,7 +64,7 @@ h2 {
     margin-top: 25px;
 }
 
-.campo span {
+.campo > span:not(.select2-container) {
     display: block;
     padding: 11px 12px;
     background: #f7f7f7;

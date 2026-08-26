@@ -3,6 +3,8 @@ package br.com.urias.cadastro_veiculos.repository;
 import br.com.urias.cadastro_veiculos.model.Negociacao;
 import br.com.urias.cadastro_veiculos.model.StatusNegociacao;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -39,9 +41,10 @@ public interface NegociacaoRepository
          )
        ORDER BY n.dataInicio DESC
        """)
-    List<Negociacao> filtrarNegociacoes(
+    Page<Negociacao> filtrarNegociacoes(
             @Param("status") StatusNegociacao status,
             @Param("busca") String busca,
-            @Param("vendedorId") Long vendedorId
+            @Param("vendedorId") Long vendedorId,
+            Pageable pageable
     );
 }

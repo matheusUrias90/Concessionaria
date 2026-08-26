@@ -1,0 +1,108 @@
+<head th:replace="~{fragments/head :: head('Cadastrar Veículos de Entrada')}">
+</head>
+
+<body class="pagina-com-menu">
+
+    <div th:replace="~{fragments/menu :: menu}"></div>
+
+    <main class="container">
+
+        <h1>🚗 Cadastrar Veículos de Entrada</h1>
+
+        <div class="acoes-topo">
+            <a th:href="@{/negociacoes/{id}(id=${negociacao.id})}"
+               class="btn-voltar">
+                ← Voltar
+            </a>
+        </div>
+
+        <div class="aviso-pendente">
+            Informe o preço de venda de cada veículo recebido antes de
+            concluir a negociação.
+        </div>
+
+        <form th:action="@{/negociacoes/{id}/veiculos-entrada/cadastrar(
+                         id=${negociacao.id})}"
+              th:object="${conclusao}"
+              method="post"
+              class="card-form">
+
+            <div class="lista-veiculos-entrada">
+
+                <section th:each="forma, iteracao : ${formasVeiculoEntrada}"
+                         class="card-veiculo-entrada">
+
+                    <h2 th:text="|🚘 Veículo de entrada ${iteracao.count}|">
+                        🚘 Veículo de entrada
+                    </h2>
+
+                    <input type="hidden"
+                           th:name="|veiculosEntrada[${iteracao.index}].formaPagamentoId|"
+                           th:value="${forma.id}">
+
+                    <div class="form-grid">
+
+                        <div class="campo">
+                            <label>Veículo</label>
+                            <span th:text="${forma.veiculoEntrada.nome}"></span>
+                        </div>
+
+                        <div class="campo">
+                            <label>Marca</label>
+                            <span th:text="${forma.veiculoEntrada.marca}"></span>
+                        </div>
+
+                        <div class="campo">
+                            <label>Ano</label>
+                            <span th:text="${forma.veiculoEntrada.ano}"></span>
+                        </div>
+
+                        <div class="campo">
+                            <label>Cor</label>
+                            <span th:text="${forma.veiculoEntrada.cor}"></span>
+                        </div>
+
+                        <div class="campo">
+                            <label>Placa</label>
+                            <span th:text="${forma.veiculoEntrada.placa}"></span>
+                        </div>
+
+                        <div class="campo">
+                            <label>Valor aceito na troca</label>
+                            <span th:text="${#numbers.formatCurrency(forma.valor)}">
+                                R$ 0,00
+                            </span>
+                        </div>
+
+                        <div class="campo campo-largura-total">
+
+                            <label th:for="|precoVenda${iteracao.index}|">
+                                Preço de venda
+                            </label>
+
+                            <input type="number"
+                                   th:id="|precoVenda${iteracao.index}|"
+                                   th:name="|veiculosEntrada[${iteracao.index}].precoVenda|"
+                                   step="0.01"
+                                   min="0.01"
+                                   placeholder="Informe o preço para o estoque"
+                                   required>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+            </div>
+
+            <button type="submit" class="btn-salvar">
+                ✅ Cadastrar veículos e concluir negociação
+            </button>
+
+        </form>
+
+    </main>
+
+</body>
+</html>

@@ -38,6 +38,121 @@
     display: none;
 }
 
+/* ==========================
+   SELECT COM PESQUISA
+========================== */
+
+.campo .select2-container {
+    width: 100% !important;
+}
+
+/* Remove os estilos gerais aplicados aos spans */
+.campo .select2-container span:not(.select2-selection--single) {
+    padding: 0;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    min-height: 0;
+}
+
+/* Reconstrói somente a caixa visível do select */
+.campo .select2-container {
+    width: 100% !important;
+    height: 44px;
+}
+
+.campo .select2-container .select2-selection--single {
+    display: block;
+    height: 44px;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+.campo .select2-container .select2-selection--single
+.select2-selection__rendered {
+    display: flex;
+    align-items: center;
+    height: 42px;
+    padding: 0 38px 0 14px;
+    line-height: normal;
+    color: #333;
+    font-size: 15px;
+}
+
+.campo .select2-container .select2-selection--single
+.select2-selection__arrow {
+    top: 0;
+    width: 35px;
+    height: 42px;
+}
+
+.campo .select2-container .select2-selection--single
+.select2-selection__placeholder {
+    font-size: 15px;
+    color: #777;
+}
+
+.campo .select2-container .select2-selection--single
+.select2-selection__clear {
+    height: 42px;
+    line-height: 42px;
+}
+
+/* Campo de pesquisa quando o select estiver aberto */
+.select2-search--dropdown .select2-search__field {
+    height: 40px;
+    padding: 8px;
+    border: 1px solid #ccc;
+}
+
+/* ==========================
+   RESUMO DA COMPOSIÇÃO
+========================== */
+
+.resumo-composicao {
+    margin: 24px 0 18px;
+    padding: 16px 20px;
+    border: 1px solid #ddd;
+    border-left: 5px solid;
+    border-radius: 8px;
+    transition: background-color 0.2s,
+                border-color 0.2s;
+}
+
+.resumo-composicao p {
+    margin: 6px 0;
+}
+
+.resumo-composicao #mensagemComposicao {
+    margin-top: 12px;
+    font-weight: bold;
+}
+
+.resumo-neutro {
+    color: #495057;
+    background: #f8f9fa;
+    border-color: #6c757d;
+}
+
+.resumo-alerta {
+    color: #856404;
+    background: #fff3cd;
+    border-color: #e0a800;
+}
+
+.resumo-confirmado {
+    color: #145c36;
+    background: #e2f3ea;
+    border-color: #198754;
+}
+
+.btn-salvar:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+/*RESPONSIVIDADE*/
 @media (max-width: 768px) {
     .form-grid {
         grid-template-columns: 1fr;

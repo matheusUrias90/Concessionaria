@@ -119,6 +119,10 @@
                 </tbody>
 
             </table>
+
+            <div id="paginacaoNegociacoes"
+                 class="paginacao">
+            </div>
         </div>
 
         <script>
@@ -147,7 +151,12 @@
             const formularioBusca =
                     document.getElementById("formBuscaNegociacoes");
 
+            const paginacao =
+                    document.getElementById("paginacaoNegociacoes");
+
             let statusAtual = "EM_ANDAMENTO";
+            let paginaAtual = 0;
+            const tamanhoPagina = 5;
             let temporizadorBusca;
 
             const titulosPorStatus = {
@@ -176,7 +185,7 @@
 
                     this.classList.add("ativo");
 
-                    carregarNegociacoes();
+                    carregarNegociacoes(0);
 
                 });
 
@@ -187,7 +196,7 @@
                 clearTimeout(temporizadorBusca);
 
                 temporizadorBusca = setTimeout(
-                        carregarNegociacoes,
+                        () => carregarNegociacoes(0),
                         350
                         );
 
@@ -197,11 +206,11 @@
 
                 campoBusca.value = "";
                 campoBusca.focus();
-                carregarNegociacoes();
+                carregarNegociacoes(0);
 
             });
 
-            async function carregarNegociacoes() {
+            async function carregarNegociacoes(pagina = paginaAtual) {
 
                 const parametros = new URLSearchParams();
 
@@ -214,6 +223,9 @@
                 if (busca !== "") {
                     parametros.append("busca", busca);
                 }
+
+                parametros.append("pagina", pagina);
+                parametros.append("tamanho", tamanhoPagina);
 
                 tituloLista.textContent =
                         titulosPorStatus[statusAtual];
@@ -228,14 +240,18 @@
                         throw new Error("Não foi possível carregar as negociações.");
                     }
 
-                    const negociacoes = await resposta.json();
+                    const resultado = await resposta.json();
 
-                    montarTabela(negociacoes);
+                    paginaAtual = resultado.paginaAtual;
+
+                    montarTabela(resultado.negociacoes);
+                    montarPaginacao(resultado);
 
                 } catch (erro) {
 
                     corpoTabela.replaceChildren();
                     tabela.style.display = "none";
+                    paginacao.replaceChildren();
                     mensagemVazia.style.display = "block";
                     mensagemVazia.querySelector("p").textContent =
                             "Não foi possível atualizar a lista de negociações.";
@@ -254,6 +270,7 @@
                     mensagemVazia.style.display = "block";
                     mensagemVazia.querySelector("p").textContent =
                             mensagensVazias[statusAtual];
+                    paginacao.replaceChildren();
                     return;
 
                 }
@@ -302,6 +319,47 @@
 
             }
 
+            function montarPaginacao(resultado) {
+
+                paginacao.replaceChildren();
+
+                if (resultado.totalPaginas <= 1) {
+                    return;
+                }
+
+                if (!resultado.primeira) {
+
+                    const anterior = document.createElement("a");
+                    anterior.href = "#";
+                    anterior.textContent = "Anterior";
+                    anterior.addEventListener("click", event => {
+                        event.preventDefault();
+                        carregarNegociacoes(resultado.paginaAtual - 1);
+                    });
+
+                    paginacao.appendChild(anterior);
+                }
+
+                const informacao = document.createElement("span");
+                informacao.textContent =
+                        `Página ${resultado.paginaAtual + 1} de ${resultado.totalPaginas}`;
+
+                paginacao.appendChild(informacao);
+
+                if (!resultado.ultima) {
+
+                    const proxima = document.createElement("a");
+                    proxima.href = "#";
+                    proxima.textContent = "Próxima";
+                    proxima.addEventListener("click", event => {
+                        event.preventDefault();
+                        carregarNegociacoes(resultado.paginaAtual + 1);
+                    });
+
+                    paginacao.appendChild(proxima);
+                }
+            }
+
             function adicionarCelula(linha, texto) {
 
                 const celula = document.createElement("td");
@@ -334,9 +392,11 @@
             formularioBusca.addEventListener("submit", function (event) {
 
                 event.preventDefault();
-                carregarNegociacoes();
+                carregarNegociacoes(0);
 
             });
+
+            carregarNegociacoes(0);
 
         </script>
 

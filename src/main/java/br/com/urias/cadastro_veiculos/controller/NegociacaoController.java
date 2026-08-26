@@ -1,6 +1,5 @@
 package br.com.urias.cadastro_veiculos.controller;
 
-import br.com.urias.cadastro_veiculos.dto.NegociacaoResumoDTO;
 import br.com.urias.cadastro_veiculos.model.Cliente;
 import br.com.urias.cadastro_veiculos.model.FormaPagamentoNegociacao;
 import br.com.urias.cadastro_veiculos.model.Negociacao;
@@ -11,10 +10,11 @@ import br.com.urias.cadastro_veiculos.model.StatusPendencia;
 import br.com.urias.cadastro_veiculos.model.StatusVeiculo;
 import br.com.urias.cadastro_veiculos.model.Usuario;
 import br.com.urias.cadastro_veiculos.model.Veiculo;
+import br.com.urias.cadastro_veiculos.dto.ConclusaoNegociacaoDTO;
+import br.com.urias.cadastro_veiculos.dto.VeiculoEntradaCadastroDTO;
 import br.com.urias.cadastro_veiculos.repository.ClienteRepository;
 import br.com.urias.cadastro_veiculos.repository.NegociacaoRepository;
 import br.com.urias.cadastro_veiculos.repository.VeiculoRepository;
-import br.com.urias.cadastro_veiculos.repository.FormaPagamentoNegociacaoRepository;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
@@ -35,9 +35,8 @@ import java.util.Set;
 import br.com.urias.cadastro_veiculos.model.Venda;
 import br.com.urias.cadastro_veiculos.repository.VendaRepository;
 import java.time.LocalDate;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 @Controller
 public class NegociacaoController {
@@ -45,20 +44,17 @@ public class NegociacaoController {
     private final NegociacaoRepository negociacaoRepository;
     private final ClienteRepository clienteRepository;
     private final VeiculoRepository veiculoRepository;
-    private final FormaPagamentoNegociacaoRepository formaPagamentoRepository;
     private final VendaRepository vendaRepository;
 
     public NegociacaoController(
             NegociacaoRepository negociacaoRepository,
             ClienteRepository clienteRepository,
             VeiculoRepository veiculoRepository,
-            FormaPagamentoNegociacaoRepository formaPagamentoRepository,
             VendaRepository vendaRepository) {
 
         this.negociacaoRepository = negociacaoRepository;
         this.clienteRepository = clienteRepository;
         this.veiculoRepository = veiculoRepository;
-        this.formaPagamentoRepository = formaPagamentoRepository;
         this.vendaRepository = vendaRepository;
     }
 
@@ -103,6 +99,8 @@ public class NegociacaoController {
         if (usuarioLogado == null) {
             return "redirect:/login";
         }
+
+        validarComposicaoPagamento(negociacao);
 
         Cliente cliente = clienteRepository.findById(clienteId)
                 .orElseThrow(()
@@ -157,27 +155,26 @@ public class NegociacaoController {
             return "redirect:/login";
         }
 
-        if ("VENDEDOR".equals(String.valueOf(usuarioLogado.getPerfil()))) {
+        Long vendedorId = null;
 
-            model.addAttribute(
-                    "negociacoes",
-                    negociacaoRepository
-                            .findByStatusAndVendedorIdOrderByDataInicioDesc(
-                                    StatusNegociacao.EM_ANDAMENTO,
-                                    usuarioLogado.getId()
-                            )
-            );
+        if ("VENDEDOR".equals(
+                String.valueOf(usuarioLogado.getPerfil()))) {
 
-        } else {
-
-            model.addAttribute(
-                    "negociacoes",
-                    negociacaoRepository
-                            .findByStatusOrderByDataInicioDesc(
-                                    StatusNegociacao.EM_ANDAMENTO
-                            )
-            );
+            vendedorId = usuarioLogado.getId();
         }
+
+        Page<Negociacao> paginaInicial
+                = negociacaoRepository.filtrarNegociacoes(
+                        StatusNegociacao.EM_ANDAMENTO,
+                        "",
+                        vendedorId,
+                        PageRequest.of(0, 5)
+                );
+
+        model.addAttribute(
+                "negociacoes",
+                paginaInicial.getContent()
+        );
 
         model.addAttribute("paginaAtiva", "negociacoes");
 
@@ -368,34 +365,7 @@ public class NegociacaoController {
             return "redirect:/negociacoes/" + id;
         }
 
-        if (dadosEditados.getFormasPagamento() == null
-                || dadosEditados.getFormasPagamento().isEmpty()) {
-
-            throw new IllegalArgumentException(
-                    "Informe pelo menos uma forma de pagamento."
-            );
-        }
-
-        double totalFormas = dadosEditados.getFormasPagamento()
-                .stream()
-                .mapToDouble(forma
-                        -> forma.getValor() != null
-                ? forma.getValor()
-                : 0.0
-                )
-                .sum();
-
-        if (dadosEditados.getValorProposto() == null
-                || Math.abs(
-                        totalFormas
-                        - dadosEditados.getValorProposto()
-                ) > 0.01) {
-
-            throw new IllegalArgumentException(
-                    "O total das formas de pagamento "
-                    + "deve ser igual ao valor proposto."
-            );
-        }
+        validarComposicaoPagamento(dadosEditados);
 
         Cliente cliente = clienteRepository.findById(clienteId)
                 .orElseThrow(()
@@ -560,10 +530,10 @@ public class NegociacaoController {
         veiculoDestino.setAno(veiculoOrigem.getAno());
     }
 
-    @PostMapping("/negociacoes/formas-pagamento/{formaId}/confirmar")
-    @Transactional
-    public String confirmarFormaPagamento(
-            @PathVariable Long formaId,
+    @GetMapping("/negociacoes/{id}/veiculos-entrada/cadastrar")
+    public String abrirCadastroVeiculosEntrada(
+            @PathVariable Long id,
+            Model model,
             HttpSession session) {
 
         Usuario usuarioLogado
@@ -573,68 +543,11 @@ public class NegociacaoController {
             return "redirect:/login";
         }
 
-        FormaPagamentoNegociacao forma
-                = buscarFormaComPermissao(
-                        formaId,
-                        usuarioLogado
-                );
-
-        if (forma.getNegociacao().getStatus()
-                != StatusNegociacao.EM_ANDAMENTO) {
-
-            return "redirect:/negociacoes/"
-                    + forma.getNegociacao().getId();
-        }
-
-        forma.setStatus(StatusFormaPagamento.CONFIRMADA);
-        formaPagamentoRepository.save(forma);
-
-        return "redirect:/negociacoes/"
-                + forma.getNegociacao().getId();
-    }
-
-    @PostMapping("/negociacoes/formas-pagamento/{formaId}/recusar")
-    @Transactional
-    public String recusarFormaPagamento(
-            @PathVariable Long formaId,
-            HttpSession session) {
-
-        Usuario usuarioLogado
-                = (Usuario) session.getAttribute("usuarioLogado");
-
-        if (usuarioLogado == null) {
-            return "redirect:/login";
-        }
-
-        FormaPagamentoNegociacao forma
-                = buscarFormaComPermissao(
-                        formaId,
-                        usuarioLogado
-                );
-
-        if (forma.getNegociacao().getStatus()
-                != StatusNegociacao.EM_ANDAMENTO) {
-
-            return "redirect:/negociacoes/"
-                    + forma.getNegociacao().getId();
-        }
-
-        forma.setStatus(StatusFormaPagamento.RECUSADA);
-        formaPagamentoRepository.save(forma);
-
-        return "redirect:/negociacoes/"
-                + forma.getNegociacao().getId();
-    }
-
-    private FormaPagamentoNegociacao buscarFormaComPermissao(
-            Long formaId,
-            Usuario usuarioLogado) {
-
-        FormaPagamentoNegociacao forma
-                = formaPagamentoRepository.findById(formaId)
+        Negociacao negociacao
+                = negociacaoRepository.findById(id)
                         .orElseThrow(()
                                 -> new IllegalArgumentException(
-                                "Forma de pagamento não encontrada."
+                                "Negociação não encontrada."
                         )
                         );
 
@@ -643,18 +556,251 @@ public class NegociacaoController {
         );
 
         boolean negociacaoDeOutroVendedor
-                = !forma.getNegociacao()
-                        .getVendedor()
+                = !negociacao.getVendedor()
                         .getId()
                         .equals(usuarioLogado.getId());
 
         if (vendedor && negociacaoDeOutroVendedor) {
-            throw new IllegalStateException(
-                    "Você não possui permissão para alterar esta negociação."
+            return "redirect:/negociacoes";
+        }
+
+        if (negociacao.getStatus()
+                != StatusNegociacao.EM_ANDAMENTO) {
+
+            return "redirect:/negociacoes/" + id;
+        }
+
+        boolean todasConfirmadas
+                = !negociacao.getFormasPagamento().isEmpty();
+
+        for (FormaPagamentoNegociacao forma
+                : negociacao.getFormasPagamento()) {
+
+            if (forma.getStatus()
+                    != StatusFormaPagamento.CONFIRMADA) {
+
+                todasConfirmadas = false;
+                break;
+            }
+        }
+
+        if (!todasConfirmadas) {
+            return "redirect:/negociacoes/" + id;
+        }
+
+        List<FormaPagamentoNegociacao> formasVeiculoEntrada
+                = new ArrayList<>();
+
+        for (FormaPagamentoNegociacao forma
+                : negociacao.getFormasPagamento()) {
+
+            if (forma.getTipo()
+                    == TipoFormaPagamento.VEICULO_ENTRADA
+                    && forma.getVeiculoEntrada() != null) {
+
+                formasVeiculoEntrada.add(forma);
+            }
+        }
+
+        if (formasVeiculoEntrada.isEmpty()) {
+            return "redirect:/negociacoes/" + id;
+        }
+
+        model.addAttribute(
+                "negociacao",
+                negociacao
+        );
+
+        model.addAttribute(
+                "formasVeiculoEntrada",
+                formasVeiculoEntrada
+        );
+
+        model.addAttribute(
+                "conclusao",
+                new ConclusaoNegociacaoDTO()
+        );
+
+        model.addAttribute(
+                "paginaAtiva",
+                "negociacoes"
+        );
+
+        return "negociacao-veiculos-entrada";
+    }
+
+    @PostMapping("/negociacoes/{id}/veiculos-entrada/cadastrar")
+    @Transactional
+    public String cadastrarVeiculosEntradaEConcluir(
+            @PathVariable Long id,
+            @ModelAttribute ConclusaoNegociacaoDTO conclusao,
+            HttpSession session) {
+
+        Usuario usuarioLogado
+                = (Usuario) session.getAttribute("usuarioLogado");
+
+        if (usuarioLogado == null) {
+            return "redirect:/login";
+        }
+
+        Negociacao negociacao = negociacaoRepository.findById(id)
+                .orElseThrow(()
+                        -> new IllegalArgumentException(
+                        "Negociação não encontrada."
+                )
+                );
+
+        boolean vendedor = "VENDEDOR".equals(
+                String.valueOf(usuarioLogado.getPerfil())
+        );
+
+        boolean negociacaoDeOutroVendedor
+                = !negociacao.getVendedor().getId()
+                        .equals(usuarioLogado.getId());
+
+        if (vendedor && negociacaoDeOutroVendedor) {
+            return "redirect:/negociacoes";
+        }
+
+        if (negociacao.getStatus()
+                != StatusNegociacao.EM_ANDAMENTO) {
+
+            return "redirect:/negociacoes/" + id;
+        }
+
+        validarComposicaoPagamento(negociacao);
+
+        for (FormaPagamentoNegociacao forma
+                : negociacao.getFormasPagamento()) {
+
+            if (forma.getStatus()
+                    != StatusFormaPagamento.CONFIRMADA) {
+
+                return "redirect:/negociacoes/" + id;
+            }
+        }
+
+        if (conclusao.getVeiculosEntrada() == null
+                || conclusao.getVeiculosEntrada().isEmpty()) {
+
+            throw new IllegalArgumentException(
+                    "Informe os veículos de entrada."
             );
         }
 
-        return forma;
+        int quantidadeVeiculosEntrada = 0;
+
+        /*
+     * Percorre as formas de pagamento da negociação.
+         */
+        for (FormaPagamentoNegociacao forma
+                : negociacao.getFormasPagamento()) {
+
+            if (forma.getVeiculoEntrada() == null) {
+                continue;
+            }
+
+            quantidadeVeiculosEntrada++;
+
+            VeiculoEntradaCadastroDTO dadosCadastro = null;
+
+            /*
+         * Procura o preço informado para esta forma de pagamento.
+             */
+            for (VeiculoEntradaCadastroDTO item
+                    : conclusao.getVeiculosEntrada()) {
+
+                if (item.getFormaPagamentoId() != null
+                        && item.getFormaPagamentoId()
+                                .equals(forma.getId())) {
+
+                    dadosCadastro = item;
+                    break;
+                }
+            }
+
+            if (dadosCadastro == null) {
+                throw new IllegalArgumentException(
+                        "Informe o preço de venda de todos "
+                        + "os veículos de entrada."
+                );
+            }
+
+            if (dadosCadastro.getPrecoVenda() == null
+                    || dadosCadastro.getPrecoVenda() <= 0) {
+
+                throw new IllegalArgumentException(
+                        "O preço de venda do veículo deve "
+                        + "ser maior que zero."
+                );
+            }
+
+            VeiculoEntrada entrada = forma.getVeiculoEntrada();
+
+            Veiculo veiculoEstoque = new Veiculo();
+
+            veiculoEstoque.setNome(entrada.getNome());
+            veiculoEstoque.setMarca(entrada.getMarca());
+            veiculoEstoque.setCor(entrada.getCor());
+            veiculoEstoque.setPlaca(entrada.getPlaca());
+            veiculoEstoque.setAno(entrada.getAno());
+
+            /*
+         * Preço para revenda. O formulário começa preenchido
+         * com o valor negociado, mas permite alteração.
+             */
+            veiculoEstoque.setPreco(dadosCadastro.getPrecoVenda());
+
+            veiculoEstoque.setStatus(StatusVeiculo.DISPONIVEL);
+            veiculoEstoque.setDataEntrada(LocalDate.now());
+
+            veiculoRepository.save(veiculoEstoque);
+        }
+
+        if (quantidadeVeiculosEntrada
+                != conclusao.getVeiculosEntrada().size()) {
+
+            throw new IllegalArgumentException(
+                    "Existem dados de veículos que não pertencem "
+                    + "a esta negociação."
+            );
+        }
+
+        finalizarNegociacao(negociacao);
+
+        return "redirect:/negociacoes";
+    }
+
+    private void finalizarNegociacao(Negociacao negociacao) {
+
+        if (vendaRepository
+                .findByNegociacaoId(negociacao.getId())
+                .isPresent()) {
+
+            throw new IllegalStateException(
+                    "Esta negociação já gerou uma venda."
+            );
+        }
+
+        Venda venda = new Venda();
+
+        venda.setCliente(negociacao.getCliente());
+        venda.setVendedor(negociacao.getVendedor());
+        venda.setVeiculo(negociacao.getVeiculo());
+        venda.setDataVenda(LocalDate.now());
+        venda.setValor(negociacao.getValorProposto());
+        venda.setPagamento(null);
+        venda.setNegociacao(negociacao);
+
+        negociacao.setStatus(StatusNegociacao.CONCLUIDA);
+        negociacao.setDataEncerramento(LocalDateTime.now());
+
+        Veiculo veiculoVendido = negociacao.getVeiculo();
+        veiculoVendido.setStatus(StatusVeiculo.VENDIDO);
+
+        vendaRepository.save(venda);
+        negociacaoRepository.save(negociacao);
+        veiculoRepository.save(veiculoVendido);
     }
 
     @PostMapping("/negociacoes/{id}/concluir")
@@ -695,6 +841,8 @@ public class NegociacaoController {
             return "redirect:/negociacoes/" + id;
         }
 
+        validarComposicaoPagamento(negociacao);
+
         boolean todasConfirmadas
                 = !negociacao.getFormasPagamento().isEmpty()
                 && negociacao.getFormasPagamento()
@@ -716,10 +864,9 @@ public class NegociacaoController {
                         );
 
         if (possuiVeiculoEntrada) {
-            throw new IllegalStateException(
-                    "Complete o cadastro do veículo de entrada "
-                    + "antes de concluir a negociação."
-            );
+            return "redirect:/negociacoes/"
+                    + id
+                    + "/veiculos-entrada/cadastrar";
         }
 
         if (vendaRepository.findByNegociacaoId(id).isPresent()) {
@@ -741,9 +888,7 @@ public class NegociacaoController {
         Veiculo veiculo = negociacao.getVeiculo();
         veiculo.setStatus(StatusVeiculo.VENDIDO);
 
-        vendaRepository.save(venda);
-        negociacaoRepository.save(negociacao);
-        veiculoRepository.save(veiculo);
+        finalizarNegociacao(negociacao);
 
         return "redirect:/negociacoes";
     }
@@ -797,8 +942,7 @@ public class NegociacaoController {
     public String cancelarNegociacao(
             @PathVariable Long id,
             @RequestParam String motivoCancelamento,
-            @RequestParam(required = false)
-            List<Long> formasParaDevolver,
+            @RequestParam(required = false) List<Long> formasParaDevolver,
             HttpSession session) {
 
         Usuario usuarioLogado
@@ -840,32 +984,32 @@ public class NegociacaoController {
                     "Informe o motivo do cancelamento."
             );
         }
-        
+
         if (formasParaDevolver != null) {
 
-    for (Long formaId : formasParaDevolver) {
+            for (Long formaId : formasParaDevolver) {
 
-        FormaPagamentoNegociacao forma
-                = negociacao.getFormasPagamento()
-                        .stream()
-                        .filter(item ->
-                                item.getId().equals(formaId)
-                        )
-                        .findFirst()
-                        .orElseThrow(() ->
-                                new IllegalArgumentException(
+                FormaPagamentoNegociacao forma
+                        = negociacao.getFormasPagamento()
+                                .stream()
+                                .filter(item
+                                        -> item.getId().equals(formaId)
+                                )
+                                .findFirst()
+                                .orElseThrow(()
+                                        -> new IllegalArgumentException(
                                         "Forma de pagamento inválida."
                                 )
-                        );
+                                );
 
-        if (forma.getStatus()
-                != StatusFormaPagamento.CONFIRMADA) {
+                if (forma.getStatus()
+                        != StatusFormaPagamento.CONFIRMADA) {
 
-            throw new IllegalStateException(
-                    "Apenas formas confirmadas podem "
-                    + "gerar devolução."
-            );
-        }
+                    throw new IllegalStateException(
+                            "Apenas formas confirmadas podem "
+                            + "gerar devolução."
+                    );
+                }
 
                 PendenciaNegociacao pendencia
                         = new PendenciaNegociacao();
@@ -912,45 +1056,52 @@ public class NegociacaoController {
         return "redirect:/negociacoes";
     }
 
-    @GetMapping("/api/negociacoes")
-    @ResponseBody
-    public ResponseEntity<List<NegociacaoResumoDTO>>
-            filtrarNegociacoes(
-                    @RequestParam(required = false) StatusNegociacao status,
-                    @RequestParam(required = false) String busca,
-                    HttpSession session) {
+    private void validarComposicaoPagamento(
+            Negociacao negociacao) {
 
-        Usuario usuarioLogado
-                = (Usuario) session.getAttribute("usuarioLogado");
+        if (negociacao.getValorProposto() == null
+                || negociacao.getValorProposto() <= 0) {
 
-        if (usuarioLogado == null) {
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .build();
+            throw new IllegalArgumentException(
+                    "Informe um valor proposto válido."
+            );
         }
 
-        Long vendedorId = null;
+        if (negociacao.getFormasPagamento() == null
+                || negociacao.getFormasPagamento().isEmpty()) {
 
-        if ("VENDEDOR".equals(
-                String.valueOf(usuarioLogado.getPerfil()))) {
-
-            vendedorId = usuarioLogado.getId();
+            throw new IllegalArgumentException(
+                    "Informe pelo menos uma forma de pagamento."
+            );
         }
 
-        String textoBusca
-                = busca == null ? "" : busca.trim();
+        double totalFormas = 0.0;
 
-        List<NegociacaoResumoDTO> resultado
-                = negociacaoRepository
-                        .filtrarNegociacoes(
-                                status,
-                                textoBusca,
-                                vendedorId
-                        )
-                        .stream()
-                        .map(NegociacaoResumoDTO::from)
-                        .toList();
+        for (FormaPagamentoNegociacao forma
+                : negociacao.getFormasPagamento()) {
 
-        return ResponseEntity.ok(resultado);
+            if (forma.getValor() == null
+                    || forma.getValor() <= 0) {
+
+                throw new IllegalArgumentException(
+                        "Informe um valor válido "
+                        + "para todas as formas de pagamento."
+                );
+            }
+
+            totalFormas += forma.getValor();
+        }
+
+        double diferenca = Math.abs(
+                negociacao.getValorProposto() - totalFormas
+        );
+
+        if (diferenca >= 0.01) {
+            throw new IllegalArgumentException(
+                    "O total das formas de pagamento "
+                    + "deve ser igual ao valor proposto."
+            );
+        }
     }
+
 }
