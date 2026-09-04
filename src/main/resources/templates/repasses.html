@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-    
+
     <head th:replace="~{fragments/head :: head('Repasses ao Proprietário')}"></head>
 
     <body class="pagina-com-menu">
@@ -12,6 +12,23 @@
 
             <h1>💸 Repasses ao Proprietário</h1>
 
+            <form method="get"
+                  action="/repasses"
+                  class="form-busca"
+                  id="formBuscaRepasses">
+
+                <input type="text"
+                       name="busca"
+                       id="campoBuscaRepasses"
+                       placeholder="Buscar por proprietário, veículo ou placa"
+                       th:value="${busca}">
+
+                <a href="/repasses"
+                   class="btn-limpar">
+                    Limpar
+                </a>
+
+            </form>
 
             <!-- =========================================
                  VENDAS AGUARDANDO INÍCIO DO REPASSE
@@ -94,66 +111,60 @@
 
                 <tbody>
 
-                    <th:block th:each="r : ${repasses}">
+                    <tr th:each="r : ${repassesPendentes}">
 
-                        <tr th:if="${r.status != 'PAGO'}">
+                        <td th:text="${r.venda.veiculo.nomeProprietario}"></td>
 
-                            <td th:text="${r.venda.veiculo.nomeProprietario}"></td>
+                        <td th:text="${r.venda.veiculo.nome
+                            + ' - '
+                            + r.venda.veiculo.placa}">
+                        </td>
 
-                            <td th:text="${r.venda.veiculo.nome
-                                  + ' - '
-                                  + r.venda.veiculo.placa}">
-                            </td>
+                        <td>
+                            R$
+                            <span th:text="${#numbers.formatDecimal(
+                                  r.valorDevido,
+                                  1,
+                                  'POINT',
+                                  2,
+                                  'COMMA')}">
+                            </span>
+                        </td>
 
-                            <td>
-                                R$
-                                <span th:text="${#numbers.formatDecimal(
-                                      r.valorDevido,
-                                      1,
-                                      'POINT',
-                                      2,
-                                      'COMMA')}">
-                                </span>
-                            </td>
+                        <td>
+                            R$
+                            <span th:text="${#numbers.formatDecimal(
+                                  r.totalPago,
+                                  1,
+                                  'POINT',
+                                  2,
+                                  'COMMA')}">
+                            </span>
+                        </td>
 
-                            <td>
-                                R$
-                                <span th:text="${#numbers.formatDecimal(
-                                      r.totalPago,
-                                      1,
-                                      'POINT',
-                                      2,
-                                      'COMMA')}">
-                                </span>
-                            </td>
+                        <td>
+                            R$
+                            <span th:text="${#numbers.formatDecimal(
+                                  r.saldo,
+                                  1,
+                                  'POINT',
+                                  2,
+                                  'COMMA')}">
+                            </span>
+                        </td>
 
-                            <td>
-                                R$
-                                <span th:text="${#numbers.formatDecimal(
-                                      r.saldo,
-                                      1,
-                                      'POINT',
-                                      2,
-                                      'COMMA')}">
-                                </span>
-                            </td>
+                        <td th:text="${r.status}"></td>
 
-                            <td th:text="${r.status}"></td>
+                        <td>
+                            <a th:href="@{/repasses/{id}(id=${r.id})}"
+                               class="btn-detalhes">
+                                Gerenciar
+                            </a>
+                        </td>
 
-                            <td>
-                                <a th:href="@{/repasses/{id}(id=${r.id})}"
-                                   class="btn-detalhes">
-                                    Gerenciar
-                                </a>
-                            </td>
+                    </tr>
 
-                        </tr>
-
-                    </th:block>
-
-                    <tr th:if="${#lists.isEmpty(
-                        repasses.?[status != 'PAGO']
-                    )}">
+                    <tr th:if="${#lists.isEmpty(repassesPendentes)}">
                         <td colspan="7">
                             Nenhum repasse em andamento.
                         </td>
@@ -186,66 +197,60 @@
 
                 <tbody>
 
-                    <th:block th:each="r : ${repasses}">
+                    <tr th:each="r : ${repassesFinalizados}">
 
-                        <tr th:if="${r.status == 'PAGO'}">
+                        <td th:text="${r.venda.veiculo.nomeProprietario}"></td>
 
-                            <td th:text="${r.venda.veiculo.nomeProprietario}"></td>
+                        <td th:text="${r.venda.veiculo.nome
+                            + ' - '
+                            + r.venda.veiculo.placa}">
+                        </td>
 
-                            <td th:text="${r.venda.veiculo.nome
-                                  + ' - '
-                                  + r.venda.veiculo.placa}">
-                            </td>
+                        <td>
+                            R$
+                            <span th:text="${#numbers.formatDecimal(
+                                  r.valorDevido,
+                                  1,
+                                  'POINT',
+                                  2,
+                                  'COMMA')}">
+                            </span>
+                        </td>
 
-                            <td>
-                                R$
-                                <span th:text="${#numbers.formatDecimal(
-                                      r.valorDevido,
-                                      1,
-                                      'POINT',
-                                      2,
-                                      'COMMA')}">
-                                </span>
-                            </td>
+                        <td>
+                            R$
+                            <span th:text="${#numbers.formatDecimal(
+                                  r.totalPago,
+                                  1,
+                                  'POINT',
+                                  2,
+                                  'COMMA')}">
+                            </span>
+                        </td>
 
-                            <td>
-                                R$
-                                <span th:text="${#numbers.formatDecimal(
-                                      r.totalPago,
-                                      1,
-                                      'POINT',
-                                      2,
-                                      'COMMA')}">
-                                </span>
-                            </td>
+                        <td>
+                            R$
+                            <span th:text="${#numbers.formatDecimal(
+                                  r.saldo,
+                                  1,
+                                  'POINT',
+                                  2,
+                                  'COMMA')}">
+                            </span>
+                        </td>
 
-                            <td>
-                                R$
-                                <span th:text="${#numbers.formatDecimal(
-                                      r.saldo,
-                                      1,
-                                      'POINT',
-                                      2,
-                                      'COMMA')}">
-                                </span>
-                            </td>
+                        <td th:text="${r.status}"></td>
 
-                            <td th:text="${r.status}"></td>
+                        <td>
+                            <a th:href="@{/repasses/{id}(id=${r.id})}"
+                               class="btn-detalhes">
+                                Detalhes
+                            </a>
+                        </td>
 
-                            <td>
-                                <a th:href="@{/repasses/{id}(id=${r.id})}"
-                                   class="btn-detalhes">
-                                    Detalhes
-                                </a>
-                            </td>
+                    </tr>
 
-                        </tr>
-
-                    </th:block>
-
-                    <tr th:if="${#lists.isEmpty(
-                        repasses.?[status == 'PAGO']
-                    )}">
+                    <tr th:if="${#lists.isEmpty(repassesFinalizados)}">
                         <td colspan="7">
                             Nenhum repasse finalizado.
                         </td>
@@ -255,7 +260,61 @@
 
             </table>
 
+            <div class="paginacao"
+                 th:if="${paginaFinalizados.totalPages > 1}">
+
+                <a th:if="${paginaFinalizados.hasPrevious()}"
+                   th:href="@{/repasses(
+                   busca=${busca},
+                   pagina=${paginaFinalizados.number - 1}
+                   )}">
+                    Anterior
+                </a>
+
+                <span th:each="numero : ${#numbers.sequence(
+                      0,
+                      paginaFinalizados.totalPages - 1
+                      )}">
+
+                    <a th:href="@{/repasses(
+                       busca=${busca},
+                       pagina=${numero}
+                       )}"
+                       th:text="${numero + 1}"
+                       th:classappend="${numero == paginaFinalizados.number}
+                       ? 'ativa'">
+                    </a>
+
+                </span>
+
+                <a th:if="${paginaFinalizados.hasNext()}"
+                   th:href="@{/repasses(
+                   busca=${busca},
+                   pagina=${paginaFinalizados.number + 1}
+                   )}">
+                    Próxima
+                </a>
+
+            </div>
+
         </div>
 
+        <script>
+            const campoBuscaRepasses =
+                    document.getElementById("campoBuscaRepasses");
+
+            const formBuscaRepasses =
+                    document.getElementById("formBuscaRepasses");
+
+            let tempoRepasses;
+
+            campoBuscaRepasses.addEventListener("input", function () {
+                clearTimeout(tempoRepasses);
+
+                tempoRepasses = setTimeout(function () {
+                    formBuscaRepasses.submit();
+                }, 500);
+            });
+        </script>
     </body>
 </html>

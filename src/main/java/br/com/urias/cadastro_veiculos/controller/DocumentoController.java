@@ -6,12 +6,14 @@ import br.com.urias.cadastro_veiculos.model.Repasse;
 import br.com.urias.cadastro_veiculos.model.Usuario;
 import br.com.urias.cadastro_veiculos.model.Veiculo;
 import br.com.urias.cadastro_veiculos.model.Venda;
+import br.com.urias.cadastro_veiculos.model.FormaPagamentoNegociacao;
 import br.com.urias.cadastro_veiculos.repository.ConfiguracaoConcessionariaRepository;
 import br.com.urias.cadastro_veiculos.repository.PagamentoRepasseRepository;
 import br.com.urias.cadastro_veiculos.repository.RepasseRepository;
 import br.com.urias.cadastro_veiculos.repository.VeiculoRepository;
 import br.com.urias.cadastro_veiculos.repository.VendaRepository;
 import jakarta.servlet.http.HttpSession;
+import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -77,15 +79,108 @@ public class DocumentoController {
 
         ConfiguracaoConcessionaria configuracao
                 = configuracaoRepository.findById(1L).orElse(null);
+        
+        List<FormaPagamentoNegociacao> formasPagamento = List.of();
+
+        if (venda.getNegociacao() != null
+                && venda.getNegociacao().getFormasPagamento() != null) {
+
+            formasPagamento
+                    = venda.getNegociacao().getFormasPagamento();
+        }
 
         model.addAttribute("venda", venda);
         model.addAttribute("cliente", venda.getCliente());
         model.addAttribute("veiculo", venda.getVeiculo());
         model.addAttribute("pagamento", venda.getPagamento());
+        model.addAttribute("formasPagamento",formasPagamento);
         model.addAttribute("vendedor", venda.getVendedor());
         model.addAttribute("configuracao", configuracao);
 
         return "documentos/comprovante-venda";
+    }
+
+    @GetMapping("/documentos/termo-veiculos-entrada/{id}")
+    public String termoVeiculosEntrada(
+            @PathVariable Long id,
+            HttpSession session,
+            Model model) {
+
+        Usuario usuarioLogado
+                = (Usuario) session.getAttribute("usuarioLogado");
+
+        if (usuarioLogado == null) {
+            return "redirect:/login";
+        }
+
+        Venda venda = vendaRepository.findById(id).orElse(null);
+
+        if (venda == null) {
+
+            if ("VENDEDOR".equals(usuarioLogado.getPerfil())) {
+                return "redirect:/dashboard-vendedor";
+            }
+
+            return "redirect:/admin/vendas";
+        }
+
+        /*
+     * O vendedor só pode acessar documentos
+     * das próprias vendas.
+         */
+        if ("VENDEDOR".equals(usuarioLogado.getPerfil())) {
+
+            if (venda.getVendedor() == null
+                    || !venda.getVendedor().getId()
+                            .equals(usuarioLogado.getId())) {
+
+                return "redirect:/dashboard-vendedor";
+            }
+        }
+
+        /*
+     * Vendas do fluxo antigo não possuem negociação.
+         */
+        if (venda.getNegociacao() == null) {
+            return "redirect:/documentos/comprovante-venda/" + id;
+        }
+
+        List<FormaPagamentoNegociacao> formasVeiculoEntrada
+                = new ArrayList<>();
+
+        /*
+     * Separa somente as formas que possuem
+     * um veículo recebido como entrada.
+         */
+        for (FormaPagamentoNegociacao forma
+                : venda.getNegociacao().getFormasPagamento()) {
+
+            if (forma.getVeiculoEntrada() != null) {
+                formasVeiculoEntrada.add(forma);
+            }
+        }
+
+        /*
+     * Não existe termo de entrada se nenhum
+     * veículo tiver sido recebido.
+         */
+        if (formasVeiculoEntrada.isEmpty()) {
+            return "redirect:/documentos/comprovante-venda/" + id;
+        }
+
+        ConfiguracaoConcessionaria configuracao
+                = configuracaoRepository.findById(1L).orElse(null);
+
+        model.addAttribute("venda", venda);
+        model.addAttribute("cliente", venda.getCliente());
+        model.addAttribute("negociacao", venda.getNegociacao());
+        model.addAttribute(
+                "formasVeiculoEntrada",
+                formasVeiculoEntrada
+        );
+        model.addAttribute("configuracao", configuracao);
+
+        return "documentos/termo-veiculos-entrada";
     }
 
     @GetMapping("/documentos/contrato-consignacao/{id}")
@@ -159,6 +254,7 @@ public class DocumentoController {
 
         model.addAttribute("repasse", repasse);
         model.addAttribute("configuracao", configuracao);
+        model.addAttribute("pagamentos", pagamentos);
         model.addAttribute(
                 "dataQuitacao",
                 ultimoPagamento.getDataPagamento()

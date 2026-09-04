@@ -745,6 +745,22 @@ public class NegociacaoController {
             veiculoEstoque.setPlaca(entrada.getPlaca());
             veiculoEstoque.setAno(entrada.getAno());
 
+            veiculoEstoque.setNomeProprietario(
+                    negociacao.getCliente().getNome()
+            );
+
+            veiculoEstoque.setCpfProprietario(
+                    negociacao.getCliente().getCpf()
+            );
+
+            veiculoEstoque.setTelefoneProprietario(
+                    negociacao.getCliente().getTelefone()
+            );
+
+            veiculoEstoque.setEmailProprietario(
+                    negociacao.getCliente().getEmail()
+            );
+
             /*
          * Preço para revenda. O formulário começa preenchido
          * com o valor negociado, mas permite alteração.

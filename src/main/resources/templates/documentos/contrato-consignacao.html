@@ -109,8 +109,20 @@
                     </div>
 
                     <div class="campo">
-                        <strong>Valor Pretendido:</strong>
+                        <strong>Valor líquido do proprietário:</strong>
                         <span th:text="${#numbers.formatCurrency(veiculo.preco)}"></span>
+                    </div>
+                    
+                    <div class="campo">
+                        <strong>Data de entrada:</strong>
+
+                        <span th:text="${veiculo.dataEntrada != null
+                              ? #temporals.format(
+                              veiculo.dataEntrada,
+                              'dd/MM/yyyy'
+                              )
+                              : 'Não informada'}">
+                        </span>
                     </div>
 
                 </div>
@@ -130,7 +142,7 @@
 
                 <p>
                     <strong>2. DO VALOR:</strong>
-                    Em caso de venda, o proprietário deverá receber o valor líquido de
+                    Em caso de venda, o proprietário deverá receber o Valor líquido acordado com o proprietário de
                     <strong th:text="${#numbers.formatCurrency(veiculo.preco)}"></strong>,
                     conforme acordado entre as partes.
                 </p>
@@ -165,7 +177,7 @@
                 <p>
                     <strong>7. DO ENCERRAMENTO:</strong>
                     A consignação poderá ser encerrada mediante acordo entre as partes,
-                    desde que o veículo ainda não tenha sido vendido ou exista negociação
+                    desde que o veículo ainda não tenha sido vendido e não exista negociação
                     em andamento.
                 </p>
 

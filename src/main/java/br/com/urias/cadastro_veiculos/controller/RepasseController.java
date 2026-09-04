@@ -12,8 +12,12 @@ import br.com.urias.cadastro_veiculos.repository.VendaRepository;
 import jakarta.servlet.http.HttpSession;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -49,6 +53,8 @@ public class RepasseController {
      */
     @GetMapping("/repasses")
     public String listar(
+            @RequestParam(defaultValue = "") String busca,
+            @RequestParam(defaultValue = "0") int pagina,
             HttpSession session,
             Model model) {
 
@@ -63,6 +69,20 @@ public class RepasseController {
             return "redirect:/dashboard-vendedor";
         }
 
+        /*
+     * Impede números negativos na paginação.
+         */
+        if (pagina < 0) {
+            pagina = 0;
+        }
+
+        String termoBusca = busca.trim().toLowerCase(Locale.ROOT);
+
+        /*
+     * Lista completa necessária para identificar:
+     * - vendas que já possuem repasse;
+     * - repasses ainda pendentes.
+         */
         List<Repasse> repasses = repasseRepository.findAll(
                 Sort.by(Sort.Direction.DESC, "id")
         );
@@ -72,7 +92,7 @@ public class RepasseController {
         );
 
         /*
-         * Guarda os IDs das vendas que já possuem repasse.
+     * IDs das vendas que já possuem repasse.
          */
         Set<Long> vendasComRepasse = repasses.stream()
                 .filter(repasse -> repasse.getVenda() != null)
@@ -80,32 +100,42 @@ public class RepasseController {
                 .collect(Collectors.toSet());
 
         /*
-         * Vendas que ainda não possuem um repasse iniciado.
+     * Vendas sem repasse iniciado e compatíveis com a busca.
          */
         List<Venda> vendasAguardandoRepasse = vendas.stream()
                 .filter(venda
                         -> !vendasComRepasse.contains(venda.getId())
                 )
+                .filter(venda
+                        -> correspondeBusca(venda, termoBusca)
+                )
                 .toList();
 
         /*
-         * Repasses com saldo pendente.
-         * Inclui os status PENDENTE e PARCIAL.
+     * Repasses em andamento compatíveis com a busca.
          */
         List<Repasse> repassesPendentes = repasses.stream()
                 .filter(repasse
                         -> !"PAGO".equals(repasse.getStatus())
                 )
+                .filter(repasse
+                        -> correspondeBusca(
+                        repasse.getVenda(),
+                        termoBusca
+                )
+                )
                 .toList();
 
         /*
-         * Repasses totalmente quitados.
+     * Somente os finalizados são paginados.
          */
-        List<Repasse> repassesFinalizados = repasses.stream()
-                .filter(repasse
-                        -> "PAGO".equals(repasse.getStatus())
-                )
-                .toList();
+        Pageable pageable = PageRequest.of(pagina, 5);
+
+        Page<Repasse> paginaFinalizados
+                = repasseRepository.buscarFinalizados(
+                        busca.trim(),
+                        pageable
+                );
 
         model.addAttribute(
                 "vendasAguardandoRepasse",
@@ -119,15 +149,15 @@ public class RepasseController {
 
         model.addAttribute(
                 "repassesFinalizados",
-                repassesFinalizados
+                paginaFinalizados.getContent()
         );
 
-        /*
-         * Pode ser mantido caso alguma parte do HTML ainda utilize
-         * a lista completa de repasses.
-         */
-        model.addAttribute("repasses", repasses);
+        model.addAttribute(
+                "paginaFinalizados",
+                paginaFinalizados
+        );
 
+        model.addAttribute("busca", busca);
         model.addAttribute("paginaAtiva", "repasses");
 
         return "repasses";
@@ -274,5 +304,40 @@ public class RepasseController {
         pagamentoRepasseRepository.save(pagamento);
 
         return "redirect:/repasses/" + repasseId;
+    }
+
+    private boolean correspondeBusca(
+            Venda venda,
+            String termoBusca) {
+
+        if (termoBusca.isBlank()) {
+            return true;
+        }
+
+        if (venda == null || venda.getVeiculo() == null) {
+            return false;
+        }
+
+        return contem(
+                venda.getVeiculo().getNomeProprietario(),
+                termoBusca
+        )
+                || contem(
+                        venda.getVeiculo().getNome(),
+                        termoBusca
+                )
+                || contem(
+                        venda.getVeiculo().getPlaca(),
+                        termoBusca
+                );
+    }
+
+    private boolean contem(
+            String texto,
+            String termoBusca) {
+
+        return texto != null
+                && texto.toLowerCase(Locale.ROOT)
+                        .contains(termoBusca);
     }
 }

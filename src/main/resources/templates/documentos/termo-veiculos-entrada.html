@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org">
+
+    <head>
+
+        <meta charset="UTF-8">
+
+        <title>
+            Termo de Recebimento de Veículos
+        </title>
+
+        <link rel="stylesheet"
+              th:href="@{/css/style.css}">
+
+        <link rel="stylesheet"
+              th:href="@{/css/impressao.css}">
+
+    </head>
+
+    <body>
+
+        <div class="documento termo-veiculos-entrada">
+
+            <header class="cabecalho-documento">
+
+                <h1>
+                    TERMO DE RECEBIMENTO DE VEÍCULO(S)
+                    COMO PARTE DE PAGAMENTO
+                </h1>
+
+                <p>
+                    Referente à venda nº
+                    <strong th:text="${venda.id}"></strong>
+                </p>
+
+            </header>
+
+
+            <!-- DADOS DA EMPRESA -->
+            <section class="secao-documento">
+
+                <h2>Dados da Empresa</h2>
+
+                <div class="grade-dados">
+
+                    <div class="campo">
+
+                        <strong>Nome da empresa:</strong>
+
+                        <span th:text="${configuracao.nomeEmpresa}">
+                        </span>
+
+                    </div>
+
+                    <div class="campo">
+
+                        <strong>CNPJ:</strong>
+
+                        <span th:text="${configuracao.cnpj}">
+                        </span>
+
+                    </div>
+
+                    <div class="campo">
+
+                        <strong>Telefone:</strong>
+
+                        <span th:text="${configuracao.telefone}">
+                        </span>
+
+                    </div>
+
+                    <div class="campo">
+
+                        <strong>Endereço:</strong>
+
+                        <span th:text="${configuracao.endereco}">
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- DADOS DO CLIENTE -->
+            <section class="secao-documento">
+
+                <h2>Dados do Cliente</h2>
+
+                <div class="grade-dados">
+
+                    <div class="campo">
+
+                        <strong>Nome:</strong>
+
+                        <span th:text="${cliente.nome}">
+                        </span>
+
+                    </div>
+
+                    <div class="campo">
+
+                        <strong>CPF:</strong>
+
+                        <span th:text="${cliente.cpf}">
+                        </span>
+
+                    </div>
+
+                    <div class="campo">
+
+                        <strong>Telefone:</strong>
+
+                        <span th:text="${cliente.telefone}">
+                        </span>
+
+                    </div>
+
+                    <div class="campo">
+
+                        <strong>E-mail:</strong>
+
+                        <span th:text="${cliente.email}">
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- DADOS DA VENDA -->
+            <section class="secao-documento">
+
+                <h2>Dados da Venda</h2>
+
+                <div class="grade-dados">
+
+                    <div class="campo">
+
+                        <strong>Número da venda:</strong>
+
+                        <span th:text="${venda.id}">
+                        </span>
+
+                    </div>
+
+                    <div class="campo">
+
+                        <strong>Data da venda:</strong>
+
+                        <span th:text="${#temporals.format(
+                              venda.dataVenda,
+                              'dd/MM/yyyy'
+                        )}">
+                        </span>
+
+                    </div>
+
+                    <div class="campo">
+
+                        <strong>Veículo adquirido:</strong>
+
+                        <span th:text="${venda.veiculo.nome}">
+                        </span>
+
+                    </div>
+
+                    <div class="campo">
+
+                        <strong>Placa:</strong>
+
+                        <span th:text="${venda.veiculo.placa}">
+                        </span>
+
+                    </div>
+
+                    <div class="campo">
+
+                        <strong>Valor da venda:</strong>
+
+                        <span th:text="${#numbers.formatCurrency(
+                              venda.valor
+                        )}">
+                        </span>
+
+                    </div>
+
+                    <div class="campo">
+
+                        <strong>Vendedor:</strong>
+
+                        <span th:text="${venda.vendedor.nome}">
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- VEÍCULOS RECEBIDOS -->
+            <section class="secao-documento">
+
+                <h2>Veículos Recebidos como Entrada</h2>
+
+                <div th:each="forma, iteracao
+                     : ${formasVeiculoEntrada}"
+                     class="grade-dados veiculo-entrada-documento">
+
+                    <div class="campo titulo-veiculo-entrada">
+
+                        <strong th:text="|Veículo recebido ${iteracao.count}|">
+                            Veículo recebido
+                        </strong>
+
+                    </div>
+
+                    <div class="campo">
+
+                        <strong>Veículo:</strong>
+
+                        <span th:text="${forma.veiculoEntrada.nome}">
+                        </span>
+
+                    </div>
+
+                    <div class="campo">
+
+                        <strong>Marca:</strong>
+
+                        <span th:text="${forma.veiculoEntrada.marca}">
+                        </span>
+
+                    </div>
+
+                    <div class="campo">
+
+                        <strong>Ano:</strong>
+
+                        <span th:text="${forma.veiculoEntrada.ano}">
+                        </span>
+
+                    </div>
+
+                    <div class="campo">
+
+                        <strong>Cor:</strong>
+
+                        <span th:text="${forma.veiculoEntrada.cor}">
+                        </span>
+
+                    </div>
+
+                    <div class="campo">
+
+                        <strong>Placa:</strong>
+
+                        <span th:text="${forma.veiculoEntrada.placa}">
+                        </span>
+
+                    </div>
+
+                    <div class="campo">
+
+                        <strong>Valor aceito na negociação:</strong>
+
+                        <span th:text="${#numbers.formatCurrency(
+                              forma.valor
+                        )}">
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- DECLARAÇÕES -->
+            <section class="clausulas-contrato">
+
+                <h2>Declarações</h2>
+
+                <p>
+                    <strong>1. DO RECEBIMENTO:</strong>
+                    A concessionária declara que recebeu o(s)
+                    veículo(s) identificado(s) neste termo como
+                    parte do pagamento da venda indicada acima.
+                </p>
+
+                <p>
+                    <strong>2. DOS VALORES:</strong>
+                    Os valores apresentados correspondem aos valores
+                    atribuídos aos veículos na composição do pagamento,
+                    conforme acordado entre as partes.
+                </p>
+
+                <p>
+                    <strong>3. DA PROCEDÊNCIA:</strong>
+                    O cliente declara que as informações fornecidas
+                    sobre os veículos são verdadeiras e que possui
+                    legitimidade para entregá-los à concessionária.
+                </p>
+
+                <p>
+                    <strong>4. DA REGULARIDADE:</strong>
+                    O cliente declara ter informado a existência de
+                    débitos, restrições, gravames ou impedimentos
+                    relacionados aos veículos recebidos.
+                </p>
+
+                <p>
+                    <strong>5. DA TRANSFERÊNCIA:</strong>
+                    As partes comprometem-se a fornecer e assinar os
+                    documentos necessários à regularização e
+                    transferência dos veículos.
+                </p>
+
+            </section>
+
+
+            <section class="declaracao">
+
+                <p>
+                    As partes declaram que conferiram os dados e valores
+                    apresentados neste termo e concordam com o recebimento
+                    dos veículos como parte do pagamento da venda.
+                </p>
+
+            </section>
+
+
+            <!-- ASSINATURAS -->
+            <section class="assinaturas">
+
+                <div class="assinatura">
+
+                    <div class="linha-assinatura"></div>
+
+                    <p th:text="${cliente.nome}"></p>
+
+                    <small>Cliente</small>
+
+                </div>
+
+                <div class="assinatura">
+
+                    <div class="linha-assinatura"></div>
+
+                    <p th:text="${configuracao.nomeEmpresa}"></p>
+
+                    <small>Concessionária</small>
+
+                </div>
+
+            </section>
+
+
+            <div class="acoes-documento">
+
+                <button type="button"
+                        onclick="window.print()">
+
+                    Imprimir termo
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </body>
+
+</html>

@@ -184,6 +184,57 @@
                 </div>
 
             </section>
+            
+            <section class="secao-documento">
+
+                <h2>Histórico de Pagamentos ao Proprietário</h2>
+
+                <div class="tabela-documento">
+
+                    <table>
+
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Forma de pagamento</th>
+                                <th>Valor</th>
+                                <th>Observação</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            <tr th:each="pagamento : ${pagamentos}">
+
+                                <td th:text="${#temporals.format(
+                                    pagamento.dataPagamento,
+                                    'dd/MM/yyyy'
+                                    )}">
+                                </td>
+
+                                <td th:text="${pagamento.formaPagamento}"></td>
+
+                                <td th:text="${#numbers.formatCurrency(
+                                    pagamento.valor
+                                    )}">
+                                </td>
+
+                                <td th:text="${
+                                    #strings.isEmpty(pagamento.observacao)
+                                    ? '-'
+                                    : pagamento.observacao
+                                    }">
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
 
             <section class="declaracao">
 

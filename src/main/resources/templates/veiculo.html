@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
     <head th:replace="~{fragments/head :: head('Veículos')}"></head>
 
-       <body class="pagina-com-menu">
+    <body class="pagina-com-menu">
 
 
         <div th:replace="~{fragments/menu :: menu}"></div>
@@ -96,7 +96,7 @@
                           onsubmit="prepararGuiaContrato()">
 
                         <h3>🚗 Dados do Veículo</h3>
-                        
+
                         <input type="hidden"
                                id="id"
                                name="id"
@@ -188,7 +188,28 @@
                                 <p><strong>Ano:</strong> <span th:text="${v.ano}"></span></p>
                                 <p><strong>Preço:</strong> R$ <span th:text="${#numbers.formatDecimal(v.preco, 1, 'POINT', 2, 'COMMA')}"></span></p>
                                 <p><strong>Entrada no estoque:</strong> <span th:text="${#temporals.format(v.dataEntrada, 'dd/MM/yyyy')}"></span></p>
-                                <p><strong>Status:</strong> <span th:text="${v.vendido ? 'Vendido' : 'Disponível'}"></span></p>
+                                <p>
+                                    <strong>Status:</strong>
+
+                                    <span th:if="${v.status != null
+                                          and v.status.name() == 'DISPONIVEL'}">
+                                        Disponível
+                                    </span>
+
+                                    <span th:if="${v.status != null
+                                          and v.status.name() == 'RESERVADO'}">
+                                        Reservado
+                                    </span>
+
+                                    <span th:if="${v.status != null
+                                          and v.status.name() == 'VENDIDO'}">
+                                        Vendido
+                                    </span>
+
+                                    <span th:if="${v.status == null}">
+                                        Não informado
+                                    </span>
+                                </p>
                             </div>
 
                             <div class="card-detalhe">
@@ -319,38 +340,38 @@
         <script>
             document.querySelectorAll('input[name="cpfProprietario"]').forEach(function (cpf) {
 
-            cpf.addEventListener("input", function () {
-            let v = cpf.value.replace(/\D/g, "");
+                cpf.addEventListener("input", function () {
+                    let v = cpf.value.replace(/\D/g, "");
 
-            v = v.replace(/(\d{3})(\d)/, "$1.$2");
-            v = v.replace(/(\d{3})(\d)/, "$1.$2");
-            v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+                    v = v.replace(/(\d{3})(\d)/, "$1.$2");
+                    v = v.replace(/(\d{3})(\d)/, "$1.$2");
+                    v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
 
-            cpf.value = v;
-            });
+                    cpf.value = v;
+                });
 
             });
 
             document.querySelectorAll('input[name="telefoneProprietario"]').forEach(function (telefone) {
 
-            telefone.addEventListener("input", function () {
-            let v = telefone.value.replace(/\D/g, "");
+                telefone.addEventListener("input", function () {
+                    let v = telefone.value.replace(/\D/g, "");
 
-            v = v.replace(/^(\d{2})(\d)/, "($1) $2");
-            v = v.replace(/(\d{5})(\d{4})$/, "$1-$2");
+                    v = v.replace(/^(\d{2})(\d)/, "($1) $2");
+                    v = v.replace(/(\d{5})(\d{4})$/, "$1-$2");
 
-            telefone.value = v;
-            });
+                    telefone.value = v;
+                });
 
             });
 
             document.querySelectorAll('input[name="placa"]').forEach(function (campoPlaca) {
-            campoPlaca.addEventListener("input", function () {
-            campoPlaca.value = campoPlaca.value
-            .toUpperCase()
-            .replace(/[^A-Z0-9]/g, "")
-            .slice(0, 7);
-            });
+                campoPlaca.addEventListener("input", function () {
+                    campoPlaca.value = campoPlaca.value
+                            .toUpperCase()
+                            .replace(/[^A-Z0-9]/g, "")
+                            .slice(0, 7);
+                });
             });
 
             const campoBuscaVeiculos = document.getElementById("campoBuscaVeiculos");
@@ -359,54 +380,54 @@
             let tempoVeiculos;
 
             campoBuscaVeiculos.addEventListener("input", function () {
-            clearTimeout(tempoVeiculos);
+                clearTimeout(tempoVeiculos);
 
-            tempoVeiculos = setTimeout(function () {
-            formBuscaVeiculos.submit();
-            }, 500);
+                tempoVeiculos = setTimeout(function () {
+                    formBuscaVeiculos.submit();
+                }, 500);
             });
 
             function abrirModalExclusao(url) {
-            const botao = document.getElementById("btn-confirmar-exclusao");
-            botao.href = url;
+                const botao = document.getElementById("btn-confirmar-exclusao");
+                botao.href = url;
 
-            abrirModal("modal-exclusao");
+                abrirModal("modal-exclusao");
             }
 
             function prepararGuiaContrato() {
 
-            const id = document.getElementById("id").value;
+                const id = document.getElementById("id").value;
 
-            if (id === "") {
-            window.open(
-            "about:blank",
-            "contratoConsignacao"
-            );
-            }
+                if (id === "") {
+                    window.open(
+                            "about:blank",
+                            "contratoConsignacao"
+                            );
+                }
             }
 
             document.addEventListener("DOMContentLoaded", function () {
 
-            const parametros = new URLSearchParams(window.location.search);
-            const contratoId = parametros.get("contrato");
+                const parametros = new URLSearchParams(window.location.search);
+                const contratoId = parametros.get("contrato");
 
-            if (contratoId) {
+                if (contratoId) {
 
-            window.open(
-            "/documentos/contrato-consignacao/" + contratoId,
-            "contratoConsignacao"
-            );
+                    window.open(
+                            "/documentos/contrato-consignacao/" + contratoId,
+                            "contratoConsignacao"
+                            );
 
-            parametros.delete("contrato");
+                    parametros.delete("contrato");
 
-            const novaUrl =
-            window.location.pathname +
-            (parametros.toString()
-            ? "?" + parametros.toString()
-            : "");
+                    const novaUrl =
+                            window.location.pathname +
+                            (parametros.toString()
+                                    ? "?" + parametros.toString()
+                                    : "");
 
-            window.history.replaceState({}, "", novaUrl);
-            }
+                    window.history.replaceState({}, "", novaUrl);
+                }
             });
         </script>
 

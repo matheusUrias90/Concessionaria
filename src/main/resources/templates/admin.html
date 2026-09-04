@@ -120,7 +120,7 @@
                                 <!-- Venda gerada por negociação -->
                                 <th:block th:if="${v.negociacao != null}">
 
-0                                    <div th:each="forma, iteracao
+                                    <div th:each="forma, iteracao
                                          : ${v.negociacao.formasPagamento}">
 
                                         <p>
@@ -222,6 +222,31 @@
                            class="btn-imprimir"
                            target="_blank">
                             📄 Comprovante
+                        </a>
+                        
+                        <a th:if="${v.negociacao != null
+                           and #lists.size(
+                           v.negociacao.formasPagamento.?[
+                           veiculoEntrada != null
+                           ]
+                           ) > 0}"
+                           th:href="@{/documentos/termo-veiculos-entrada/{id}(id=${v.id})}"
+                           class="btn-imprimir"
+                           target="_blank">
+
+                            🚗
+
+                            <span th:text="${
+                                  #lists.size(
+                                  v.negociacao.formasPagamento.?[
+                                  veiculoEntrada != null
+                                  ]
+                                  ) > 1
+                                  ? 'Termo dos Veículos Recebidos'
+                                  : 'Termo do Veículo Recebido'
+                                  }">
+                            </span>
+
                         </a>
 
                     </div>

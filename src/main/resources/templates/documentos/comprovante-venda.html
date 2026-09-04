@@ -170,103 +170,201 @@
 
             <section class="secao-documento">
 
-                <h2>Forma de Pagamento</h2>
+                <h2>Formas de Pagamento</h2>
 
-                <div class="grade-dados" th:if="${pagamento != null}">
+                <!-- Formas da negociação nova -->
+                <th:block th:if="${not #lists.isEmpty(formasPagamento)}">
+
+                 <div th:each="forma, iteracao : ${formasPagamento}"
+                     class="grade-dados forma-pagamento-documento">
+
+                     <div class="campo titulo-forma-pagamento">
+
+                         <strong th:text="|Forma ${iteracao.count}|">
+                             Forma
+                         </strong>
+
+                         <span th:text="${forma.tipo}"></span>
+
+                     </div>
+
+                        <div class="campo">
+                            <strong>Valor:</strong>
+                            <span th:text="${#numbers.formatCurrency(forma.valor)}">
+                            </span>
+                        </div>
+
+                        <div class="campo"
+                             th:if="${forma.parcelas != null}">
+                            <strong>Parcelas:</strong>
+                            <span th:text="|${forma.parcelas}x|"></span>
+                        </div>
+
+                        <div class="campo"
+                             th:if="${forma.valorParcela != null}">
+                            <strong>Valor da parcela:</strong>
+                            <span th:text="${#numbers.formatCurrency(
+                                  forma.valorParcela
+                                  )}">
+                            </span>
+                        </div>
+
+                        <div class="campo"
+                             th:if="${forma.instituicaoFinanceira != null
+                             and not #strings.isEmpty(
+                             forma.instituicaoFinanceira
+                             )}">
+                            <strong>Instituição financeira:</strong>
+                            <span th:text="${forma.instituicaoFinanceira}"></span>
+                        </div>
+
+                        <div class="campo"
+                             th:if="${forma.administradoraConsorcio != null
+                             and not #strings.isEmpty(
+                             forma.administradoraConsorcio
+                             )}">
+                            <strong>Administradora:</strong>
+                            <span th:text="${forma.administradoraConsorcio}"></span>
+                        </div>
+
+                        <div class="campo"
+                             th:if="${forma.numeroCartaCredito != null
+                             and not #strings.isEmpty(
+                             forma.numeroCartaCredito
+                             )}">
+                            <strong>Carta de crédito:</strong>
+                            <span th:text="${forma.numeroCartaCredito}"></span>
+                        </div>
+
+                        <div class="campo"
+                             th:if="${forma.bandeiraCartao != null
+                             and not #strings.isEmpty(
+                             forma.bandeiraCartao
+                             )}">
+                            <strong>Bandeira:</strong>
+                            <span th:text="${forma.bandeiraCartao}"></span>
+                        </div>
+
+                        <div class="campo"
+                             th:if="${forma.dataPrevista != null}">
+                            <strong>Data prevista:</strong>
+                            <span th:text="${#temporals.format(
+                                  forma.dataPrevista,
+                                  'dd/MM/yyyy'
+                                  )}">
+                            </span>
+                        </div>
+
+                        <th:block th:if="${forma.veiculoEntrada != null}">
+
+                            <div class="campo">
+                                <strong>Veículo entregue:</strong>
+                                <span th:text="${forma.veiculoEntrada.nome}"></span>
+                            </div>
+
+                            <div class="campo">
+                                <strong>Marca:</strong>
+                                <span th:text="${forma.veiculoEntrada.marca}"></span>
+                            </div>
+
+                            <div class="campo">
+                                <strong>Ano:</strong>
+                                <span th:text="${forma.veiculoEntrada.ano}"></span>
+                            </div>
+
+                            <div class="campo">
+                                <strong>Cor:</strong>
+                                <span th:text="${forma.veiculoEntrada.cor}"></span>
+                            </div>
+
+                            <div class="campo">
+                                <strong>Placa:</strong>
+                                <span th:text="${forma.veiculoEntrada.placa}"></span>
+                            </div>
+
+                        </th:block>
+
+                    </div>
+
+                </th:block>
+
+                <!-- Pagamento do fluxo antigo -->
+                <div class="grade-dados"
+                     th:if="${#lists.isEmpty(formasPagamento)
+                     and pagamento != null}">
 
                     <div class="campo">
                         <strong>Tipo:</strong>
                         <span th:text="${pagamento.tipo}"></span>
                     </div>
 
-                    <th:block th:if="${pagamento.tipo == 'FINANCIAMENTO'}">
-
-                        <div class="campo">
-                            <strong>Entrada:</strong>
-                            <span th:text="${#numbers.formatCurrency(pagamento.entrada)}"></span>
-                        </div>
-
-                        <div class="campo">
-                            <strong>Parcelas:</strong>
-                            <span th:text="${pagamento.parcelas}"></span>
-                        </div>
-
-                        <div class="campo">
-                            <strong>Valor da parcela:</strong>
-                            <span th:text="${#numbers.formatCurrency(pagamento.valorParcela)}"></span>
-                        </div>
-
-                    </th:block>
-
-                    <div class="campo campo-largo">
-
-                        <strong>Observação:</strong>
-
-                        <span th:if="${pagamento.tipo == 'PIX'}">
-                            Pagamento realizado via PIX.
+                    <div class="campo"
+                         th:if="${pagamento.entrada != null}">
+                        <strong>Entrada:</strong>
+                        <span th:text="${#numbers.formatCurrency(
+                              pagamento.entrada
+                              )}">
                         </span>
-
-                        <span th:if="${pagamento.tipo == 'DINHEIRO'}">
-                            Pagamento realizado à vista em dinheiro.
-                        </span>
-
-                        <span th:if="${pagamento.tipo == 'CARTÃO'}">
-                            Pagamento realizado por cartão.
-                        </span>
-
-                        <span th:if="${pagamento.tipo == 'CONSORCIO'}">
-                            Pagamento realizado por carta de crédito de consórcio.
-                        </span>
-
-                        <span th:if="${pagamento.tipo == 'FINANCIAMENTO'}">
-                            Pagamento financiado conforme condições da instituição financeira.
-                        </span>
-
                     </div>
 
+                    <div class="campo"
+                         th:if="${pagamento.parcelas != null}">
+                        <strong>Parcelas:</strong>
+                        <span th:text="|${pagamento.parcelas}x|"></span>
+                    </div>
 
+                    <div class="campo"
+                         th:if="${pagamento.valorParcela != null}">
+                        <strong>Valor da parcela:</strong>
+                        <span th:text="${#numbers.formatCurrency(
+                              pagamento.valorParcela
+                              )}">
+                        </span>
+                    </div>
 
                 </div>
 
-                <p th:if="${pagamento == null}">
+                <p th:if="${#lists.isEmpty(formasPagamento)
+                   and pagamento == null}">
                     Forma de pagamento não informada.
                 </p>
 
             </section>
+    </section>
 
-            <section class="declaracao">
+    <section class="declaracao">
 
-                <p>
-                    Declaro, para os devidos fins, que o veículo descrito neste
-                    documento foi vendido ao comprador identificado acima,
-                    conforme as condições e valores apresentados.
-                </p>
+        <p>
+            Declaro, para os devidos fins, que o veículo descrito neste
+            documento foi vendido ao comprador identificado acima,
+            conforme as condições e valores apresentados.
+        </p>
 
-            </section>
+    </section>
 
-            <section class="assinaturas">
+    <section class="assinaturas">
 
-                <div class="assinatura">
-                    <div class="linha-assinatura"></div>
-                    <p>Assinatura do comprador</p>
-                </div>
-
-                <div class="assinatura">
-                    <div class="linha-assinatura"></div>
-                    <p>Assinatura da concessionária</p>
-                </div>
-
-            </section>
-
-            <div class="acoes-documento">
-
-                <button type="button" onclick="window.print()">
-                    Imprimir comprovante
-                </button>
-
-            </div>
-
+        <div class="assinatura">
+            <div class="linha-assinatura"></div>
+            <p>Assinatura do comprador</p>
         </div>
 
-    </body>
+        <div class="assinatura">
+            <div class="linha-assinatura"></div>
+            <p>Assinatura da concessionária</p>
+        </div>
+
+    </section>
+
+    <div class="acoes-documento">
+
+        <button type="button" onclick="window.print()">
+            Imprimir comprovante
+        </button>
+
+    </div>
+
+</div>
+
+</body>
 </html>
