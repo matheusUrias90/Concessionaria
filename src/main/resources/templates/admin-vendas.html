@@ -212,7 +212,6 @@
                                     Pagamento não cadastrado.
                                 </p>
                             </div>
-                            </div>
 
                             <div class="card-detalhe">
                                 <h3>💰 Venda</h3>
@@ -222,13 +221,21 @@
 
                         </div>
 
-                        <a th:href="@{/documentos/comprovante-venda/{id}(id=${v.id})}"
-                           class="btn-imprimir"
-                           target="_blank">
-                            📄 Comprovante
-                        </a>
+                    <a th:href="@{/documentos/comprovante-venda/{id}(id=${v.id})}"
+                       class="btn-imprimir"
+                       target="_blank">
+                        📄 Comprovante
+                    </a>
 
-                    </div>
+                    <a th:href="@{/documentos/contrato-venda/{id}(id=${v.id})}"
+                       class="btn-imprimir"
+                       target="_blank">
+
+                        📑 Contrato de Compra e Venda
+
+                    </a>
+
+                </div>
                 </div>
             </div>
 

@@ -37,6 +37,8 @@ import br.com.urias.cadastro_veiculos.repository.VendaRepository;
 import java.time.LocalDate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import java.util.Comparator;
+import org.springframework.data.domain.Sort;
 
 @Controller
 public class NegociacaoController {
@@ -68,18 +70,25 @@ public class NegociacaoController {
             return "redirect:/login";
         }
 
-        model.addAttribute(
-                "clientes",
-                clienteRepository.findAll()
+        List<Cliente> clientes = clienteRepository.findAll(
+                Sort.by(Sort.Direction.ASC, "nome")
         );
 
-        model.addAttribute(
-                "veiculos",
+        List<Veiculo> veiculos = new ArrayList<>(
                 veiculoRepository.findByStatus(
                         StatusVeiculo.DISPONIVEL
                 )
         );
 
+        veiculos.sort(
+                Comparator.comparing(
+                        Veiculo::getNome,
+                        String.CASE_INSENSITIVE_ORDER
+                )
+        );
+
+        model.addAttribute("clientes", clientes);
+        model.addAttribute("veiculos", veiculos);
         model.addAttribute("paginaAtiva", "negociacoes");
 
         return "negociacao-form";
@@ -314,6 +323,13 @@ public class NegociacaoController {
         if (!possuiVeiculoAtual) {
             veiculos.add(negociacao.getVeiculo());
         }
+        
+        veiculos.sort(
+                Comparator.comparing(
+                        Veiculo::getNome,
+                        String.CASE_INSENSITIVE_ORDER
+                )
+);
 
         model.addAttribute("negociacao", negociacao);
         model.addAttribute("clientes", clienteRepository.findAll());

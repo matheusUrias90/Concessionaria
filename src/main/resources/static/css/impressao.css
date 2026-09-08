@@ -655,6 +655,93 @@ body {
 }
 
 /* ==========================
+   CONTRATO DE VENDA
+========================== */
+
+.contrato-venda .clausula {
+    margin-bottom: 18px;
+    break-inside: avoid;
+    page-break-inside: avoid;
+}
+
+.contrato-venda .clausula h3 {
+    margin: 0 0 8px;
+    font-size: 15px;
+    line-height: 1.3;
+}
+
+.contrato-venda .clausula p {
+    margin: 0 0 8px;
+    font-size: 13px;
+    line-height: 1.55;
+    text-align: justify;
+}
+
+.resumo-pagamento {
+    margin-top: 14px;
+    padding: 10px 12px;
+    border: 1px solid #b8c8d8;
+    border-radius: 5px;
+    background-color: #f5f8fb;
+    font-size: 13px;
+}
+
+.resumo-pagamento p {
+    margin: 3px 0;
+}
+
+.aviso-documento {
+    color: #a12020;
+    font-weight: bold;
+}
+
+.encerramento-contrato {
+    margin-top: 28px;
+    font-size: 13px;
+    line-height: 1.55;
+    text-align: justify;
+}
+
+.local-data-contrato {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.separador-data {
+    margin: 0 12px;
+}
+
+.assinaturas-contrato {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 55px 70px;
+    margin-top: 55px;
+    padding: 50px 28px 35px;
+    border: 1px solid #cfcfcf;
+    border-radius: 5px;
+    break-inside: avoid;
+    page-break-inside: avoid;
+}
+
+.assinaturas-contrato .assinatura {
+    width: 100%;
+}
+
+.assinaturas-contrato .assinatura:last-child {
+    grid-column: 1 / -1;
+    width: 45%;
+    justify-self: center;
+}
+
+.assinaturas-contrato .linha-assinatura {
+    width: 100%;
+}
+
+.assinaturas-contrato .assinatura p {
+    margin: 4px 0;
+    text-align: center;
+}
+/* ==========================
    RESPONSIVIDADE NA TELA
 ========================== */
 
@@ -683,5 +770,58 @@ body {
     .assinaturas {
         grid-template-columns: 1fr;
         gap: 25px;
+    }
+
+    .contrato-venda .clausulas-contrato {
+        break-inside: auto !important;
+        page-break-inside: auto !important;
+    }
+
+    .contrato-venda .clausula {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    @media print {
+
+        /*
+         * Permite que o conjunto de cláusulas seja dividido
+         * entre as páginas.
+         */
+        .contrato-venda .clausulas-contrato {
+            break-inside: auto !important;
+            page-break-inside: auto !important;
+        }
+
+        /*
+         * Cada cláusula permanece inteira.
+         */
+        .contrato-venda .clausula {
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+
+        /*
+         * Deixa as três assinaturas lado a lado
+         * somente na impressão.
+         */
+        .contrato-venda .assinaturas-contrato {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+            margin-top: 35px;
+            padding: 40px 20px 25px;
+        }
+
+        .contrato-venda
+        .assinaturas-contrato
+        .assinatura:last-child {
+            grid-column: auto;
+            width: 100%;
+            justify-self: stretch;
+        }
+
+        .contrato-venda .assinaturas-contrato .assinatura p {
+            font-size: 10px;
+        }
     }
 }

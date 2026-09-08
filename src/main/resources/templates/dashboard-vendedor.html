@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-    
-    <head th:replace="~{fragments/head :: head('Painel do Vendedor')}"></head>
+
+    <head th:replace="~{fragments/head :: head('Painel do Vendedor')}">
+    </head>
 
     <body class="pagina-com-menu">
 
@@ -11,6 +12,7 @@
 
             <h1>🚗 Painel do Vendedor</h1>
 
+            <!-- RESUMO -->
             <div class="dashboard-grid">
 
                 <div class="card-dashboard">
@@ -25,49 +27,74 @@
 
             </div>
 
+            <!-- ACESSO RÁPIDO -->
             <h2>⚡ Acesso Rápido</h2>
 
             <div class="dashboard-grid">
 
-                <a href="/vendas/form" class="card-dashboard link-card">
-                    <h3>💰 Nova Venda</h3>
-                    <p>Registrar uma venda</p>
+                <a href="/negociacoes/nova"
+                   class="card-dashboard link-card">
+
+                    <h3>🤝 Nova Negociação</h3>
+                    <p>Iniciar uma negociação</p>
+
                 </a>
 
-                <a href="/compradores" class="card-dashboard link-card">
+                <a href="/compradores"
+                   class="card-dashboard link-card">
+
                     <h3>👤 Compradores</h3>
                     <p>Consultar compradores</p>
+
                 </a>
 
-                <a href="/veiculos" class="card-dashboard link-card">
+                <a href="/veiculos"
+                   class="card-dashboard link-card">
+
                     <h3>🚗 Veículos</h3>
                     <p>Consultar estoque</p>
+
                 </a>
 
             </div>
-            
+
+            <!-- DESEMPENHO -->
             <h2>📊 Meu Desempenho</h2>
 
             <div class="dashboard-grid">
 
                 <div class="card-dashboard">
+
                     <h3>🏆 Minhas Vendas</h3>
                     <p th:text="${totalMinhasVendas}"></p>
+
                 </div>
 
                 <div class="card-dashboard">
+
                     <h3>💵 Valor Vendido</h3>
+
                     <p>
                         R$
-                        <span th:text="${#numbers.formatDecimal(valorVendidoPorMim, 1, 'POINT', 2, 'COMMA')}"></span>
+                        <span th:text="${#numbers.formatDecimal(
+                              valorVendidoPorMim,
+                              1,
+                              'POINT',
+                              2,
+                              'COMMA'
+                              )}">
+                        </span>
                     </p>
+
                 </div>
 
             </div>
 
+            <!-- HISTÓRICO -->
             <h2>📋 Histórico das Minhas Vendas</h2>
 
             <table>
+
                 <thead>
                     <tr>
                         <th>Veículo</th>
@@ -78,32 +105,61 @@
                 </thead>
 
                 <tbody>
+
                     <tr th:each="v : ${minhasVendas}">
-                        <td th:text="${v.veiculo.nome + ' (' + v.veiculo.ano + ')'}"></td>
+
+                        <td th:text="${v.veiculo.nome
+                            + ' ('
+                            + v.veiculo.ano
+                            + ')'}">
+                        </td>
 
                         <td th:text="${v.cliente.nome}"></td>
 
-                        <td th:text="${#temporals.format(v.dataVenda, 'dd/MM/yyyy')}"></td>
+                        <td th:text="${#temporals.format(
+                            v.dataVenda,
+                            'dd/MM/yyyy'
+                            )}">
+                        </td>
 
                         <td>
-                            <button class="btn-detalhes"
-                                    type="button"
-                                    th:onclick="'abrirModal(' + ${v.id} + ')'">
+
+                            <button type="button"
+                                    class="btn-detalhes"
+                                    th:attr="onclick=|abrirModal(
+                                    'modal-${v.id}'
+                                    )|">
+
                                 Detalhes
+
                             </button>
+
+                        </td>
+
+                    </tr>
+
+                    <tr th:if="${#lists.isEmpty(minhasVendas)}">
+                        <td colspan="4">
+                            Nenhuma venda registrada.
                         </td>
                     </tr>
+
                 </tbody>
+
             </table>
 
-            <!-- MODAIS -->
+            <!-- MODAIS DAS VENDAS -->
             <div th:each="v : ${minhasVendas}">
-                <div class="modal" th:id="|modal-${v.id}|">
+
+                <div class="modal"
+                     th:id="|modal-${v.id}|">
 
                     <div class="modal-conteudo modal-grande">
 
                         <span class="fechar"
-                              th:attr="onclick=|fecharModal(${v.id})|">
+                              th:attr="onclick=|fecharModal(
+                              'modal-${v.id}'
+                              )|">
                             X
                         </span>
 
@@ -111,132 +167,420 @@
 
                         <div class="detalhes-grid">
 
+                            <!-- VEÍCULO -->
                             <div class="card-detalhe">
+
                                 <h3>🚗 Veículo</h3>
 
-                                <p><strong>Nome:</strong>
+                                <p>
+                                    <strong>Nome:</strong>
                                     <span th:text="${v.veiculo.nome}"></span>
                                 </p>
 
-                                <p><strong>Marca:</strong>
+                                <p>
+                                    <strong>Marca:</strong>
                                     <span th:text="${v.veiculo.marca}"></span>
                                 </p>
 
-                                <p><strong>Ano:</strong>
+                                <p>
+                                    <strong>Ano:</strong>
                                     <span th:text="${v.veiculo.ano}"></span>
                                 </p>
 
-                                <p><strong>Placa:</strong>
+                                <p>
+                                    <strong>Cor:</strong>
+                                    <span th:text="${v.veiculo.cor}"></span>
+                                </p>
+
+                                <p>
+                                    <strong>Placa:</strong>
                                     <span th:text="${v.veiculo.placa}"></span>
                                 </p>
+
                             </div>
 
+                            <!-- COMPRADOR -->
                             <div class="card-detalhe">
+
                                 <h3>👤 Comprador</h3>
 
-                                <p><strong>Nome:</strong>
+                                <p>
+                                    <strong>Nome:</strong>
                                     <span th:text="${v.cliente.nome}"></span>
                                 </p>
 
-                                <p><strong>CPF:</strong>
+                                <p>
+                                    <strong>CPF:</strong>
                                     <span th:text="${v.cliente.cpf}"></span>
                                 </p>
 
-                                <p><strong>Telefone:</strong>
+                                <p>
+                                    <strong>Telefone:</strong>
                                     <span th:text="${v.cliente.telefone}"></span>
                                 </p>
+
+                                <p>
+                                    <strong>E-mail:</strong>
+                                    <span th:text="${v.cliente.email}"></span>
+                                </p>
+
                             </div>
 
+                            <!-- PROPRIETÁRIO -->
                             <div class="card-detalhe">
-                                <h3>💳 Pagamento</h3>
 
-                                <div th:if="${v.pagamento != null}">
+                                <h3>👤 Proprietário</h3>
+
+                                <p>
+                                    <strong>Nome:</strong>
+                                    <span th:text="${v.veiculo.nomeProprietario}">
+                                    </span>
+                                </p>
+
+                                <p>
+                                    <strong>CPF:</strong>
+                                    <span th:text="${v.veiculo.cpfProprietario}">
+                                    </span>
+                                </p>
+
+                                <p>
+                                    <strong>Telefone:</strong>
+                                    <span th:text="${v.veiculo.telefoneProprietario}">
+                                    </span>
+                                </p>
+
+                                <p>
+                                    <strong>E-mail:</strong>
+                                    <span th:text="${v.veiculo.emailProprietario}">
+                                    </span>
+                                </p>
+
+                            </div>
+
+                            <!-- FORMAS DO NOVO FLUXO -->
+                            <div class="card-detalhe">
+
+                                <h3>💳 Formas de Pagamento</h3>
+
+                                <th:block th:if="${v.negociacao != null
+                                          and not #lists.isEmpty(
+                                          v.negociacao.formasPagamento
+                                          )}">
+
+                                    <div th:each="forma, iteracao
+                                         : ${v.negociacao.formasPagamento}">
+
+                                        <p>
+                                            <strong th:text="|Forma
+                                                    ${iteracao.count}:|">
+                                            </strong>
+
+                                            <span th:text="${forma.tipo.name() == 'VEICULO_ENTRADA'
+                                                  ? 'VEÍCULO DE ENTRADA'
+                                                  : #strings.replace(
+                                                  forma.tipo.name(),
+                                                  '_',
+                                                  ' '
+                                                  )}">
+                                            </span>
+                                        </p>
+
+                                        <p>
+                                            <strong>Valor:</strong>
+
+                                            <span th:text="${#numbers.formatCurrency(
+                                                  forma.valor
+                                                  )}">
+                                            </span>
+                                        </p>
+
+                                        <p th:if="${forma.parcelas != null}">
+                                            <strong>Parcelas:</strong>
+                                            <span th:text="|${forma.parcelas}x|">
+                                            </span>
+                                        </p>
+
+                                        <p th:if="${forma.valorParcela != null}">
+                                            <strong>Valor da parcela:</strong>
+
+                                            <span th:text="${#numbers.formatCurrency(
+                                                  forma.valorParcela
+                                                  )}">
+                                            </span>
+                                        </p>
+
+                                        <p th:if="${forma.instituicaoFinanceira
+                                           != null
+                                           and not #strings.isEmpty(
+                                           forma.instituicaoFinanceira
+                                           )}">
+
+                                            <strong>Instituição financeira:</strong>
+
+                                            <span th:text="${forma.instituicaoFinanceira}">
+                                            </span>
+
+                                        </p>
+
+                                        <p th:if="${forma.administradoraConsorcio
+                                           != null
+                                           and not #strings.isEmpty(
+                                           forma.administradoraConsorcio
+                                           )}">
+
+                                            <strong>Administradora:</strong>
+
+                                            <span th:text="${forma.administradoraConsorcio}">
+                                            </span>
+
+                                        </p>
+
+                                        <p th:if="${forma.numeroCartaCredito
+                                           != null
+                                           and not #strings.isEmpty(
+                                           forma.numeroCartaCredito
+                                           )}">
+
+                                            <strong>Carta de crédito:</strong>
+
+                                            <span th:text="${forma.numeroCartaCredito}">
+                                            </span>
+
+                                        </p>
+
+                                        <p th:if="${forma.bandeiraCartao
+                                           != null
+                                           and not #strings.isEmpty(
+                                           forma.bandeiraCartao
+                                           )}">
+
+                                            <strong>Bandeira:</strong>
+
+                                            <span th:text="${forma.bandeiraCartao}">
+                                            </span>
+
+                                        </p>
+
+                                        <p th:if="${forma.dataPrevista != null}">
+
+                                            <strong>
+                                                Data prevista da primeira parcela:
+                                            </strong>
+
+                                            <span th:text="${#temporals.format(
+                                                  forma.dataPrevista,
+                                                  'dd/MM/yyyy'
+                                                  )}">
+                                            </span>
+
+                                        </p>
+
+                                        <p th:if="${forma.veiculoEntrada != null}">
+
+                                            <strong>Veículo recebido:</strong>
+
+                                            <span th:text="|${forma.veiculoEntrada.nome}
+                                                  - ${forma.veiculoEntrada.placa}|">
+                                            </span>
+
+                                        </p>
+
+                                        <hr th:if="${!iteracao.last}">
+
+                                    </div>
+
+                                </th:block>
+
+                                <!-- PAGAMENTO DO FLUXO ANTIGO -->
+                                <th:block th:if="${
+                                          (v.negociacao == null
+                                          or #lists.isEmpty(
+                                          v.negociacao.formasPagamento
+                                          ))
+                                          and v.pagamento != null
+                                          }">
 
                                     <p>
                                         <strong>Tipo:</strong>
-                                        <span th:text="${v.pagamento.tipo}"></span>
+                                        <span th:text="${v.pagamento.tipo}">
+                                        </span>
                                     </p>
 
                                     <p th:if="${v.pagamento.entrada != null}">
+
                                         <strong>Entrada:</strong>
-                                        R$ <span th:text="${v.pagamento.entrada}"></span>
+
+                                        <span th:text="${#numbers.formatCurrency(
+                                              v.pagamento.entrada
+                                              )}">
+                                        </span>
+
                                     </p>
 
                                     <p th:if="${v.pagamento.parcelas != null}">
+
                                         <strong>Parcelas:</strong>
-                                        <span th:text="${v.pagamento.parcelas}"></span>x
+
+                                        <span th:text="|${v.pagamento.parcelas}x|">
+                                        </span>
+
                                     </p>
 
                                     <p th:if="${v.pagamento.valorParcela != null}">
-                                        <strong>Valor Parcela:</strong>
-                                        R$ <span th:text="${v.pagamento.valorParcela}"></span>
+
+                                        <strong>Valor da parcela:</strong>
+
+                                        <span th:text="${#numbers.formatCurrency(
+                                              v.pagamento.valorParcela
+                                              )}">
+                                        </span>
+
                                     </p>
 
-                                </div>
+                                </th:block>
 
-                                <div th:if="${v.pagamento == null}">
-                                    <p>Pagamento não cadastrado.</p>
-                                </div>
+                                <!-- PAGAMENTO AUSENTE -->
+                                <p th:if="${
+                                   (v.negociacao == null
+                                   or #lists.isEmpty(
+                                   v.negociacao.formasPagamento
+                                   ))
+                                   and v.pagamento == null
+                                   }">
+
+                                    Pagamento não cadastrado.
+
+                                </p>
+
                             </div>
 
+                            <!-- VENDA -->
                             <div class="card-detalhe">
+
                                 <h3>💰 Venda</h3>
 
                                 <p>
                                     <strong>Data:</strong>
-                                    <span th:text="${#temporals.format(v.dataVenda, 'dd/MM/yyyy')}"></span>
+
+                                    <span th:text="${#temporals.format(
+                                          v.dataVenda,
+                                          'dd/MM/yyyy'
+                                          )}">
+                                    </span>
                                 </p>
 
                                 <p>
                                     <strong>Valor:</strong>
-                                    R$ <span th:text="${v.valor}"></span>
+
+                                    <span th:text="${#numbers.formatCurrency(
+                                          v.valor
+                                          )}">
+                                    </span>
                                 </p>
+
                             </div>
 
                         </div>
-                        
-                        <a th:href="@{/documentos/comprovante-venda/{id}(id=${v.id})}"
-                           class="btn-imprimir"
-                           target="_blank">
-                            📄 Comprovante
-                        </a>
+
+                        <!-- DOCUMENTOS -->
+                        <div class="acoes">
+
+                            <a th:href="@{/documentos/comprovante-venda/{id}(
+                               id=${v.id}
+                               )}"
+                               class="btn-imprimir"
+                               target="_blank">
+
+                                📄 Comprovante
+
+                            </a>
+
+                            <a th:href="@{/documentos/contrato-venda/{id}(
+                               id=${v.id}
+                               )}"
+                               class="btn-imprimir"
+                               target="_blank">
+
+                                📑 Contrato de Compra e Venda
+
+                            </a>
+
+                            <a th:if="${v.negociacao != null
+                               and not #lists.isEmpty(
+                               v.negociacao.formasPagamento.?[
+                               veiculoEntrada != null
+                               ]
+                               )}"
+                               th:href="@{/documentos/termo-veiculos-entrada/{id}(
+                               id=${v.id}
+                               )}"
+                               class="btn-imprimir"
+                               target="_blank">
+
+                                🚗 Termo do(s) Veículo(s) Recebido(s)
+
+                            </a>
+
+                        </div>
 
                     </div>
 
                 </div>
+
             </div>
 
         </div>
 
         <script>
-            /* ABRIR COMPROVANTE APÓS SALVAR A VENDA */
-            document.addEventListener("DOMContentLoaded", function () {
 
-            const parametros = new URLSearchParams(window.location.search);
-            const comprovanteId = parametros.get("comprovante");
+            /*
+             * Abre automaticamente o comprovante
+             * após a conclusão da venda.
+             */
+            document.addEventListener(
+                    "DOMContentLoaded",
+                    function () {
 
-            if (comprovanteId) {
+                        const parametros
+                                = new URLSearchParams(
+                                        window.location.search
+                                );
 
-            const urlComprovante =
-            "/documentos/comprovante-venda/"
-            + encodeURIComponent(comprovanteId);
+                        const comprovanteId
+                                = parametros.get("comprovante");
 
-            window.open(
-            urlComprovante,
-            "comprovanteVenda"
+                        if (comprovanteId) {
+
+                            const urlComprovante
+                                    = "/documentos/comprovante-venda/"
+                                    + encodeURIComponent(
+                                            comprovanteId
+                                    );
+
+                            window.open(
+                                    urlComprovante,
+                                    "comprovanteVenda"
+                            );
+
+                            parametros.delete("comprovante");
+
+                            const novaUrl
+                                    = window.location.pathname
+                                    + (
+                                            parametros.toString()
+                                            ? "?" + parametros.toString()
+                                            : ""
+                                      );
+
+                            window.history.replaceState(
+                                    {},
+                                    "",
+                                    novaUrl
+                            );
+                        }
+                    }
             );
 
-            parametros.delete("comprovante");
-
-            const novaUrl =
-            window.location.pathname
-            + (parametros.toString()
-            ? "?" + parametros.toString()
-            : "");
-
-            window.history.replaceState({}, "", novaUrl);
-            }
-            });
         </script>
 
     </body>

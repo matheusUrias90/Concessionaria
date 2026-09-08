@@ -224,6 +224,14 @@
                             📄 Comprovante
                         </a>
                         
+                        <a th:href="@{/documentos/contrato-venda/{id}(id=${v.id})}"
+                           class="btn-imprimir"
+                           target="_blank">
+
+                            📑 Contrato de Compra e Venda
+
+                        </a>
+
                         <a th:if="${v.negociacao != null
                            and #lists.size(
                            v.negociacao.formasPagamento.?[

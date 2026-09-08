@@ -99,6 +99,86 @@ public class DocumentoController {
 
         return "documentos/comprovante-venda";
     }
+    
+    @GetMapping("/documentos/contrato-venda/{id}")
+    public String contratoVenda(
+            @PathVariable Long id,
+            HttpSession session,
+            Model model) {
+
+        Usuario usuarioLogado
+                = (Usuario) session.getAttribute("usuarioLogado");
+
+        if (usuarioLogado == null) {
+            return "redirect:/login";
+        }
+
+        Venda venda = vendaRepository.findById(id).orElse(null);
+
+        if (venda == null) {
+
+            if ("VENDEDOR".equals(usuarioLogado.getPerfil())) {
+                return "redirect:/dashboard-vendedor";
+            }
+
+            return "redirect:/admin/vendas";
+        }
+
+        /*
+     * O vendedor só pode acessar documentos
+     * relacionados às próprias vendas.
+         */
+        if ("VENDEDOR".equals(usuarioLogado.getPerfil())) {
+
+            if (venda.getVendedor() == null
+                    || !venda.getVendedor().getId()
+                            .equals(usuarioLogado.getId())) {
+
+                return "redirect:/dashboard-vendedor";
+            }
+        }
+
+        ConfiguracaoConcessionaria configuracao
+                = configuracaoRepository.findById(1L).orElse(null);
+
+        List<FormaPagamentoNegociacao> formasPagamento
+                = List.of();
+
+        /*
+     * Vendas concluídas pelo novo fluxo possuem
+     * múltiplas formas de pagamento.
+         */
+        if (venda.getNegociacao() != null
+                && venda.getNegociacao().getFormasPagamento() != null) {
+
+            formasPagamento
+                    = venda.getNegociacao().getFormasPagamento();
+        }
+        
+        double totalFormasPagamento = 0.0;
+
+        for (FormaPagamentoNegociacao forma : formasPagamento) {
+
+            if (forma.getValor() != null) {
+                totalFormasPagamento += forma.getValor();
+            }
+        }
+
+        boolean pagamentoTotalizado
+                = Math.abs(totalFormasPagamento - venda.getValor()) < 0.01;
+
+        model.addAttribute("venda", venda);
+        model.addAttribute("cliente", venda.getCliente());
+        model.addAttribute("veiculo", venda.getVeiculo());
+        model.addAttribute("pagamento", venda.getPagamento());
+        model.addAttribute("formasPagamento", formasPagamento);
+        model.addAttribute("vendedor", venda.getVendedor());
+        model.addAttribute("configuracao", configuracao);
+        model.addAttribute("totalFormasPagamento",totalFormasPagamento);
+        model.addAttribute("pagamentoTotalizado",pagamentoTotalizado);
+
+        return "documentos/contrato-venda";
+    }
 
     @GetMapping("/documentos/termo-veiculos-entrada/{id}")
     public String termoVeiculosEntrada(
