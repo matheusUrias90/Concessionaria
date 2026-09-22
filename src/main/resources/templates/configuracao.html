@@ -1,103 +1,120 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/head :: head('>Configuração da Concessionária')}"></head>
+    <head th:replace="~{fragments/head :: head('>Configuração da Concessionária')}"></head>
 
-<body class="pagina-com-menu">
+    <body class="pagina-com-menu">
 
-    <div th:replace="~{fragments/menu :: menu}"></div>
+        <div th:replace="~{fragments/menu :: menu}"></div>
 
-    <div class="container">
+        <div class="container">
 
-        <h1>🏢 Configuração da Concessionária</h1>
+            <h1>🏢 Configuração da Concessionária</h1>
 
-        <p class="subtitulo">
-            Os dados cadastrados serão utilizados automaticamente em documentos,
-            comprovantes e relatórios emitidos pelo sistema.
-        </p>
+            <p class="subtitulo">
+                Os dados cadastrados serão utilizados automaticamente em documentos,
+                comprovantes e relatórios emitidos pelo sistema.
+            </p>
 
-        <form th:action="@{/configuracao/salvar}"
-              th:object="${configuracao}"
-              method="post">
+            <form th:action="@{/configuracao/salvar}"
+                  th:object="${configuracao}"
+                  method="post"
+                  enctype="multipart/form-data">
 
-            <input type="hidden" th:field="*{id}">
+                <input type="hidden" th:field="*{id}">
 
-            <div class="campo">
-                <label>Nome da Concessionária</label>
-                <input type="text"
-                       th:field="*{nomeEmpresa}"
-                       placeholder="Ex: Urias Veículos"
-                       required>
-            </div>
+                <div class="campo">
+                    <label>Nome da Concessionária</label>
+                    <input type="text"
+                           th:field="*{nomeEmpresa}"
+                           placeholder="Ex: Urias Veículos"
+                           required>
+                </div>
 
-            <div class="campo">
-                <label>CNPJ</label>
-                <input type="text"
-                       id="cnpj"
-                       th:field="*{cnpj}"
-                       placeholder="00.000.000/0000-00"
-                       maxlength="18">
-            </div>
+                <div class="campo">
+                    <label>CNPJ</label>
+                    <input type="text"
+                           id="cnpj"
+                           th:field="*{cnpj}"
+                           placeholder="00.000.000/0000-00"
+                           maxlength="18">
+                </div>
 
-            <div class="campo">
-                <label>Endereço</label>
-                <input type="text"
-                       th:field="*{endereco}"
-                       placeholder="Rua, número, bairro, cidade">
-            </div>
+                <div class="campo">
+                    <label>Endereço</label>
+                    <input type="text"
+                           th:field="*{endereco}"
+                           placeholder="Rua, número, bairro, cidade">
+                </div>
 
-            <div class="campo">
-                <label>Telefone</label>
-                <input type="text"
-                       id="telefone"
-                       th:field="*{telefone}"
-                       placeholder="(00) 00000-0000"
-                       maxlength="15">
-            </div>
+                <div class="campo">
+                    <label>Telefone</label>
+                    <input type="text"
+                           id="telefone"
+                           th:field="*{telefone}"
+                           placeholder="(00) 00000-0000"
+                           maxlength="15">
+                </div>
 
-            <div class="campo">
-                <label>E-mail</label>
-                <input type="email"
-                       th:field="*{email}"
-                       placeholder="contato@concessionaria.com">
-            </div>
+                <div class="campo">
+                    <label>E-mail</label>
+                    <input type="email"
+                           th:field="*{email}"
+                           placeholder="contato@concessionaria.com">
+                </div>
+                
+                <div class="campo" th:if="${configuracao.logo != null}">
+                    <label>Logo Atual</label>
 
-            <button type="submit" class="btn-salvar">
-                💾 Salvar Configuração
-            </button>
+                    <img th:src="@{'/img/' + ${configuracao.logo}}"
+                         alt="Logo da Empresa"
+                         style="max-width: 250px;">
+                </div>
 
-        </form>
+                <div class="campo">
+                    <label>Alterar Logo</label>
 
-    </div>
+                    <input type="file"
+                           name="arquivoLogo"
+                           accept="image/png, image/jpeg">
+                </div>
 
-    <script>
+                <button type="submit" class="btn-salvar">
+                    💾 Salvar Configuração
+                </button>
 
-        // Máscara CNPJ
-        const cnpj = document.getElementById("cnpj");
+            </form>
 
-        cnpj.addEventListener("input", function () {
-            let valor = this.value.replace(/\D/g, "");
+        </div>
 
-            valor = valor.replace(/^(\d{2})(\d)/, "$1.$2");
-            valor = valor.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3");
-            valor = valor.replace(/\.(\d{3})(\d)/, ".$1/$2");
-            valor = valor.replace(/(\d{4})(\d)/, "$1-$2");
+        <script>
 
-            this.value = valor;
-        });
+            // Máscara CNPJ
+            const cnpj = document.getElementById("cnpj");
 
-        // Máscara Telefone
-        const telefone = document.getElementById("telefone");
+            cnpj.addEventListener("input", function () {
+                let valor = this.value.replace(/\D/g, "");
 
-        telefone.addEventListener("input", function () {
-            let valor = this.value.replace(/\D/g, "");
+                valor = valor.replace(/^(\d{2})(\d)/, "$1.$2");
+                valor = valor.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3");
+                valor = valor.replace(/\.(\d{3})(\d)/, ".$1/$2");
+                valor = valor.replace(/(\d{4})(\d)/, "$1-$2");
 
-            valor = valor.replace(/^(\d{2})(\d)/g, "($1) $2");
-            valor = valor.replace(/(\d{5})(\d)/, "$1-$2");
+                this.value = valor;
+            });
 
-            this.value = valor;
-        });
+            // Máscara Telefone
+            const telefone = document.getElementById("telefone");
 
-    </script>
+            telefone.addEventListener("input", function () {
+                let valor = this.value.replace(/\D/g, "");
 
-</body>
+                valor = valor.replace(/^(\d{2})(\d)/g, "($1) $2");
+                valor = valor.replace(/(\d{5})(\d)/, "$1-$2");
+
+                this.value = valor;
+            });
+
+        </script>
+
+    </body>
 </html>

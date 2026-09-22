@@ -6,6 +6,11 @@ import br.com.urias.cadastro_veiculos.repository.ConfiguracaoConcessionariaRepos
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,22 +33,24 @@ public class ConfiguracaoController {
             return "redirect:/dashboard";
         }
 
-        ConfiguracaoConcessionaria configuracao =
-                configuracaoRepository.findAll()
+        ConfiguracaoConcessionaria configuracao
+                = configuracaoRepository.findAll()
                         .stream()
                         .findFirst()
                         .orElse(new ConfiguracaoConcessionaria());
 
         model.addAttribute("configuracao", configuracao);
-        
+
         model.addAttribute("paginaAtiva", "configuracao");
 
         return "configuracao";
     }
 
     @PostMapping("/configuracao/salvar")
-    public String salvarConfiguracao(@ModelAttribute ConfiguracaoConcessionaria configuracao,
-                                     HttpSession session) {
+    public String salvarConfiguracao(
+            @ModelAttribute ConfiguracaoConcessionaria configuracao,
+            @RequestParam("arquivoLogo") MultipartFile arquivoLogo,
+            HttpSession session) throws IOException {
 
         Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
 
@@ -53,6 +60,26 @@ public class ConfiguracaoController {
 
         if (!usuarioLogado.getPerfil().equals("DONO")) {
             return "redirect:/dashboard";
+        }
+     
+        if (configuracao.getId() != null) {
+            configuracaoRepository.findById(configuracao.getId())
+                    .ifPresent(configuracaoAntiga
+                            -> configuracao.setLogo(configuracaoAntiga.getLogo())
+                    );
+        }
+
+        if (!arquivoLogo.isEmpty()) {
+
+            String nomeArquivo = arquivoLogo.getOriginalFilename();
+
+            Path caminho = Paths.get(
+                    "src/main/resources/static/img/" + nomeArquivo
+            );
+
+            Files.write(caminho, arquivoLogo.getBytes());
+
+            configuracao.setLogo(nomeArquivo);
         }
 
         configuracaoRepository.save(configuracao);

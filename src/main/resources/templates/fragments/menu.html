@@ -43,6 +43,10 @@
     </div>
 
     <nav class="menu-links">
+        
+         <span class="menu-titulo">
+            GERENCIAMENTO
+         </span>
 
         <!-- DASHBOARD ADMIN -->
         <a th:if="${session.usuarioLogado.perfil == 'DONO' or session.usuarioLogado.perfil == 'GERENTE'}"
@@ -89,11 +93,11 @@
            th:classappend="${paginaAtiva == 'negociacoes'} ? ' ativo'">
 
             <span>🤝</span>
-             Negociação
+            Negociação
 
         </a>
 
-        <!-- ADMINISTRAÇÃO -->
+      <!-- ADMINISTRAÇÃO -->
         <div class="menu-grupo"
              th:if="${session.usuarioLogado.perfil == 'DONO' or session.usuarioLogado.perfil == 'GERENTE'}">
 
@@ -119,6 +123,15 @@
             <span class="menu-titulo">
                 FINANCEIRO
             </span>
+            
+            <a th:href="@{/admin/vendas}"
+           class="menu-link"
+           th:classappend="${paginaAtiva == 'vendas'} ? ' ativo'">
+
+            <span>💰</span>
+            Vendas
+
+        </a>
 
             <a th:href="@{/repasses}"
                class="menu-link"

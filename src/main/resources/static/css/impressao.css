@@ -741,6 +741,13 @@ body {
     margin: 4px 0;
     text-align: center;
 }
+
+.logo-documento {
+    max-width: 220px;
+    height: auto;
+    display: block;
+    margin: 0 auto 15px;
+}
 /* ==========================
    RESPONSIVIDADE NA TELA
 ========================== */

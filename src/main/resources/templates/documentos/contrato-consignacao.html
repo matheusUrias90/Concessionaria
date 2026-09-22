@@ -12,8 +12,15 @@
        <div class="documento contrato-consignacao">
 
             <header class="cabecalho-documento">
-
+               
                 <h1>CONTRATO DE CONSIGNAÇÃO DE VEÍCULO</h1>
+                
+                <img th:if="${configuracao.logo != null}"
+                     th:src="@{'/img/' + ${configuracao.logo}}"
+                     alt="Logo da Empresa"
+                     class="logo-documento">
+
+             
 
             </header>
 

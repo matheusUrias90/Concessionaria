@@ -14,8 +14,15 @@
         <div class="documento contrato-venda">
 
             <header class="cabecalho-documento">
-
+                
                 <h1>CONTRATO DE COMPRA E VENDA DE VEÍCULO</h1>
+                
+                <img th:if="${configuracao.logo != null}"
+                     th:src="@{'/img/' + ${configuracao.logo}}"
+                     alt="Logo da Empresa"
+                     class="logo-documento">
+
+                
 
                 <p>
                     Contrato referente à venda nº

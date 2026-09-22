@@ -23,13 +23,19 @@
 
         <div class="documento termo-veiculos-entrada">
 
-            <header class="cabecalho-documento">
-
+            <header class="cabecalho-documento"
+                    
                 <h1>
                     TERMO DE RECEBIMENTO DE VEÍCULO(S)
                     COMO PARTE DE PAGAMENTO
                 </h1>
 
+                    <img th:if="${configuracao.logo != null}"
+                     th:src="@{'/img/' + ${configuracao.logo}}"
+                     alt="Logo da Empresa"
+                     class="logo-documento">
+
+              
                 <p>
                     Referente à venda nº
                     <strong th:text="${venda.id}"></strong>
