@@ -803,7 +803,7 @@ public class NegociacaoController {
         return "redirect:/negociacoes";
     }
 
-    private void finalizarNegociacao(Negociacao negociacao) {
+    private Venda finalizarNegociacao(Negociacao negociacao) {
 
         if (vendaRepository
                 .findByNegociacaoId(negociacao.getId())
@@ -833,6 +833,8 @@ public class NegociacaoController {
         vendaRepository.save(venda);
         negociacaoRepository.save(negociacao);
         veiculoRepository.save(veiculoVendido);
+        
+        return venda;
     }
 
     @PostMapping("/negociacoes/{id}/concluir")
@@ -905,24 +907,9 @@ public class NegociacaoController {
             return "redirect:/negociacoes/" + id;
         }
 
-        Venda venda = new Venda();
-        venda.setCliente(negociacao.getCliente());
-        venda.setVendedor(negociacao.getVendedor());
-        venda.setVeiculo(negociacao.getVeiculo());
-        venda.setDataVenda(LocalDate.now());
-        venda.setValor(negociacao.getValorProposto());
-        venda.setPagamento(null);
-        venda.setNegociacao(negociacao);
+        Venda venda = finalizarNegociacao(negociacao);
 
-        negociacao.setStatus(StatusNegociacao.CONCLUIDA);
-        negociacao.setDataEncerramento(LocalDateTime.now());
-
-        Veiculo veiculo = negociacao.getVeiculo();
-        veiculo.setStatus(StatusVeiculo.VENDIDO);
-
-        finalizarNegociacao(negociacao);
-
-        return "redirect:/negociacoes";
+        return "redirect:/entregas/" + venda.getId();
     }
 
     @GetMapping("/negociacoes/{id}/cancelar")

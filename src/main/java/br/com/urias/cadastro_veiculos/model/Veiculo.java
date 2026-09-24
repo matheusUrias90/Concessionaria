@@ -1,5 +1,6 @@
 package br.com.urias.cadastro_veiculos.model;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -8,6 +9,7 @@ import jakarta.persistence.Table;
 import java.time.LocalDate;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.OneToOne;
 
 @Entity
 @Table(name = "veiculos")
@@ -30,6 +32,8 @@ public class Veiculo {
     private String telefoneProprietario;
     private String emailProprietario;
     private LocalDate dataEntrada;
+    @OneToOne(mappedBy = "veiculo", cascade = CascadeType.ALL)
+    private ChecklistEntrega checklistEntrega;
 
     public Veiculo() {
     }
@@ -150,5 +154,13 @@ public class Veiculo {
 
     public void setDataEntrada(LocalDate dataEntrada) {
         this.dataEntrada = dataEntrada;
+    }
+    
+    public ChecklistEntrega getChecklistEntrega() {
+        return checklistEntrega;
+    }
+
+    public void setChecklistEntrega(ChecklistEntrega checklistEntrega) {
+        this.checklistEntrega = checklistEntrega;
     }
 }

@@ -1,5 +1,6 @@
 package br.com.urias.cadastro_veiculos.controller;
 
+import br.com.urias.cadastro_veiculos.model.ChecklistEntrega;
 import br.com.urias.cadastro_veiculos.model.ConfiguracaoConcessionaria;
 import br.com.urias.cadastro_veiculos.model.PagamentoRepasse;
 import br.com.urias.cadastro_veiculos.model.Repasse;
@@ -98,6 +99,59 @@ public class DocumentoController {
         model.addAttribute("configuracao", configuracao);
 
         return "documentos/comprovante-venda";
+    }
+    
+    @GetMapping("/documentos/termo-entrega/{id}")
+    public String termoEntrega(
+            @PathVariable Long id,
+            HttpSession session,
+            Model model) {
+
+        Usuario usuarioLogado
+                = (Usuario) session.getAttribute("usuarioLogado");
+
+        if (usuarioLogado == null) {
+            return "redirect:/login";
+        }
+
+        Venda venda = vendaRepository.findById(id).orElse(null);
+
+        if (venda == null) {
+
+            if ("VENDEDOR".equals(usuarioLogado.getPerfil())) {
+                return "redirect:/dashboard-vendedor";
+            }
+
+            return "redirect:/admin/vendas";
+        }
+
+        if ("VENDEDOR".equals(usuarioLogado.getPerfil())) {
+
+            if (venda.getVendedor() == null
+                    || !venda.getVendedor().getId()
+                            .equals(usuarioLogado.getId())) {
+
+                return "redirect:/dashboard-vendedor";
+            }
+        }
+
+        ChecklistEntrega checklist
+                = venda.getVeiculo().getChecklistEntrega();
+
+        if (checklist == null || !checklist.isEntregaConcluida()) {
+            return "redirect:/entregas/" + id;
+        }
+
+        ConfiguracaoConcessionaria configuracao
+                = configuracaoRepository.findById(1L).orElse(null);
+
+        model.addAttribute("venda", venda);
+        model.addAttribute("cliente", venda.getCliente());
+        model.addAttribute("veiculo", venda.getVeiculo());
+        model.addAttribute("checklist", checklist);
+        model.addAttribute("configuracao", configuracao);
+
+        return "documentos/termo-entrega";
     }
     
     @GetMapping("/documentos/contrato-venda/{id}")

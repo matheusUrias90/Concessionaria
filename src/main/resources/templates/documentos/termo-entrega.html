@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: head('Termo de Entrega do Veículo')}"></head>
+
+<body>
+
+    <div class="documento termo-entrega">
+
+        <header class="cabecalho-documento">
+            <h1>TERMO DE ENTREGA DO VEÍCULO</h1>
+
+            <img th:if="${configuracao != null and configuracao.logo != null}"
+                 th:src="@{'/img/' + ${configuracao.logo}}"
+                 alt="Logo da Empresa"
+                 class="logo-documento">
+        </header>
+
+        <section class="secao-documento">
+            <h2>Dados da Empresa</h2>
+
+            <p>
+                <strong>Empresa:</strong>
+                <span th:text="${configuracao != null ? configuracao.nomeEmpresa : ''}"></span>
+            </p>
+
+            <p>
+                <strong>CNPJ:</strong>
+                <span th:text="${configuracao != null ? configuracao.cnpj : ''}"></span>
+            </p>
+        </section>
+
+        <section class="secao-documento">
+            <h2>Comprador</h2>
+
+            <p>
+                <strong>Nome:</strong>
+                <span th:text="${cliente.nome}"></span>
+            </p>
+
+            <p>
+                <strong>CPF:</strong>
+                <span th:text="${cliente.cpf}"></span>
+            </p>
+        </section>
+
+        <section class="secao-documento">
+            <h2>Veículo Entregue</h2>
+
+            <p>
+                <strong>Veículo:</strong>
+                <span th:text="${veiculo.nome}"></span>
+            </p>
+
+            <p>
+                <strong>Marca:</strong>
+                <span th:text="${veiculo.marca}"></span>
+            </p>
+
+            <p>
+                <strong>Placa:</strong>
+                <span th:text="${veiculo.placa}"></span>
+            </p>
+
+            <p>
+                <strong>Ano:</strong>
+                <span th:text="${veiculo.ano}"></span>
+            </p>
+        </section>
+
+        <section class="secao-documento">
+            <h2>Itens Conferidos na Entrega</h2>
+
+            <ul>
+                <li th:each="item : ${checklist.itens}"
+                    th:text="${item.descricao}">
+                </li>
+            </ul>
+        </section>
+
+        <section class="secao-documento">
+            <h2>Declaração de Entrega</h2>
+
+            <p>
+                Declaro que recebi o veículo acima identificado,
+                juntamente com os itens relacionados neste termo,
+                devidamente conferidos no momento da entrega.
+            </p>
+
+            <p>
+                <strong>Data da entrega:</strong>
+                <span th:text="${#temporals.format(checklist.dataEntrega, 'dd/MM/yyyy')}"></span>
+            </p>
+        </section>
+
+        <section class="assinaturas">
+
+            <div class="assinatura">
+                <p>________________________________________</p>
+                <p th:text="${cliente.nome}"></p>
+                <p>Comprador</p>
+            </div>
+
+            <div class="assinatura">
+                <p>________________________________________</p>
+                <p th:text="${configuracao != null ? configuracao.nomeEmpresa : ''}"></p>
+                <p>Concessionária</p>
+            </div>
+
+        </section>
+
+        <div class="acoes-documento">
+            <button type="button"
+                    onclick="window.print()"
+                    class="btn-imprimir">
+                🖨️ Imprimir
+            </button>
+        </div>
+
+    </div>
+
+</body>
+</html>

@@ -231,6 +231,13 @@
                             📑 Contrato de Compra e Venda
 
                         </a>
+                        
+                        
+                        <a th:href="@{/entregas/{id}(id=${v.id})}"
+                           class="btn-imprimir">
+                            ☑️ Entrega do Veículo
+                        </a>
+
 
                         <a th:if="${v.negociacao != null
                            and #lists.size(

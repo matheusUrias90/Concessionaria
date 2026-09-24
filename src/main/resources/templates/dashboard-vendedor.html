@@ -505,6 +505,13 @@
 
                             </a>
 
+
+                            <a th:href="@{/entregas/{id}(id=${v.id})}"
+                               class="btn-imprimir">
+                                ☑️ Entrega do Veículo
+                            </a>
+
+
                             <a th:if="${v.negociacao != null
                                and not #lists.isEmpty(
                                v.negociacao.formasPagamento.?[

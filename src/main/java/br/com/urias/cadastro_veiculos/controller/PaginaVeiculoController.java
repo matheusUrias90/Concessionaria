@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import java.util.List;
+import br.com.urias.cadastro_veiculos.model.ChecklistEntrega;
+import br.com.urias.cadastro_veiculos.model.ItemChecklistEntrega;
 
 @Controller
 public class PaginaVeiculoController {
@@ -75,7 +78,9 @@ public class PaginaVeiculoController {
     }
 
     @PostMapping("/veiculos/salvar")
-    public String salvar(Veiculo veiculo) {
+    public String salvar(
+            Veiculo veiculo,
+            @RequestParam(required = false) List<String> itensChecklist) {
 
         if (veiculo.getNome() == null
                 || veiculo.getNome().trim().isEmpty()) {
@@ -112,10 +117,56 @@ public class PaginaVeiculoController {
         }
 
         boolean novoVeiculo = veiculo.getId() == null;
+        
+        ChecklistEntrega checklistExistente = null;
+
+        if (!novoVeiculo) {
+
+            Veiculo veiculoExistente = veiculoRepository
+                    .findById(veiculo.getId())
+                    .orElse(null);
+
+            if (veiculoExistente != null) {
+                checklistExistente = veiculoExistente.getChecklistEntrega();
+
+                veiculo.setDataEntrada(veiculoExistente.getDataEntrada());
+                veiculo.setStatus(veiculoExistente.getStatus());
+            }
+        }
 
         if (novoVeiculo) {
             veiculo.setDataEntrada(LocalDate.now());
             veiculo.setStatus(StatusVeiculo.DISPONIVEL);
+        }
+
+        if (itensChecklist != null && !itensChecklist.isEmpty()) {
+
+            ChecklistEntrega checklist;
+
+            if (checklistExistente != null) {
+                checklist = checklistExistente;
+                checklist.getItens().clear();
+                checklist.setVeiculo(veiculo);
+            } else {
+                checklist = new ChecklistEntrega();
+                checklist.setVeiculo(veiculo);
+            }
+
+            veiculo.setChecklistEntrega(checklist);
+
+            for (String descricao : itensChecklist) {
+
+                if (descricao != null && !descricao.isBlank()) {
+
+                    ItemChecklistEntrega item = new ItemChecklistEntrega();
+
+                    item.setDescricao(descricao.trim());
+                    item.setConferido(false);
+                    item.setChecklist(checklist);
+
+                    checklist.getItens().add(item);
+                }
+            }
         }
 
         Veiculo veiculoSalvo = veiculoRepository.save(veiculo);

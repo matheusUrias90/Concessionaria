@@ -158,6 +158,36 @@
                             </div>
                         </div>
 
+                        <h3>☑️ Checklist de Entrega</h3>
+
+                        <div class="campo">
+                            <label>Item</label>
+
+                            <input type="text"
+                                   id="novo-item-checklist"
+                                   placeholder="Ex.: Chave reserva">
+                        </div>
+
+                        <button type="button"
+                                class="btn-salvar"
+                                onclick="adicionarItemChecklist()">
+                            ➕ Adicionar Item
+                        </button>
+
+                        <br><br>
+
+                        <table class="tabela-checklist">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Ação</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="itens-checklist">
+                            </tbody>
+                        </table>
+
                         <button type="submit" class="btn-salvar">💾 Salvar</button>
                     </form>
 
@@ -221,6 +251,30 @@
                             </div>
 
                         </div>
+
+                        <h3>☑️ Checklist de Entrega</h3>
+
+                        <div th:if="${v.checklistEntrega != null and !v.checklistEntrega.itens.isEmpty()}">
+
+                            <table class="tabela-checklist">
+                                <thead>
+                                    <tr>
+                                        <th>Item</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    <tr th:each="item : ${v.checklistEntrega.itens}">
+                                        <td th:text="${item.descricao}"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                        </div>
+
+                        <p th:if="${v.checklistEntrega == null or v.checklistEntrega.itens.isEmpty()}">
+                            Nenhum item cadastrado no checklist de entrega.
+                        </p>
                         <a th:href="@{/documentos/contrato-consignacao/{id}(id=${v.id})}"
                            class="btn-imprimir"
                            target="_blank">
@@ -304,6 +358,61 @@
                                     <input type="email" name="emailProprietario" th:value="${v.emailProprietario}">
                                 </div>
                             </div>
+
+                            <h3>☑️ Checklist de Entrega</h3>
+
+                            <div class="campo">
+                                <label>Item</label>
+
+                                <input type="text"
+                                       th:id="|novo-item-checklist-${v.id}|"
+                                       placeholder="Ex.: Chave reserva">
+                            </div>
+
+                            <button type="button"
+                                    class="btn-salvar"
+                                    th:attr="onclick=|adicionarItemChecklistEdicao(${v.id})|">
+                                ➕ Adicionar Item
+                            </button>
+
+                            <br><br>
+
+                            <table class="tabela-checklist">
+                                <thead>
+                                    <tr>
+                                        <th>Item</th>
+                                        <th>Ação</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody th:id="|itens-checklist-${v.id}|">
+
+                                <th:block th:if="${v.checklistEntrega != null}">
+
+                                    <tr th:each="item : ${v.checklistEntrega.itens}">
+
+                                        <td>
+                                            <span th:text="${item.descricao}"></span>
+
+                                            <input type="hidden"
+                                                   name="itensChecklist"
+                                                   th:value="${item.descricao}">
+                                        </td>
+
+                                        <td>
+                                            <button type="button"
+                                                    class="btn-excluir"
+                                                    onclick="this.closest('tr').remove()">
+                                                🗑 Remover
+                                            </button>
+                                        </td>
+
+                                    </tr>
+
+                                </th:block>
+
+                            </tbody>
+                            </table>
 
                             <button type="submit" class="btn-salvar">💾 Salvar Alterações</button>
                         </form>
@@ -429,6 +538,83 @@
                     window.history.replaceState({}, "", novaUrl);
                 }
             });
+
+            function adicionarItemChecklist() {
+
+                const input = document.getElementById("novo-item-checklist");
+                const descricao = input.value.trim();
+
+                if (descricao === "") {
+                    return;
+                }
+
+                const tabela = document.getElementById("itens-checklist");
+
+                const linha = document.createElement("tr");
+
+                linha.innerHTML = `
+        <td>
+            ${descricao}
+
+            <input type="hidden"
+                   name="itensChecklist"
+                   value="${descricao}">
+        </td>
+
+        <td>
+            <button type="button"
+                    class="btn-excluir"
+                    onclick="this.closest('tr').remove()">
+                🗑 Remover
+            </button>
+        </td>
+    `;
+
+                tabela.appendChild(linha);
+
+                input.value = "";
+                input.focus();
+            }
+
+            function adicionarItemChecklistEdicao(veiculoId) {
+
+                const input =
+                        document.getElementById("novo-item-checklist-" + veiculoId);
+
+                const descricao = input.value.trim();
+
+                if (descricao === "") {
+                    return;
+                }
+
+                const tabela =
+                        document.getElementById("itens-checklist-" + veiculoId);
+
+                const linha = document.createElement("tr");
+
+                linha.innerHTML = `
+        <td>
+            ${descricao}
+
+            <input type="hidden"
+                   name="itensChecklist"
+                   value="${descricao}">
+        </td>
+
+        <td>
+            <button type="button"
+                    class="btn-excluir"
+                    onclick="this.closest('tr').remove()">
+                🗑 Remover
+            </button>
+        </td>
+    `;
+
+                tabela.appendChild(linha);
+
+                input.value = "";
+                input.focus();
+            }
         </script>
 
     </body>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+    <head th:replace="~{fragments/head :: head('Checklist de Entrega')}"></head>
+
+    <body class="pagina-com-menu">
+
+        <div th:replace="~{fragments/menu :: menu}"></div>
+
+        <div class="container">
+
+            <h1>☑️ Checklist de Entrega do Veículo</h1>
+
+            <p th:if="${param.erro != null}"
+               class="mensagem-erro">
+                ⚠️ Todos os itens devem ser conferidos antes de concluir a entrega.
+            </p>
+
+            <div class="card-form">
+
+                <h2>🚗 Dados do Veículo</h2>
+
+                <div class="form-grid">
+
+                    <div class="campo">
+                        <label>Veículo</label>
+                        <span th:text="${venda.veiculo.nome}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <label>Marca</label>
+                        <span th:text="${venda.veiculo.marca}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <label>Placa</label>
+                        <span th:text="${venda.veiculo.placa}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <label>Comprador</label>
+                        <span th:text="${venda.cliente.nome}"></span>
+                    </div>
+
+                </div>
+
+                <form th:action="@{/entregas/{id}/confirmar(id=${venda.id})}"
+                      method="post">
+
+                    <h2>📋 Itens para Conferência</h2>
+
+                    <table class="tabela-checklist">
+
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Conferido</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                        <th:block th:if="${venda.veiculo.checklistEntrega != null}">
+
+                            <tr th:each="item : ${venda.veiculo.checklistEntrega.itens}">
+
+                                <td th:text="${item.descricao}"></td>
+
+                                <td>
+                                    <input type="checkbox"
+                                           name="itensConferidos"
+                                           th:value="${item.id}"
+                                           th:checked="${item.conferido}"
+                                           th:disabled="${venda.veiculo.checklistEntrega.entregaConcluida}">
+                                </td>
+
+                            </tr>
+
+                        </th:block>
+
+                        <tr th:if="${venda.veiculo.checklistEntrega == null}">
+                            <td colspan="2">
+                                Este veículo não possui checklist de entrega cadastrado.
+                            </td>
+                        </tr>
+
+                        </tbody>
+
+                    </table>
+
+                    <br>
+
+                    <button th:if="${venda.veiculo.checklistEntrega != null}"
+                            type="submit"
+                            class="btn-salvar">
+                        💾 Salvar Conferência
+                    </button>
+
+                </form>
+
+                <form th:if="${venda.veiculo.checklistEntrega != null
+                      and !venda.veiculo.checklistEntrega.entregaConcluida}"
+                      th:action="@{/entregas/{id}/concluir(id=${venda.id})}"
+                      method="post">
+
+                    <button type="submit"
+                            class="btn-salvar">
+                        ☑️ Concluir Entrega
+                    </button>
+
+                </form>
+
+                <div th:if="${venda.veiculo.checklistEntrega != null
+                     and venda.veiculo.checklistEntrega.entregaConcluida}"
+                     class="mensagem-sucesso">
+
+                    ☑️ Entrega concluída com sucesso.
+
+                </div>
+
+                <a th:if="${venda.veiculo.checklistEntrega != null
+                   and venda.veiculo.checklistEntrega.entregaConcluida}"
+                   th:href="@{/documentos/termo-entrega/{id}(id=${venda.id})}"
+                   class="btn-imprimir"
+                   target="_blank">
+
+                    📄 Termo de Entrega do Veículo
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </body>
+</html>

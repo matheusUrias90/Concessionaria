@@ -135,6 +135,28 @@
                 </div>
 
             </section>
+           
+           <section class="secao-documento">
+
+               <h2>Itens e Acessórios Entregues com o Veículo</h2>
+
+               <div th:if="${veiculo.checklistEntrega != null
+                    and !veiculo.checklistEntrega.itens.isEmpty()}">
+
+                   <ul>
+                       <li th:each="item : ${veiculo.checklistEntrega.itens}"
+                           th:text="${item.descricao}">
+                       </li>
+                   </ul>
+
+               </div>
+
+               <p th:if="${veiculo.checklistEntrega == null
+                  or veiculo.checklistEntrega.itens.isEmpty()}">
+                   Nenhum item ou acessório adicional foi registrado na entrada do veículo.
+               </p>
+
+           </section>
 
             <section class="clausulas-contrato">
 
