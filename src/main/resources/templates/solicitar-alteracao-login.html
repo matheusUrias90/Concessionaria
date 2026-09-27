@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: head('Solicitar Alteração de Login')}"></head>
+
+<body class="pagina-com-menu">
+
+    <div th:replace="~{fragments/menu :: menu}"></div>
+
+    <div class="container">
+
+        <h1>✏️ Solicitar Alteração de Login</h1>
+
+        <p th:if="${param.erro != null and param.erro[0] == 'vazio'}"
+           class="mensagem-erro">
+            ⚠️ Informe o novo login desejado.
+        </p>
+
+        <p th:if="${param.erro != null and param.erro[0] == 'igual'}"
+           class="mensagem-erro">
+            ⚠️ O novo login deve ser diferente do login atual.
+        </p>
+
+        <p th:if="${param.erro != null and param.erro[0] == 'existente'}"
+           class="mensagem-erro">
+            ⚠️ Este login já está sendo utilizado.
+        </p>
+
+        <p th:if="${param.erro != null and param.erro[0] == 'pendente'}"
+           class="mensagem-erro">
+            ⚠️ Você já possui uma solicitação de alteração de login pendente.
+        </p>
+
+        <form th:action="@{/meu-perfil/solicitar-login}"
+              method="post"
+              class="card-form">
+
+            <h2>Alteração de Login</h2>
+
+            <div class="form-grid">
+
+                <div class="campo">
+                    <label>Login atual</label>
+
+                    <input type="text"
+                           th:value="${usuario.login}"
+                           readonly>
+                </div>
+
+                <div class="campo">
+                    <label for="novoLogin">Novo login</label>
+
+                    <input type="text"
+                           id="novoLogin"
+                           name="novoLogin"
+                           required>
+                </div>
+
+            </div>
+
+            <div class="acoes-form">
+
+                <button type="submit"
+                        class="btn-salvar">
+                    📩 Enviar Solicitação
+                </button>
+
+                <a th:href="@{/meu-perfil}"
+                   class="btn-voltar"
+                   style="margin-top: 12px;">
+                    Cancelar
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</body>
+</html>

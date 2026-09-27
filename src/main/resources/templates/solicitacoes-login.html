@@ -1,0 +1,82 @@
+<head th:replace="~{fragments/head :: head('Solicitações de Login')}"></head>
+
+<body class="pagina-com-menu">
+
+    <div th:replace="~{fragments/menu :: menu}"></div>
+
+    <div class="container">
+
+        <h1>🔐 Solicitações de Alteração de Login</h1>
+        
+        <p th:if="${param.aprovada != null}"
+           class="mensagem-sucesso">
+            ☑️ Solicitação aprovada. O login do usuário foi alterado.
+        </p>
+
+        <p th:if="${param.recusada != null}"
+           class="mensagem-sucesso">
+            ☑️ Solicitação recusada.
+        </p>
+
+        <div class="card-form">
+
+            <h2>Solicitações Pendentes</h2>
+
+            <p th:if="${solicitacoes.isEmpty()}">
+                Nenhuma solicitação pendente.
+            </p>
+
+            <table th:unless="${solicitacoes.isEmpty()}">
+                <thead>
+                    <tr>
+                        <th>Usuário</th>
+                        <th>Login Atual</th>
+                        <th>Novo Login</th>
+                        <th>Data da Solicitação</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr th:each="s : ${solicitacoes}">
+                        <td th:text="${s.usuario.nome}"></td>
+                        <td th:text="${s.loginAtual}"></td>
+                        <td th:text="${s.novoLogin}"></td>
+                        <td th:text="${#temporals.format(
+                            s.dataSolicitacao,
+                            'dd/MM/yyyy HH:mm'
+                        )}"></td>
+                        <td>
+                            <div style="display: flex; gap: 8px; justify-content: center;">
+
+                                <form th:action="@{/admin/solicitacoes-login/{id}/aprovar(id=${s.id})}"
+                                      method="post">
+
+                                    <button type="submit"
+                                            class="btn-salvar"
+                                            style="width: auto; margin-top: 0; padding: 6px 10px; font-size: 14px;">
+                                        ✅ Aprovar
+                                    </button>
+                                </form>
+
+                                <form th:action="@{/admin/solicitacoes-login/{id}/recusar(id=${s.id})}"
+                                      method="post">
+
+                                    <button type="submit"
+                                            class="btn-excluir"
+                                            style="padding: 6px 10px; font-size: 14px;">
+                                        ❌ Recusar
+                                    </button>
+                                </form>
+
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>
+
+    </div>
+
+</body>

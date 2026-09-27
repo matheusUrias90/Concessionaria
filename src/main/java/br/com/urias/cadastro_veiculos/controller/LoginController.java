@@ -1,7 +1,9 @@
 package br.com.urias.cadastro_veiculos.controller;
 
+import br.com.urias.cadastro_veiculos.model.StatusSolicitacaoLogin;
 import br.com.urias.cadastro_veiculos.model.Usuario;
 import br.com.urias.cadastro_veiculos.repository.ConfiguracaoConcessionariaRepository;
+import br.com.urias.cadastro_veiculos.repository.SolicitacaoAlteracaoLoginRepository;
 import br.com.urias.cadastro_veiculos.repository.UsuarioRepository;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,12 +15,16 @@ import org.springframework.web.bind.annotation.*;
 public class LoginController {
 
     private final UsuarioRepository usuarioRepository;
+    
+    private final SolicitacaoAlteracaoLoginRepository solicitacaoRepository;
 
     @Autowired
     private ConfiguracaoConcessionariaRepository configuracaoRepository;
 
-    public LoginController(UsuarioRepository usuarioRepository) {
+    public LoginController(UsuarioRepository usuarioRepository, 
+                           SolicitacaoAlteracaoLoginRepository solicitacaoRepository) {
         this.usuarioRepository = usuarioRepository;
+        this.solicitacaoRepository = solicitacaoRepository;
     }
 
     @GetMapping({"/", "/login"})
@@ -44,6 +50,20 @@ public class LoginController {
         }
 
         session.setAttribute("usuarioLogado", usuarioLogado);
+
+        if ("DONO".equals(usuarioLogado.getPerfil())
+                || "GERENTE".equals(usuarioLogado.getPerfil())) {
+
+            boolean possuiSolicitacoesPendentes
+                    = solicitacaoRepository.existsByStatus(
+                            StatusSolicitacaoLogin.PENDENTE
+                    );
+
+            session.setAttribute(
+                    "avisoSolicitacaoLogin",
+                    possuiSolicitacoesPendentes
+            );
+        }
 
         if (usuarioLogado.getPerfil().equals("DONO")) {
 

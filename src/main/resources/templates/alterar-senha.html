@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: head('Alterar Senha')}"></head>
+
+<body class="pagina-com-menu">
+
+    <div th:replace="~{fragments/menu :: menu}"></div>
+
+    <div class="container">
+
+        <h1>🔑 Alterar Senha</h1>
+
+        <p th:if="${param.erro != null and param.erro[0] == 'senhaAtual'}"
+           class="mensagem-erro">
+            ⚠️ A senha atual informada está incorreta.
+        </p>
+
+        <p th:if="${param.erro != null and param.erro[0] == 'confirmacao'}"
+           class="mensagem-erro">
+            ⚠️ A nova senha e a confirmação não coincidem.
+        </p>
+
+        <form th:action="@{/meu-perfil/alterar-senha}"
+              method="post"
+              class="card-form">
+
+            <h2>Nova Senha</h2>
+
+            <div class="form-grid">
+
+                <div class="campo campo-unico">
+                    <label for="senhaAtual">Senha atual</label>
+                    <input type="password"
+                           id="senhaAtual"
+                           name="senhaAtual"
+                           required>
+                </div>
+                
+                <div class="campo">
+                    <label for="novaSenha">Nova senha</label>
+                    <input type="password"
+                           id="novaSenha"
+                           name="novaSenha"
+                           required>
+                </div>
+
+                <div class="campo">
+                    <label for="confirmacaoSenha">Confirmar nova senha</label>
+                    <input type="password"
+                           id="confirmacaoSenha"
+                           name="confirmacaoSenha"
+                           required>
+                </div>
+
+            </div>
+
+            <div class="acoes-perfil">
+
+                <button type="submit"
+                        class="btn-salvar">
+                    🔑 Alterar Senha
+                </button>
+
+                <a th:href="@{/meu-perfil}"
+                   class="btn-voltar">
+                    Cancelar
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</body>
+</html>

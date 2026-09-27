@@ -10,6 +10,8 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     Usuario findByLoginAndSenha(String login, String senha);
 
     Usuario findByLogin(String login);
+    
+    boolean existsByLogin(String login);
 
     Page<Usuario> findByNomeContainingIgnoreCaseOrLoginContainingIgnoreCase(
             String nome,

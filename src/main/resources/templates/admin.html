@@ -307,6 +307,38 @@
             </div>
 
         </div>
+
+        <div th:if="${session.avisoSolicitacaoLogin == true}"
+             id="modalSolicitacaoLogin"
+             class="modal modal-aviso">
+             style="display: block;">
+
+            <div class="modal-conteudo modal-confirmacao">
+
+                <h2>🔐 Solicitação Pendente</h2>
+
+                <p>
+                    Existem solicitações de alteração de login aguardando análise.
+                </p>
+
+                <div class="acoes-modal-aviso">
+
+                    <a th:href="@{/admin/solicitacoes-login}"
+                       class="btn-salvar">
+                        Ver Solicitações
+                    </a>
+
+                    <button type="button"
+                            class="btn-voltar"
+                            onclick="ocultarAvisoSolicitacao()">
+                        Agora não
+                    </button>
+
+                </div>
+            </div>
+
+        </div>
+
         <script>
             document.addEventListener("DOMContentLoaded", function () {
 
@@ -335,6 +367,15 @@
                     window.history.replaceState({}, "", novaUrl);
                 }
             });
+            
+            function ocultarAvisoSolicitacao() {
+
+                 fetch('/admin/solicitacoes-login/ocultar-aviso', {
+                     method: 'POST'
+                 });
+
+                document.getElementById('modalSolicitacaoLogin').style.display = 'none';
+             }
         </script>
     </body>
 </html>

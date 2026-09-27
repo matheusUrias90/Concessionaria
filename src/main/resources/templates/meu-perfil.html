@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+    <head th:replace="~{fragments/head :: head('Meu Perfil')}"></head>
+
+    <body class="pagina-com-menu">
+
+        <div th:replace="~{fragments/menu :: menu}"></div>
+
+        <div class="container">
+
+            <h1>👤 Meu Perfil</h1>
+
+            <p th:if="${param.senhaAlterada != null}"
+               class="mensagem-sucesso">
+                ☑️ Senha alterada com sucesso.
+            </p>
+            
+            <p th:if="${param.solicitacaoLogin != null}"
+               class="mensagem-sucesso">
+                ☑️ Solicitação de alteração de login enviada com sucesso.
+            </p>
+
+            <div class="card-form">
+
+                <h2>Dados do meu perfil</h2>
+
+                <div class="form-grid">
+
+                    <div class="campo campo-unico">
+                        <label>Nome</label>
+                        <p th:text="${usuario.nome}"></p>
+                    </div>
+
+                    <div class="campo">
+                        <label>Login</label>
+                        <p th:text="${usuario.login}"></p>
+                    </div>
+
+                    <div class="campo">
+                        <label>Perfil</label>
+                        <p th:text="${usuario.perfil}"></p>
+                    </div>
+
+                </div>
+
+                <div class="acoes-perfil">
+
+                    <a th:href="@{/meu-perfil/solicitar-login}"
+                       class="btn-salvar">
+                        ✏️ Solicitar Alteração de Login
+                    </a>
+
+                    <a th:href="@{/meu-perfil/alterar-senha}"
+                       class="btn-voltar">
+                        🔑 Alterar Senha
+                    </a>
+
+                </div>
+
+            </div>
+        </div>
+
+    </body>
+</html>

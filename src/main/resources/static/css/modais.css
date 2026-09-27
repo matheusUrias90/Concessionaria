@@ -83,3 +83,31 @@
     font-size: 18px;
     margin: 20px 0;
 }
+
+/* ==========================
+   MODAL DE AVISO
+========================== */
+.modal-aviso {
+    display: flex ;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-aviso .modal-conteudo {
+    margin: 0;
+}
+
+.acoes-modal-aviso {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.acoes-modal-aviso .btn-salvar,
+.acoes-modal-aviso .btn-voltar {
+    width: auto;
+    margin: 0;
+    padding: 10px 14px;
+}

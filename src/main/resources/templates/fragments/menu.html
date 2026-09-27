@@ -28,10 +28,20 @@
         </button>
 
         <div class="submenu-usuario">
+            
+            <a th:href="@{/meu-perfil}">
+                👤 Meu Perfil
+            </a>
 
             <a th:if="${session.usuarioLogado.perfil == 'DONO'}"
                th:href="@{/configuracao}">
                 ⚙ Configuração da Empresa
+            </a>
+
+            <a th:if="${session.usuarioLogado.perfil == 'DONO'
+               or session.usuarioLogado.perfil == 'GERENTE'}"
+               th:href="@{/admin/solicitacoes-login}">
+                🔐 Solicitações de Login
             </a>
 
             <a th:href="@{/logout}">
