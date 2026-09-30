@@ -30,40 +30,42 @@
 
             <h2>📋 Últimas Vendas</h2>
 
-            <table>
-                <thead>
-                    <tr>
-                        <th>Veículo</th>
-                        <th>Comprador</th>
-                        <th>Vendedor</th>
-                        <th>Data</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
+            <div class="tabela-responsiva">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Veículo</th>
+                            <th>Comprador</th>
+                            <th>Vendedor</th>
+                            <th>Data</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
 
-                <tbody>
-                    <tr th:each="v : ${ultimasVendas}">
-                        <td th:text="${v.veiculo.nome + ' (' + v.veiculo.ano + ')'}"></td>
-                        <td th:text="${v.cliente.nome}"></td>
-                        <td th:text="${v.vendedor.nome}"></td>
-                        <td th:text="${#temporals.format(v.dataVenda, 'dd/MM/yyyy')}"></td>
-                        <td>
-                            <button class="btn-detalhes"
-                                    type="button"
-                                    th:onclick="|abrirModal('modal-${v.id}')|">
-                                Detalhes
-                            </button>
-                        </td>
-                    </tr>
+                    <tbody>
+                        <tr th:each="v : ${ultimasVendas}">
+                            <td th:text="${v.veiculo.nome + ' (' + v.veiculo.ano + ')'}"></td>
+                            <td th:text="${v.cliente.nome}"></td>
+                            <td th:text="${v.vendedor.nome}"></td>
+                            <td th:text="${#temporals.format(v.dataVenda, 'dd/MM/yyyy')}"></td>
+                            <td>
+                                <button class="btn-detalhes"
+                                        type="button"
+                                        th:onclick="|abrirModal('modal-${v.id}')|">
+                                    Detalhes
+                                </button>
+                            </td>
+                        </tr>
 
-                    <tr th:if="${#lists.isEmpty(ultimasVendas)}">
-                        <td colspan="5">
-                            Nenhuma venda realizada ainda.
-                        </td>
-                    </tr>
+                        <tr th:if="${#lists.isEmpty(ultimasVendas)}">
+                            <td colspan="5">
+                                Nenhuma venda realizada ainda.
+                            </td>
+                        </tr>
 
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </div>
             <div th:each="v : ${ultimasVendas}">
                 <div class="modal" th:id="|modal-${v.id}|">
                     <div class="modal-conteudo modal-grande">
@@ -223,7 +225,7 @@
                            target="_blank">
                             📄 Comprovante
                         </a>
-                        
+
                         <a th:href="@{/documentos/contrato-venda/{id}(id=${v.id})}"
                            class="btn-imprimir"
                            target="_blank">
@@ -231,8 +233,8 @@
                             📑 Contrato de Compra e Venda
 
                         </a>
-                        
-                        
+
+
                         <a th:href="@{/entregas/{id}(id=${v.id})}"
                            class="btn-imprimir">
                             ☑️ Entrega do Veículo
@@ -311,7 +313,6 @@
         <div th:if="${session.avisoSolicitacaoLogin == true}"
              id="modalSolicitacaoLogin"
              class="modal modal-aviso">
-             style="display: block;">
 
             <div class="modal-conteudo modal-confirmacao">
 
@@ -367,15 +368,15 @@
                     window.history.replaceState({}, "", novaUrl);
                 }
             });
-            
+
             function ocultarAvisoSolicitacao() {
 
-                 fetch('/admin/solicitacoes-login/ocultar-aviso', {
-                     method: 'POST'
-                 });
+                fetch('/admin/solicitacoes-login/ocultar-aviso', {
+                    method: 'POST'
+                });
 
                 document.getElementById('modalSolicitacaoLogin').style.display = 'none';
-             }
+            }
         </script>
     </body>
 </html>

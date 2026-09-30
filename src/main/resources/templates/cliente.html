@@ -26,42 +26,44 @@
                 <a href="/compradores" class="btn-limpar">Limpar</a>
             </form>
 
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Nome</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
+            <div class="tabela-responsiva">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nome</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
 
-                <tbody id="tabelaCompradores">
-                    <tr th:each="c : ${clientes}">
-                        <td th:text="${c.id}"></td>
-                        <td th:text="${c.nome}"></td>
+                    <tbody id="tabelaCompradores">
+                        <tr th:each="c : ${clientes}">
+                            <td th:text="${c.id}"></td>
+                            <td th:text="${c.nome}"></td>
 
-                        <td class="acoes">
-                            <button type="button"
-                                    class="btn-detalhes"
-                                    th:attr="onclick=|abrirModal('modal-detalhes-${c.id}')|">
-                                👁 Detalhes
-                            </button>
+                            <td class="acoes">
+                                <button type="button"
+                                        class="btn-detalhes"
+                                        th:attr="onclick=|abrirModal('modal-detalhes-${c.id}')|">
+                                    👁 Detalhes
+                                </button>
 
-                            <button type="button"
-                                    class="btn-editar"
-                                    th:attr="onclick=|abrirModal('modal-editar-${c.id}')|">
-                                ✏ Editar
-                            </button>
+                                <button type="button"
+                                        class="btn-editar"
+                                        th:attr="onclick=|abrirModal('modal-editar-${c.id}')|">
+                                    ✏ Editar
+                                </button>
 
-                            <button type="button"
-                                    class="btn-excluir"
-                                    th:attr="onclick=|abrirModalExclusao('/clientes/excluir/${c.id}')|">
-                                🗑 Excluir
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+                                <button type="button"
+                                        class="btn-excluir"
+                                        th:attr="onclick=|abrirModalExclusao('/clientes/excluir/${c.id}')|">
+                                    🗑 Excluir
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
             <div class="paginacao" th:if="${totalPaginas > 1}">
                 <a th:if="${paginaAtual > 0}"

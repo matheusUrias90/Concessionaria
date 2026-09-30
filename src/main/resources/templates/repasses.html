@@ -36,6 +36,7 @@
 
             <h2>⏳ Vendas aguardando repasse</h2>
 
+        <div class="tabela-responsiva">
             <table>
 
                 <thead>
@@ -87,14 +88,15 @@
                 </tbody>
 
             </table>
-
+        </div>
 
             <!-- =========================================
                  REPASSES EM ANDAMENTO
             ========================================== -->
 
             <h2>🔴 Repasses em andamento</h2>
-
+            
+        <div class="tabela-responsiva">
             <table>
 
                 <thead>
@@ -173,6 +175,7 @@
                 </tbody>
 
             </table>
+        </div>
 
 
             <!-- =========================================
@@ -180,7 +183,8 @@
             ========================================== -->
 
             <h2>🟢 Repasses finalizados</h2>
-
+            
+        <div class="tabela-responsiva">
             <table>
 
                 <thead>
@@ -259,6 +263,7 @@
                 </tbody>
 
             </table>
+        </div>
 
             <div class="paginacao"
                  th:if="${paginaFinalizados.totalPages > 1}">

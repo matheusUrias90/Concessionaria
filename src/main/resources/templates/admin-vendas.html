@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
     <head th:replace="~{fragments/head :: head('Histórico de Vendas')}"></head>
-    
+
     <body class="pagina-com-menu">
 
         <div th:replace="~{fragments/menu :: menu}"></div>
@@ -19,33 +19,36 @@
 
                 <a href="/admin/vendas" class="btn-limpar">Limpar</a>
             </form>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Veículo</th>
-                        <th>Comprador</th>
-                        <th>Vendedor</th>
-                        <th>Data</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
 
-                <tbody id="tabelaVendas">
-                    <tr th:each="v : ${vendas}">
-                        <td th:text="${v.veiculo.nome + ' (' + v.veiculo.ano + ')'}"></td>
-                        <td th:text="${v.cliente.nome}"></td>
-                        <td th:text="${v.vendedor.nome}"></td> 
-                        <td th:text="${#temporals.format(v.dataVenda, 'dd/MM/yyyy')}"></td>
-                        <td>
-                            <button class="btn-detalhes"
-                                    type="button"
-                                    th:attr="onclick=|abrirModal('modal-${v.id}')|">
-                                Detalhes
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="tabela-responsiva">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Veículo</th>
+                            <th>Comprador</th>
+                            <th>Vendedor</th>
+                            <th>Data</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="tabelaVendas">
+                        <tr th:each="v : ${vendas}">
+                            <td th:text="${v.veiculo.nome + ' (' + v.veiculo.ano + ')'}"></td>
+                            <td th:text="${v.cliente.nome}"></td>
+                            <td th:text="${v.vendedor.nome}"></td> 
+                            <td th:text="${#temporals.format(v.dataVenda, 'dd/MM/yyyy')}"></td>
+                            <td>
+                                <button class="btn-detalhes"
+                                        type="button"
+                                        th:attr="onclick=|abrirModal('modal-${v.id}')|">
+                                    Detalhes
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
             <div class="paginacao" th:if="${totalPaginas > 1}">
 
@@ -221,26 +224,26 @@
 
                         </div>
 
-                    <a th:href="@{/documentos/comprovante-venda/{id}(id=${v.id})}"
-                       class="btn-imprimir"
-                       target="_blank">
-                        📄 Comprovante
-                    </a>
+                        <a th:href="@{/documentos/comprovante-venda/{id}(id=${v.id})}"
+                           class="btn-imprimir"
+                           target="_blank">
+                            📄 Comprovante
+                        </a>
 
-                    <a th:href="@{/documentos/contrato-venda/{id}(id=${v.id})}"
-                       class="btn-imprimir"
-                       target="_blank">
+                        <a th:href="@{/documentos/contrato-venda/{id}(id=${v.id})}"
+                           class="btn-imprimir"
+                           target="_blank">
 
-                        📑 Contrato de Compra e Venda
+                            📑 Contrato de Compra e Venda
 
-                    </a>
+                        </a>
 
                         <a th:href="@{/entregas/{id}(id=${v.id})}"
                            class="btn-imprimir">
                             ☑️ Entrega do Veículo
                         </a>
 
-                </div>
+                    </div>
                 </div>
             </div>
 
@@ -253,31 +256,31 @@
             let tempoVendas;
 
             campoBuscaVendas.addEventListener("input", function () {
-            clearTimeout(tempoVendas);
+                clearTimeout(tempoVendas);
 
-            tempoVendas = setTimeout(function () {
-            formBuscaVendas.submit();
-            }, 500);
+                tempoVendas = setTimeout(function () {
+                    formBuscaVendas.submit();
+                }, 500);
             });
 
             const parametros = new URLSearchParams(window.location.search);
             const comprovanteId = parametros.get("comprovante");
 
             if (comprovanteId) {
-            window.open(
-            "/documentos/comprovante-venda/" + comprovanteId,
-            "_blank"
-            );
+                window.open(
+                        "/documentos/comprovante-venda/" + comprovanteId,
+                        "_blank"
+                        );
 
-            parametros.delete("comprovante");
+                parametros.delete("comprovante");
 
-            const novaUrl =
-            window.location.pathname +
-            (parametros.toString()
-            ? "?" + parametros.toString()
-            : "");
+                const novaUrl =
+                        window.location.pathname +
+                        (parametros.toString()
+                                ? "?" + parametros.toString()
+                                : "");
 
-            window.history.replaceState({}, "", novaUrl);
+                window.history.replaceState({}, "", novaUrl);
             }
         </script>
     </body>

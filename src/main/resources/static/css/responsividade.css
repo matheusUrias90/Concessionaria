@@ -1,22 +1,189 @@
+/* =========================================================
+   RESPONSIVIDADE DO SISTEMA
+   Ajustes aplicados apenas em telas de até 768px
+========================================================= */
 
 @media (max-width: 768px) {
 
+
+    /* =====================================================
+       MENU MOBILE
+    ===================================================== */
+
+    /* Botão ☰ que abre o menu no celular */
+    .menu-mobile-botao {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+
+        /* Mantém o botão visível mesmo ao rolar a página */
+        position: fixed;
+        top: 15px;
+        left: 15px;
+
+        width: 46px;
+        height: 46px;
+
+        border: none;
+        border-radius: 8px;
+
+        background: #0a7a0a;
+        color: white;
+
+        font-size: 25px;
+        cursor: pointer;
+
+        z-index: 1200;
+    }
+
+
+    /* Menu lateral no celular */
+    .menu-lateral {
+        position: absolute;
+        top: 0;
+        left: 0;
+
+        /* Faz o fundo verde acompanhar a altura da página */
+        height: 100%;
+        min-height: 100vh;
+
+        /* Menu começa escondido à esquerda */
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+
+        z-index: 1300;
+    }
+
+
+    /* Exibe o menu quando o JavaScript adiciona menu-aberto */
+    .menu-lateral.menu-aberto {
+        transform: translateX(0);
+    }
+
+
+    /* Fundo escuro atrás do menu */
+    .menu-overlay {
+        display: block;
+
+        position: fixed;
+        inset: 0;
+
+        background: rgba(0, 0, 0, 0.45);
+
+        /* Começa invisível */
+        opacity: 0;
+        visibility: hidden;
+
+        transition: opacity 0.3s ease;
+
+        z-index: 1250;
+    }
+
+
+    /* Exibe o fundo escuro quando o menu está aberto */
+    .menu-overlay.ativo {
+        opacity: 1;
+        visibility: visible;
+    }
+
+
+    /* Impede a página de rolar enquanto o menu está aberto */
+    html.menu-mobile-aberto,
+    body.menu-mobile-aberto {
+        overflow: hidden;
+        touch-action: none;
+    }
+
+
+    /* =====================================================
+       ESTRUTURA GERAL
+    ===================================================== */
+
+    /* Remove o espaço de 260px reservado ao menu desktop */
+    .pagina-com-menu {
+        padding-left: 0;
+    }
+
+
+    /* Ajusta o conteúdo principal para a largura do celular */
     .container {
-        margin: 15px;
+        width: calc(100% - 30px);
+
+        /* Espaço superior para não ficar atrás do botão ☰ */
+        margin: 80px auto 20px;
+
         padding: 20px;
     }
 
+
+    /* =====================================================
+       FORMULÁRIOS
+    ===================================================== */
+
+    /* Campos que ficam lado a lado no desktop
+       passam a ficar em uma única coluna */
     .form-grid {
         grid-template-columns: 1fr;
     }
 
-    nav a {
-        display: block;
-        margin: 10px 0;
+
+    /* =====================================================
+       DASHBOARD
+    ===================================================== */
+
+    /* Faturamento e Ticket Médio ficam empilhados */
+    .dashboard-grid-financeiro {
+        grid-template-columns: 1fr;
     }
 
-    .acoes a {
-        display: block;
-        margin-bottom: 5px;
+
+    /* =====================================================
+       TABELAS
+    ===================================================== */
+
+    /* Permite rolagem horizontal apenas dentro da tabela */
+    .tabela-responsiva {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
     }
+
+
+    /* Evita que as colunas sejam esmagadas no celular */
+    .tabela-responsiva table {
+        min-width: 650px;
+    }
+
+
+    /* =====================================================
+       MODAIS
+    ===================================================== */
+
+    /* No desktop a modal desconta os 260px do menu.
+       No celular ela ocupa toda a largura da tela. */
+    .modal {
+        left: 0;
+        width: 100%;
+    }
+
+
+    /* Botões de documentos ficam um abaixo do outro */
+    .modal .acoes {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+
+    /* Botões ocupam toda a largura disponível */
+    .modal .acoes .btn-imprimir {
+        width: 100%;
+        margin: 0;
+
+        /* Permite quebra de linha em textos grandes */
+        white-space: normal;
+
+        text-align: center;
+    }
+
 }

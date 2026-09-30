@@ -92,7 +92,7 @@
     display:none;
 
     background:#0a7a0a;
-    
+
     margin:0 12px 12px;
 
     border-radius:8px;
@@ -245,4 +245,9 @@
     background:#198f19;
     border-left:5px solid #d4af37;
     color:#fff;
+}
+
+.menu-mobile-botao,
+.menu-overlay {
+    display: none;
 }

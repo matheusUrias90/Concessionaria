@@ -68,6 +68,7 @@
                 <p>Nenhuma negociação em andamento.</p>
             </div>
 
+        <div class="tabela-responsiva">
             <table id="tabelaNegociacoes"
                    class="tabela-negociacoes"
                    th:style="${#lists.isEmpty(negociacoes)}
@@ -119,6 +120,7 @@
                 </tbody>
 
             </table>
+        </div>
 
             <div id="paginacaoNegociacoes"
                  class="paginacao">

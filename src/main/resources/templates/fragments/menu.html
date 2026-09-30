@@ -1,159 +1,186 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<body>
+    <body>
 
-<aside th:fragment="menu" class="menu-lateral">
+        <div th:fragment="menu">
 
-    <div class="menu-cabecalho">
-        <h2>🚗 Urias Veiculos</h2>
-    </div>
+            <button type="button"
+                    class="menu-mobile-botao"
+                    onclick="alternarMenu()">
+                ☰
+            </button>
 
-    <div class="menu-usuario"
-         th:if="${session.usuarioLogado != null}">
-
-        <button type="button" class="usuario-botao">
-
-            <span class="usuario-icone">👤</span>
-
-            <div class="usuario-info">
-
-                <strong th:text="${session.usuarioLogado.nome}"></strong>
-
-                <small th:text="${session.usuarioLogado.perfil}"></small>
-
+            <div class="menu-overlay"
+                 onclick="alternarMenu()">
             </div>
 
-            <span class="seta">▼</span>
+            <aside class="menu-lateral">
 
-        </button>
+                <div class="menu-cabecalho">
+                    <h2>🚗 Urias Veiculos</h2>
+                </div>
 
-        <div class="submenu-usuario">
-            
-            <a th:href="@{/meu-perfil}">
-                👤 Meu Perfil
-            </a>
+                <div class="menu-usuario"
+                     th:if="${session.usuarioLogado != null}">
 
-            <a th:if="${session.usuarioLogado.perfil == 'DONO'}"
-               th:href="@{/configuracao}">
-                ⚙ Configuração da Empresa
-            </a>
+                    <button type="button" class="usuario-botao">
 
-            <a th:if="${session.usuarioLogado.perfil == 'DONO'
-               or session.usuarioLogado.perfil == 'GERENTE'}"
-               th:href="@{/admin/solicitacoes-login}">
-                🔐 Solicitações de Login
-            </a>
+                        <span class="usuario-icone">👤</span>
 
-            <a th:href="@{/logout}">
-                🚪 Sair
-            </a>
+                        <div class="usuario-info">
+
+                            <strong th:text="${session.usuarioLogado.nome}"></strong>
+
+                            <small th:text="${session.usuarioLogado.perfil}"></small>
+
+                        </div>
+
+                        <span class="seta">▼</span>
+
+                    </button>
+
+                    <div class="submenu-usuario">
+
+                        <a th:href="@{/meu-perfil}">
+                            👤 Meu Perfil
+                        </a>
+
+                        <a th:if="${session.usuarioLogado.perfil == 'DONO'}"
+                           th:href="@{/configuracao}">
+                            ⚙ Configuração da Empresa
+                        </a>
+
+                        <a th:if="${session.usuarioLogado.perfil == 'DONO'
+                           or session.usuarioLogado.perfil == 'GERENTE'}"
+                           th:href="@{/admin/solicitacoes-login}">
+                            🔐 Solicitações de Login
+                        </a>
+
+                        <a th:href="@{/logout}">
+                            🚪 Sair
+                        </a>
+
+                    </div>
+
+                </div>
+
+                <nav class="menu-links">
+
+                    <span class="menu-titulo">
+                        GERENCIAMENTO
+                    </span>
+
+                    <!-- DASHBOARD ADMIN -->
+                    <a th:if="${session.usuarioLogado.perfil == 'DONO' or session.usuarioLogado.perfil == 'GERENTE'}"
+                       th:href="@{/admin}"
+                       class="menu-link"
+                       th:classappend="${paginaAtiva == 'admin'} ? ' ativo'">
+
+                        <span>🏠</span>
+                        Dashboard
+
+                    </a>
+
+                    <!-- DASHBOARD VENDEDOR -->
+                    <a th:if="${session.usuarioLogado.perfil == 'VENDEDOR'}"
+                       th:href="@{/dashboard-vendedor}"
+                       class="menu-link"
+                       th:classappend="${paginaAtiva == 'dashboard'} ? ' ativo'">
+
+                        <span>🏠</span>
+                        Painel
+
+                    </a>
+
+                    <a th:href="@{/veiculos}"
+                       class="menu-link"
+                       th:classappend="${paginaAtiva == 'veiculos'} ? ' ativo'">
+
+                        <span>🚗</span>
+                        Veículos
+
+                    </a>
+
+                    <a th:href="@{/compradores}"
+                       class="menu-link"
+                       th:classappend="${paginaAtiva == 'compradores'} ? ' ativo'">
+
+                        <span>👥</span>
+                        Compradores
+
+                    </a>
+
+                    <a th:href="@{/negociacoes}"
+                       class="menu-link"
+                       th:classappend="${paginaAtiva == 'negociacoes'} ? ' ativo'">
+
+                        <span>🤝</span>
+                        Negociação
+
+                    </a>
+
+                    <!-- ADMINISTRAÇÃO -->
+                    <div class="menu-grupo"
+                         th:if="${session.usuarioLogado.perfil == 'DONO' or session.usuarioLogado.perfil == 'GERENTE'}">
+
+                        <span class="menu-titulo">
+                            ADMINISTRAÇÃO
+                        </span>
+
+                        <a th:href="@{/usuarios}"
+                           class="menu-link"
+                           th:classappend="${paginaAtiva == 'usuarios'} ? ' ativo'">
+
+                            <span>👤</span>
+                            Usuários
+
+                        </a>
+
+                    </div>
+
+                    <!-- FINANCEIRO -->
+                    <div class="menu-grupo"
+                         th:if="${session.usuarioLogado.perfil == 'DONO' or session.usuarioLogado.perfil == 'GERENTE'}">
+
+                        <span class="menu-titulo">
+                            FINANCEIRO
+                        </span>
+
+                        <a th:href="@{/admin/vendas}"
+                           class="menu-link"
+                           th:classappend="${paginaAtiva == 'vendas'} ? ' ativo'">
+
+                            <span>💰</span>
+                            Vendas
+
+                        </a>
+
+                        <a th:href="@{/repasses}"
+                           class="menu-link"
+                           th:classappend="${paginaAtiva == 'repasses'} ? ' ativo'">
+
+                            <span>💸</span>
+                            Repasses
+
+                        </a>
+
+                    </div>      
+                </nav>
+            </aside>
+
+            <script>
+                function alternarMenu() {
+                    const menu = document.querySelector('.menu-lateral');
+                    const overlay = document.querySelector('.menu-overlay');
+
+                    menu.classList.toggle('menu-aberto');
+                    overlay.classList.toggle('ativo');
+
+                    document.body.classList.toggle('menu-mobile-aberto');
+                    document.documentElement.classList.toggle('menu-mobile-aberto');
+                }
+            </script>
 
         </div>
-
-    </div>
-
-    <nav class="menu-links">
-        
-         <span class="menu-titulo">
-            GERENCIAMENTO
-         </span>
-
-        <!-- DASHBOARD ADMIN -->
-        <a th:if="${session.usuarioLogado.perfil == 'DONO' or session.usuarioLogado.perfil == 'GERENTE'}"
-           th:href="@{/admin}"
-           class="menu-link"
-           th:classappend="${paginaAtiva == 'admin'} ? ' ativo'">
-
-            <span>🏠</span>
-            Dashboard
-
-        </a>
-
-        <!-- DASHBOARD VENDEDOR -->
-        <a th:if="${session.usuarioLogado.perfil == 'VENDEDOR'}"
-           th:href="@{/dashboard-vendedor}"
-           class="menu-link"
-           th:classappend="${paginaAtiva == 'dashboard'} ? ' ativo'">
-
-            <span>🏠</span>
-            Painel
-
-        </a>
-
-        <a th:href="@{/veiculos}"
-           class="menu-link"
-           th:classappend="${paginaAtiva == 'veiculos'} ? ' ativo'">
-
-            <span>🚗</span>
-            Veículos
-
-        </a>
-
-        <a th:href="@{/compradores}"
-           class="menu-link"
-           th:classappend="${paginaAtiva == 'compradores'} ? ' ativo'">
-
-            <span>👥</span>
-            Compradores
-
-        </a>
-
-        <a th:href="@{/negociacoes}"
-           class="menu-link"
-           th:classappend="${paginaAtiva == 'negociacoes'} ? ' ativo'">
-
-            <span>🤝</span>
-            Negociação
-
-        </a>
-
-      <!-- ADMINISTRAÇÃO -->
-        <div class="menu-grupo"
-             th:if="${session.usuarioLogado.perfil == 'DONO' or session.usuarioLogado.perfil == 'GERENTE'}">
-
-            <span class="menu-titulo">
-                ADMINISTRAÇÃO
-            </span>
-
-            <a th:href="@{/usuarios}"
-               class="menu-link"
-               th:classappend="${paginaAtiva == 'usuarios'} ? ' ativo'">
-
-                <span>👤</span>
-                Usuários
-
-            </a>
-
-        </div>
-
-        <!-- FINANCEIRO -->
-        <div class="menu-grupo"
-             th:if="${session.usuarioLogado.perfil == 'DONO' or session.usuarioLogado.perfil == 'GERENTE'}">
-
-            <span class="menu-titulo">
-                FINANCEIRO
-            </span>
-            
-            <a th:href="@{/admin/vendas}"
-           class="menu-link"
-           th:classappend="${paginaAtiva == 'vendas'} ? ' ativo'">
-
-            <span>💰</span>
-            Vendas
-
-        </a>
-
-            <a th:href="@{/repasses}"
-               class="menu-link"
-               th:classappend="${paginaAtiva == 'repasses'} ? ' ativo'">
-
-                <span>💸</span>
-                Repasses
-
-            </a>
-
-        </div>      
-</aside>
-
-</body>
+    </body>
 </html>
