@@ -16,6 +16,9 @@ import jakarta.servlet.http.HttpSession;
 import br.com.urias.cadastro_veiculos.model.Usuario;
 import br.com.urias.cadastro_veiculos.repository.ChecklistEntregaRepository;
 import java.time.LocalDate;
+import br.com.urias.cadastro_veiculos.model.TipoNotificacao;
+import br.com.urias.cadastro_veiculos.repository.UsuarioRepository;
+import br.com.urias.cadastro_veiculos.service.NotificacaoService;
 
 @Controller
 public class ChecklistEntregaController {
@@ -23,16 +26,22 @@ public class ChecklistEntregaController {
     private final VendaRepository vendaRepository;
     private final ItemChecklistEntregaRepository itemChecklistEntregaRepository;
     private final ChecklistEntregaRepository checklistEntregaRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final NotificacaoService notificacaoService;
 
     public ChecklistEntregaController(
-        VendaRepository vendaRepository,
-        ItemChecklistEntregaRepository itemChecklistEntregaRepository,
-        ChecklistEntregaRepository checklistEntregaRepository) {
+            VendaRepository vendaRepository,
+            ItemChecklistEntregaRepository itemChecklistEntregaRepository,
+            ChecklistEntregaRepository checklistEntregaRepository,
+            UsuarioRepository usuarioRepository,
+            NotificacaoService notificacaoService) {
 
-    this.vendaRepository = vendaRepository;
-    this.itemChecklistEntregaRepository = itemChecklistEntregaRepository;
-    this.checklistEntregaRepository = checklistEntregaRepository;
-}
+        this.vendaRepository = vendaRepository;
+        this.itemChecklistEntregaRepository = itemChecklistEntregaRepository;
+        this.checklistEntregaRepository = checklistEntregaRepository;
+        this.usuarioRepository = usuarioRepository;
+        this.notificacaoService = notificacaoService;
+    }
 
     @GetMapping("/entregas/{id}")
     public String abrirChecklist(
@@ -120,7 +129,7 @@ public class ChecklistEntregaController {
         if (checklist == null) {
             return redirecionarPorPerfil(session);
         }
-      
+
         if (venda.getVeiculo()
                 .getChecklistEntrega()
                 .isEntregaConcluida()) {
@@ -143,8 +152,43 @@ public class ChecklistEntregaController {
 
         checklist.setEntregaConcluida(true);
         checklist.setDataEntrega(LocalDate.now());
-        
+
         checklistEntregaRepository.save(checklist);
+
+// Notifica DONO, GERENTE e o vendedor responsável pela venda
+        List<Usuario> destinatarios
+                = new java.util.ArrayList<>(
+                        usuarioRepository.findByPerfilIn(
+                                List.of("DONO", "GERENTE")
+                        )
+                );
+
+// Inclui o vendedor, evitando duplicidade
+        Usuario vendedor = venda.getVendedor();
+
+        if (vendedor != null
+                && destinatarios.stream()
+                        .noneMatch(usuario
+                                -> usuario.getId().equals(vendedor.getId()))) {
+
+            destinatarios.add(vendedor);
+        }
+
+        for (Usuario destinatario : destinatarios) {
+
+            notificacaoService.criarNotificacao(
+                    destinatario,
+                    TipoNotificacao.ENTREGA_CONCLUIDA,
+                    "Entrega concluída",
+                    "A entrega do veículo "
+                    + venda.getVeiculo().getNome()
+                    + " ao comprador "
+                    + venda.getCliente().getNome()
+                    + " foi concluída.",
+                    null,
+                    venda.getId()
+            );
+        }
 
         return "redirect:/entregas/" + id;
     }

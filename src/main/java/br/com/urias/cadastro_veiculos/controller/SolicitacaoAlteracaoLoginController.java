@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import br.com.urias.cadastro_veiculos.model.TipoNotificacao;
+import br.com.urias.cadastro_veiculos.service.NotificacaoService;
 
 @Controller
 public class SolicitacaoAlteracaoLoginController {
@@ -21,12 +23,16 @@ public class SolicitacaoAlteracaoLoginController {
 
     private final UsuarioRepository usuarioRepository;
 
+    private final NotificacaoService notificacaoService;
+
     public SolicitacaoAlteracaoLoginController(
             SolicitacaoAlteracaoLoginRepository solicitacaoRepository,
-            UsuarioRepository usuarioRepository) {
+            UsuarioRepository usuarioRepository,
+            NotificacaoService notificacaoService) {
 
         this.solicitacaoRepository = solicitacaoRepository;
         this.usuarioRepository = usuarioRepository;
+        this.notificacaoService = notificacaoService;
     }
 
     @PostMapping("/admin/solicitacoes-login/ocultar-aviso")
@@ -103,6 +109,12 @@ public class SolicitacaoAlteracaoLoginController {
         solicitacao.setStatus(StatusSolicitacaoLogin.APROVADA);
         solicitacaoRepository.save(solicitacao);
 
+        notificacaoService.resolverNotificacao(
+                TipoNotificacao.SOLICITACAO_LOGIN,
+                solicitacao.getId(),
+                usuarioLogado.getId()
+        );
+
         return "redirect:/admin/solicitacoes-login?aprovada=true";
     }
 
@@ -135,6 +147,12 @@ public class SolicitacaoAlteracaoLoginController {
 
         solicitacao.setStatus(StatusSolicitacaoLogin.RECUSADA);
         solicitacaoRepository.save(solicitacao);
+
+        notificacaoService.resolverNotificacao(
+                TipoNotificacao.SOLICITACAO_LOGIN,
+                solicitacao.getId(),
+                usuarioLogado.getId()
+        );
 
         return "redirect:/admin/solicitacoes-login?recusada=true";
     }

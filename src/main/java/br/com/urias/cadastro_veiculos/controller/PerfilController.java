@@ -12,6 +12,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import br.com.urias.cadastro_veiculos.model.TipoNotificacao;
+import br.com.urias.cadastro_veiculos.service.NotificacaoService;
+import java.util.List;
 
 @Controller
 public class PerfilController {
@@ -20,12 +23,16 @@ public class PerfilController {
 
     private final UsuarioRepository usuarioRepository;
 
+    private final NotificacaoService notificacaoService;
+
     public PerfilController(
             SolicitacaoAlteracaoLoginRepository solicitacaoRepository,
-            UsuarioRepository usuarioRepository) {
+            UsuarioRepository usuarioRepository,
+            NotificacaoService notificacaoService) {
 
         this.solicitacaoRepository = solicitacaoRepository;
         this.usuarioRepository = usuarioRepository;
+        this.notificacaoService = notificacaoService;
     }
 
     @GetMapping("/meu-perfil")
@@ -99,6 +106,24 @@ public class PerfilController {
 
         usuarioLogado.setSenha(novaSenha);
         usuarioRepository.save(usuarioLogado);
+        
+        List<Usuario> administradores
+                = usuarioRepository.findByPerfilIn(
+                        List.of("DONO", "GERENTE")
+                );
+
+        for (Usuario administrador : administradores) {
+
+            notificacaoService.criarNotificacao(
+                    administrador,
+                    TipoNotificacao.SENHA_ALTERADA,
+                    "Senha alterada",
+                    usuarioLogado.getNome()
+                    + " alterou a própria senha.",
+                    null,
+                    null
+            );
+        }
 
         session.setAttribute("usuarioLogado", usuarioLogado);
 
@@ -148,6 +173,28 @@ public class PerfilController {
         solicitacao.setStatus(StatusSolicitacaoLogin.PENDENTE);
 
         solicitacaoRepository.save(solicitacao);
+
+        List<Usuario> administradores
+                = usuarioRepository.findByPerfilIn(
+                        List.of("DONO", "GERENTE")
+                );
+
+        for (Usuario administrador : administradores) {
+
+            notificacaoService.criarNotificacao(
+                    administrador,
+                    TipoNotificacao.SOLICITACAO_LOGIN,
+                    "Solicitação de alteração de login",
+                    usuarioLogado.getNome()
+                    + " solicitou a alteração do login de "
+                    + usuarioLogado.getLogin()
+                    + " para "
+                    + novoLogin
+                    + ".",
+                    "/admin/solicitacoes-login",
+                    solicitacao.getId()
+            );
+        }
 
         return "redirect:/meu-perfil?solicitacaoLogin=true";
     }

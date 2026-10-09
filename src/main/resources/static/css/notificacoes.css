@@ -1,0 +1,203 @@
+/* =========================================================
+   CENTRAL DE NOTIFICAÇÕES
+========================================================= */
+
+.notificacao {
+    padding: 18px 20px;
+    margin-top: 15px;
+    border-radius: 8px;
+    transition: 0.2s;
+}
+
+/* Notificação ainda não visualizada */
+.notificacao.nao-lida {
+    background: #f0f8f0;
+    border-left: 5px solid #0a7a0a;
+}
+
+/* Notificação já visualizada */
+.notificacao.lida {
+    background: #f8f8f8;
+    border-left: 5px solid #ccc;
+    opacity: 0.8;
+}
+
+.notificacao h3 {
+    margin: 0 0 8px;
+}
+
+.notificacao p {
+    margin: 0 0 10px;
+}
+
+.notificacao small {
+    color: #666;
+}
+
+/* Área de ações da notificação */
+.notificacao-acoes {
+    margin-top: 12px;
+}
+
+/* Link para visualizar o conteúdo relacionado */
+.btn-ver-notificacao {
+    display: inline-block;
+    padding: 8px 14px;
+    border-radius: 6px;
+    background: #0a7a0a;
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.btn-ver-notificacao:hover {
+    background: #086508;
+}
+
+/* Botão para marcar a notificação como lida */
+.btn-marcar-lida {
+    margin-top: 12px;
+    padding: 8px 14px;
+    border: none;
+    border-radius: 6px;
+    background: #0a7a0a;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.btn-marcar-lida:hover {
+    background: #086508;
+}
+
+/* =====================================================
+   MARCAR TODAS AS NOTIFICAÇÕES COMO LIDAS
+===================================================== */
+
+.form-marcar-todas {
+    margin-bottom: 20px;
+}
+
+.btn-marcar-todas {
+    background-color: #198754;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-marcar-todas:hover {
+    background-color: #146c43;
+}
+
+/* =====================================================
+   FILTROS DAS NOTIFICAÇÕES
+===================================================== */
+
+.filtros-notificacoes {
+    display: flex;
+    justify-content: center;
+    align-items: end;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.filtros-notificacoes .campo {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.filtros-notificacoes label {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.filtros-notificacoes select {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    min-width: 180px;
+}
+
+.btn-filtrar-notificacoes,
+.btn-limpar-notificacoes {
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.btn-filtrar-notificacoes {
+    background: #198754;
+    color: white;
+    border: none;
+}
+
+.btn-filtrar-notificacoes:hover {
+    background: #146c43;
+}
+
+.btn-limpar-notificacoes {
+    background: #e9ecef;
+    color: #333;
+    border: 1px solid #ced4da;
+}
+
+/* =====================================================
+   PAGINAÇÃO DAS NOTIFICAÇÕES
+===================================================== */
+
+.paginacao {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 25px;
+}
+
+.paginacao a {
+    padding: 8px 14px;
+    background: #198754;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+}
+
+.paginacao a:hover {
+    background: #146c43;
+}
+
+.paginacao span {
+    font-weight: 600;
+}
+
+/* =====================================================
+   RESPONSIVIDADE DOS FILTROS
+===================================================== */
+
+@media (max-width: 600px) {
+
+    .filtros-notificacoes {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .filtros-notificacoes select {
+        width: 100%;
+    }
+
+    .btn-filtrar-notificacoes,
+    .btn-limpar-notificacoes {
+        text-align: center;
+    }
+}

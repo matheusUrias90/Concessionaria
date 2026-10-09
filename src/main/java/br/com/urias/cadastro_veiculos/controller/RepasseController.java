@@ -25,6 +25,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import br.com.urias.cadastro_veiculos.model.TipoNotificacao;
+import br.com.urias.cadastro_veiculos.repository.UsuarioRepository;
+import br.com.urias.cadastro_veiculos.service.NotificacaoService;
 
 @Controller
 public class RepasseController {
@@ -33,17 +36,23 @@ public class RepasseController {
     private final VendaRepository vendaRepository;
     private final PagamentoRepasseRepository pagamentoRepasseRepository;
     private final ConfiguracaoConcessionariaRepository configuracaoRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final NotificacaoService notificacaoService;
 
     public RepasseController(
             RepasseRepository repasseRepository,
             VendaRepository vendaRepository,
             PagamentoRepasseRepository pagamentoRepasseRepository,
-            ConfiguracaoConcessionariaRepository configuracaoRepository) {
+            ConfiguracaoConcessionariaRepository configuracaoRepository,
+            UsuarioRepository usuarioRepository,
+            NotificacaoService notificacaoService) {
 
         this.repasseRepository = repasseRepository;
         this.vendaRepository = vendaRepository;
         this.pagamentoRepasseRepository = pagamentoRepasseRepository;
         this.configuracaoRepository = configuracaoRepository;
+        this.usuarioRepository = usuarioRepository;
+        this.notificacaoService = notificacaoService;
     }
 
     /*
@@ -300,8 +309,39 @@ public class RepasseController {
         pagamento.setFormaPagamento(formaPagamento);
         pagamento.setValor(valor);
         pagamento.setObservacao(observacao);
+        
+        // Saldo antes de registrar o pagamento
+        Double saldoAnterior = repasse.getSaldo();
 
         pagamentoRepasseRepository.save(pagamento);
+        
+        // Verifica se este pagamento quitou o repasse
+        boolean repasseQuitado
+                = Double.compare(valor, repasse.getSaldo()) == 0;
+        
+        if (repasseQuitado) {
+
+            List<Usuario> administradores
+                    = usuarioRepository.findByPerfilIn(
+                            List.of("DONO", "GERENTE")
+                    );
+
+            for (Usuario administrador : administradores) {
+
+                notificacaoService.criarNotificacao(
+                        administrador,
+                        TipoNotificacao.REPASSE_QUITADO,
+                        "Repasse quitado",
+                        "O repasse do veículo "
+                        + repasse.getVenda().getVeiculo().getNome()
+                        + " foi quitado por "
+                        + usuarioLogado.getNome()
+                        + ".",
+                        null,
+                        repasse.getId()
+                );
+            }
+        }
 
         return "redirect:/repasses/" + repasseId;
     }

@@ -39,6 +39,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import java.util.Comparator;
 import org.springframework.data.domain.Sort;
+import br.com.urias.cadastro_veiculos.model.TipoNotificacao;
+import br.com.urias.cadastro_veiculos.repository.PendenciaNegociacaoRepository;
+import br.com.urias.cadastro_veiculos.repository.UsuarioRepository;
+import br.com.urias.cadastro_veiculos.service.NotificacaoService;
 
 @Controller
 public class NegociacaoController {
@@ -47,17 +51,26 @@ public class NegociacaoController {
     private final ClienteRepository clienteRepository;
     private final VeiculoRepository veiculoRepository;
     private final VendaRepository vendaRepository;
+    private final NotificacaoService notificacaoService;
+    private final UsuarioRepository usuarioRepository;
+    private final PendenciaNegociacaoRepository pendenciaNegociacaoRepository;
 
     public NegociacaoController(
             NegociacaoRepository negociacaoRepository,
             ClienteRepository clienteRepository,
             VeiculoRepository veiculoRepository,
-            VendaRepository vendaRepository) {
+            VendaRepository vendaRepository,
+            NotificacaoService notificacaoService,
+            UsuarioRepository usuarioRepository,
+            PendenciaNegociacaoRepository pendenciaNegociacaoRepository) {
 
         this.negociacaoRepository = negociacaoRepository;
         this.clienteRepository = clienteRepository;
         this.veiculoRepository = veiculoRepository;
         this.vendaRepository = vendaRepository;
+        this.notificacaoService = notificacaoService;
+        this.usuarioRepository = usuarioRepository;
+        this.pendenciaNegociacaoRepository = pendenciaNegociacaoRepository;
     }
 
     @GetMapping("/negociacoes/nova")
@@ -148,6 +161,28 @@ public class NegociacaoController {
 
         negociacaoRepository.save(negociacao);
         veiculoRepository.save(veiculo);
+
+        List<Usuario> administradores
+                = usuarioRepository.findByPerfilIn(
+                        List.of("DONO", "GERENTE")
+                );
+
+        for (Usuario administrador : administradores) {
+
+            notificacaoService.criarNotificacao(
+                    administrador,
+                    TipoNotificacao.NEGOCIACAO_INICIADA,
+                    "Negociação iniciada",
+                    usuarioLogado.getNome()
+                    + " iniciou uma negociação com "
+                    + cliente.getNome()
+                    + " para o veículo "
+                    + veiculo.getNome()
+                    + ".",
+                    null,
+                    negociacao.getId()
+            );
+        }
 
         return "redirect:/negociacoes";
     }
@@ -323,13 +358,13 @@ public class NegociacaoController {
         if (!possuiVeiculoAtual) {
             veiculos.add(negociacao.getVeiculo());
         }
-        
+
         veiculos.sort(
                 Comparator.comparing(
                         Veiculo::getNome,
                         String.CASE_INSENSITIVE_ORDER
                 )
-);
+        );
 
         model.addAttribute("negociacao", negociacao);
         model.addAttribute("clientes", clienteRepository.findAll());
@@ -798,7 +833,30 @@ public class NegociacaoController {
             );
         }
 
-        finalizarNegociacao(negociacao);
+        Venda venda = finalizarNegociacao(negociacao);
+
+// Notifica DONO e GERENTE sobre a venda realizada
+        List<Usuario> administradores
+                = usuarioRepository.findByPerfilIn(
+                        List.of("DONO", "GERENTE")
+                );
+
+        for (Usuario administrador : administradores) {
+
+            notificacaoService.criarNotificacao(
+                    administrador,
+                    TipoNotificacao.VENDA_REALIZADA,
+                    "Venda realizada",
+                    negociacao.getVendedor().getNome()
+                    + " realizou a venda do veículo "
+                    + negociacao.getVeiculo().getNome()
+                    + " para "
+                    + negociacao.getCliente().getNome()
+                    + ".",
+                    null,
+                    venda.getId()
+            );
+        }
 
         return "redirect:/negociacoes";
     }
@@ -833,7 +891,7 @@ public class NegociacaoController {
         vendaRepository.save(venda);
         negociacaoRepository.save(negociacao);
         veiculoRepository.save(veiculoVendido);
-        
+
         return venda;
     }
 
@@ -908,6 +966,29 @@ public class NegociacaoController {
         }
 
         Venda venda = finalizarNegociacao(negociacao);
+
+// Notifica DONO e GERENTE sobre a venda realizada
+        List<Usuario> administradores
+                = usuarioRepository.findByPerfilIn(
+                        List.of("DONO", "GERENTE")
+                );
+
+        for (Usuario administrador : administradores) {
+
+            notificacaoService.criarNotificacao(
+                    administrador,
+                    TipoNotificacao.VENDA_REALIZADA,
+                    "Venda realizada",
+                    negociacao.getVendedor().getNome()
+                    + " realizou a venda do veículo "
+                    + negociacao.getVeiculo().getNome()
+                    + " para "
+                    + negociacao.getCliente().getNome()
+                    + ".",
+                    null,
+                    venda.getId()
+            );
+        }
 
         return "redirect:/entregas/" + venda.getId();
     }
@@ -1004,6 +1085,8 @@ public class NegociacaoController {
             );
         }
 
+        List<PendenciaNegociacao> pendenciasCriadas = new ArrayList<>();
+
         if (formasParaDevolver != null) {
 
             for (Long formaId : formasParaDevolver) {
@@ -1057,6 +1140,10 @@ public class NegociacaoController {
                 );
 
                 negociacao.adicionarPendencia(pendencia);
+
+                pendenciaNegociacaoRepository.saveAndFlush(pendencia);
+
+                pendenciasCriadas.add(pendencia);
             }
         }
 
@@ -1071,6 +1158,58 @@ public class NegociacaoController {
 
         negociacaoRepository.save(negociacao);
         veiculoRepository.save(veiculo);
+
+        List<Usuario> administradores
+                = usuarioRepository.findByPerfilIn(
+                        List.of("DONO", "GERENTE")
+                );
+
+        for (PendenciaNegociacao pendencia : pendenciasCriadas) {
+
+            // Notifica o vendedor responsável pela negociação
+            notificacaoService.criarNotificacao(
+                    negociacao.getVendedor(),
+                    TipoNotificacao.PENDENCIA_CRIADA,
+                    "Pendência criada",
+                    pendencia.getDescricao(),
+                    "/negociacoes/" + negociacao.getId(),
+                    pendencia.getId()
+            );
+
+            // Notifica DONO e GERENTE
+            for (Usuario administrador : administradores) {
+
+                if (!administrador.getId()
+                        .equals(negociacao.getVendedor().getId())) {
+
+                    notificacaoService.criarNotificacao(
+                            administrador,
+                            TipoNotificacao.PENDENCIA_CRIADA,
+                            "Pendência criada",
+                            pendencia.getDescricao(),
+                            "/negociacoes/" + negociacao.getId(),
+                            pendencia.getId()
+                    );
+                }
+            }
+        }
+
+        // Notifica DONO e GERENTE sobre o cancelamento da negociação
+        for (Usuario administrador : administradores) {
+
+            notificacaoService.criarNotificacao(
+                    administrador,
+                    TipoNotificacao.NEGOCIACAO_CANCELADA,
+                    "Negociação cancelada",
+                    "A negociação #" + negociacao.getId()
+                    + " com "
+                    + negociacao.getCliente().getNome()
+                    + " foi cancelada por "
+                    + usuarioLogado.getNome() + ".",
+                    null,
+                    negociacao.getId()
+            );
+        }
 
         return "redirect:/negociacoes";
     }
@@ -1123,4 +1262,51 @@ public class NegociacaoController {
         }
     }
 
+    @PostMapping("/negociacoes/pendencias/{id}/resolver")
+    public String resolverPendencia(
+            @PathVariable Long id,
+            HttpSession session) {
+
+        Usuario usuarioLogado
+                = (Usuario) session.getAttribute("usuarioLogado");
+
+        if (usuarioLogado == null) {
+            return "redirect:/login";
+        }
+
+        PendenciaNegociacao pendencia
+                = pendenciaNegociacaoRepository.findById(id).orElse(null);
+
+        if (pendencia == null) {
+            return "redirect:/negociacoes";
+        }
+
+        pendencia.setStatus(StatusPendencia.RESOLVIDA);
+        pendencia.setDataResolucao(LocalDateTime.now());
+        pendencia.setResolvidaPor(usuarioLogado);
+
+        pendenciaNegociacaoRepository.save(pendencia);
+
+        // Encerra a ação da notificação de pendência criada
+        notificacaoService.resolverNotificacao(
+                TipoNotificacao.PENDENCIA_CRIADA,
+                pendencia.getId(),
+                usuarioLogado.getId()
+        );
+
+// Notifica o vendedor responsável
+        notificacaoService.criarNotificacao(
+                pendencia.getNegociacao().getVendedor(),
+                TipoNotificacao.PENDENCIA_RESOLVIDA,
+                "Pendência resolvida",
+                "A pendência \"" + pendencia.getDescricao()
+                + "\" foi resolvida por "
+                + usuarioLogado.getNome() + ".",
+                null,
+                pendencia.getId()
+        );
+
+        return "redirect:/negociacoes/"
+                + pendencia.getNegociacao().getId();
+    }
 }

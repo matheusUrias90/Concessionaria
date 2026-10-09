@@ -251,3 +251,24 @@
 .menu-overlay {
     display: none;
 }
+
+/* Contador de notificações não lidas */
+.badge-notificacao {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+
+    margin-left: 6px;
+
+    background: #dc3545;
+    color: white;
+
+    border-radius: 10px;
+
+    font-size: 12px;
+    font-weight: bold;
+}

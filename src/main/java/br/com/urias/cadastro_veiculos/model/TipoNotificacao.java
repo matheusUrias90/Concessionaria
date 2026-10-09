@@ -1,0 +1,17 @@
+package br.com.urias.cadastro_veiculos.model;
+
+public enum TipoNotificacao {
+
+    SOLICITACAO_LOGIN,
+    SENHA_ALTERADA,
+
+    NEGOCIACAO_INICIADA,
+    PENDENCIA_CRIADA,
+    PENDENCIA_RESOLVIDA,
+    NEGOCIACAO_CANCELADA,
+
+    VENDA_REALIZADA,
+    REPASSE_QUITADO,
+
+    ENTREGA_CONCLUIDA
+}

@@ -33,7 +33,7 @@
                 </a>
 
             </div>
-            
+
             <div class="aviso-finalizada aviso-concluida"
                  th:if="${negociacao.status.name() == 'CONCLUIDA'}">
                 ✅ Esta negociação foi concluída e está disponível somente para consulta.
@@ -43,7 +43,7 @@
                  th:if="${negociacao.status.name() == 'CANCELADA'}">
                 ❌ Esta negociação foi cancelada e está disponível somente para consulta.
             </div>
-            
+
             <div class="motivo-cancelamento"
                  th:if="${negociacao.status.name() == 'CANCELADA'
                  and negociacao.motivoCancelamento != null
@@ -122,17 +122,17 @@
             <h2>💳 Formas de Pagamento</h2>
 
             <p th:if="${negociacao.status.name() == 'EM_ANDAMENTO'}"
-                class="descricao-pagamentos">
+               class="descricao-pagamentos">
                 O valor proposto será composto pelas formas de pagamento abaixo.
             </p>
-            
+
             <p th:if="${negociacao.status.name() == 'CONCLUIDA'}"
-                class="descricao-pagamentos">
+               class="descricao-pagamentos">
                 O valor proposto foi composto pelas formas de pagamento abaixo.
             </p>
-            
-              <p th:if="${negociacao.status.name() == 'CANCELADA'}"
-                class="descricao-pagamentos">
+
+            <p th:if="${negociacao.status.name() == 'CANCELADA'}"
+               class="descricao-pagamentos">
                 O valor proposto seria composto pelas formas de pagamento abaixo.
             </p>          
 
@@ -288,7 +288,7 @@
 
                 <p class="aviso-recusada"
                    th:if="${possuiFormaRecusada
-                            and negociacao.status.name() == 'EM_ANDAMENTO'}">
+                   and negociacao.status.name() == 'EM_ANDAMENTO'}">
                     ❌ Uma ou mais formas de pagamento foram recusadas.
                     Edite a negociação para enviar uma nova proposta.
                 </p>
@@ -300,7 +300,7 @@
 
                 <p class="aviso-confirmada"
                    th:if="${todasFormasConfirmadas 
-                          and negociacao.status.name() == 'EM_ANDAMENTO'} ">
+                   and negociacao.status.name() == 'EM_ANDAMENTO'} ">
                     ✅ Todas as formas de pagamento foram confirmadas.
                     A negociação está pronta para ser concluída.
                 </p>
@@ -319,8 +319,55 @@
                 </button>
 
             </form>
-                     
 
+            <!-- =========================================================
+     PENDÊNCIAS DA NEGOCIAÇÃO
+========================================================= -->
+
+            <div th:if="${negociacao.status.name() == 'CANCELADA'
+                 and !#lists.isEmpty(negociacao.pendencias)}">
+
+                <h2>💰 Pendências de Devolução</h2>
+
+                <div class="detalhes-grid">
+
+                    <div class="card-detalhe"
+                         th:each="pendencia : ${negociacao.pendencias}">
+
+                        <p>
+                            <strong>Descrição:</strong>
+                            <span th:text="${pendencia.descricao}"></span>
+                        </p>
+
+                        <p>
+                            <strong>Valor:</strong>
+                            <span th:text="${#numbers.formatCurrency(pendencia.valor)}"></span>
+                        </p>
+
+                        <p>
+                            <strong>Status:</strong>
+                            <span th:text="${pendencia.status.name() == 'PENDENTE'
+                                  ? 'Pendente'
+                                  : 'Resolvida'}">
+                            </span>
+                        </p>
+
+                        <form th:if="${pendencia.status.name() == 'PENDENTE'}"
+                              th:action="@{/negociacoes/pendencias/{id}/resolver(id=${pendencia.id})}"
+                              method="post">
+
+                            <button type="submit"
+                                    class="btn-salvar">
+                                ✅ Registrar devolução
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+            </div>
 
 
         </div>

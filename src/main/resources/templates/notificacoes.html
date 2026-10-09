@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="pt-br"
+      xmlns:th="http://www.thymeleaf.org">
+
+    <head th:replace="~{fragments/head :: head('Notificações')}"></head>
+
+    <body class="pagina-com-menu">
+
+        <div th:replace="~{fragments/menu :: menu}"></div>
+
+        <div class="container">
+
+            <h1>🔔 Central de Notificações</h1>
+
+            <!-- =====================================================
+                     MARCAR TODAS AS NOTIFICAÇÕES COMO LIDAS
+               ===================================================== -->
+
+            <form th:if="${notificacoesNaoLidas != null and notificacoesNaoLidas > 0}"
+                  th:action="@{/notificacoes/ler-todas}"
+                  method="post"
+                  class="form-marcar-todas">
+
+                <button type="submit" class="btn-marcar-todas">
+                    ✓ Marcar todas como lidas
+                </button>
+
+            </form>
+
+            <!-- =====================================================
+                       FILTROS DAS NOTIFICAÇÕES
+                ===================================================== -->
+
+            <form th:action="@{/notificacoes}"
+                  method="get"
+                  class="filtros-notificacoes">
+
+                <div class="campo">
+                    <label for="lida">Situação</label>
+
+                    <select id="lida" name="lida">
+                        <option value="">Todas</option>
+
+                        <option value="false"
+                                th:selected="${lidaSelecionada == false}">
+                            Não lidas
+                        </option>
+
+                        <option value="true"
+                                th:selected="${lidaSelecionada == true}">
+                            Lidas
+                        </option>
+                    </select>
+                </div>
+
+                <div class="campo">
+                    <label for="tipo">Tipo de notificação</label>
+
+                    <select id="tipo" name="tipo">
+                        <option value="">Todos os tipos</option>
+
+                        <option th:each="tipo : ${tiposNotificacao}"
+                                th:value="${tipo.name()}"
+                                th:text="${#strings.replace(tipo.name(), '_', ' ')}"
+                                th:selected="${tipoSelecionado == tipo}">
+                        </option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn-filtrar-notificacoes">
+                    🔍 Filtrar
+                </button>
+
+                <a th:href="@{/notificacoes}"
+                   class="btn-limpar-notificacoes">
+                    Limpar
+                </a>
+
+            </form>
+
+            <p th:if="${#lists.isEmpty(notificacoes)}">
+                Nenhuma notificação encontrada.
+            </p>
+
+            <div class="notificacao"
+                 th:each="n : ${notificacoes}"
+                 th:classappend="${!n.lida} ? ' nao-lida' : ' lida'">
+
+                <div class="notificacao-conteudo">
+
+                    <h3 th:text="${n.titulo}">
+                        Título da notificação
+                    </h3>
+
+                    <p th:text="${n.mensagem}">
+                        Mensagem da notificação
+                    </p>
+
+                    <small th:text="${#temporals.format(n.dataCriacao, 'dd/MM/yyyy HH:mm')}">
+                        02/10/2026 22:30
+                    </small>
+
+                    <div class="notificacao-acoes">
+
+                        <a th:if="${n.link != null and !n.link.isBlank()}"
+                           th:href="${n.link}"
+                           class="btn-ver-notificacao">
+                            <span th:switch="${n.tipo}">
+                                <span th:case="${T(br.com.urias.cadastro_veiculos.model.TipoNotificacao).SOLICITACAO_LOGIN}">
+                                    👁 Ver solicitação
+                                </span>
+
+                                <span th:case="${T(br.com.urias.cadastro_veiculos.model.TipoNotificacao).PENDENCIA_CRIADA}">
+                                    👁 Ver pendência
+                                </span>
+
+                                <span th:case="*">
+                                    👁 Ver detalhes
+                                </span>
+                            </span>
+                        </a>
+
+                    </div>
+
+                    <form th:if="${!n.lida}"
+                          th:action="@{/notificacoes/{id}/ler(id=${n.id})}"
+                          method="post">
+
+                        <button type="submit" class="btn-marcar-lida">
+                            ✓ Marcar como lida
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+            <!-- =====================================================
+     PAGINAÇÃO DAS NOTIFICAÇÕES
+===================================================== -->
+
+            <div class="paginacao"
+                 th:if="${totalPaginas > 1}">
+
+                <a th:if="${paginaAtual > 0}"
+                   th:href="@{/notificacoes(
+                   pagina=${paginaAtual - 1},
+                   lida=${lidaSelecionada},
+                   tipo=${tipoSelecionado}
+                   )}">
+                    ← Anterior
+                </a>
+
+                <span th:text="${'Página ' + (paginaAtual + 1) + ' de ' + totalPaginas}">
+                    Página 1 de 3
+                </span>
+
+                <a th:if="${paginaAtual + 1 < totalPaginas}"
+                   th:href="@{/notificacoes(
+                   pagina=${paginaAtual + 1},
+                   lida=${lidaSelecionada},
+                   tipo=${tipoSelecionado}
+                   )}">
+                    Próxima →
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+</html>

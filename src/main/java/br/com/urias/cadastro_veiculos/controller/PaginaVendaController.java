@@ -19,6 +19,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import br.com.urias.cadastro_veiculos.model.TipoNotificacao;
+import br.com.urias.cadastro_veiculos.repository.UsuarioRepository;
+import br.com.urias.cadastro_veiculos.service.NotificacaoService;
+import java.util.List;
 
 @Controller
 public class PaginaVendaController {
@@ -26,15 +30,21 @@ public class PaginaVendaController {
     private final VendaRepository vendaRepository;
     private final ClienteRepository clienteRepository;
     private final VeiculoRepository veiculoRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final NotificacaoService notificacaoService;
 
     public PaginaVendaController(
             VendaRepository vendaRepository,
             ClienteRepository clienteRepository,
-            VeiculoRepository veiculoRepository) {
+            VeiculoRepository veiculoRepository,
+            UsuarioRepository usuarioRepository,
+            NotificacaoService notificacaoService) {
 
         this.vendaRepository = vendaRepository;
         this.clienteRepository = clienteRepository;
         this.veiculoRepository = veiculoRepository;
+        this.usuarioRepository = usuarioRepository;
+        this.notificacaoService = notificacaoService;
     }
 
     @GetMapping("/vendas/form")
@@ -108,6 +118,28 @@ public class PaginaVendaController {
         veiculoRepository.save(venda.getVeiculo());
 
         Venda vendaSalva = vendaRepository.save(venda);
+
+        List<Usuario> administradores
+                = usuarioRepository.findByPerfilIn(
+                        List.of("DONO", "GERENTE")
+                );
+
+        for (Usuario administrador : administradores) {
+
+            notificacaoService.criarNotificacao(
+                    administrador,
+                    TipoNotificacao.VENDA_REALIZADA,
+                    "Venda realizada",
+                    usuarioLogado.getNome()
+                    + " realizou a venda do veículo "
+                    + vendaSalva.getVeiculo().getNome()
+                    + " para "
+                    + vendaSalva.getCliente().getNome()
+                    + ".",
+                    null,
+                    vendaSalva.getId()
+            );
+        }
 
         if ("VENDEDOR".equals(usuarioLogado.getPerfil())) {
 

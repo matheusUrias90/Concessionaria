@@ -119,6 +119,21 @@
 
                     </a>
 
+                    <a th:href="@{/notificacoes}"
+                       class="menu-link"
+                       th:classappend="${paginaAtiva == 'notificacoes'} ? ' ativo'">
+
+                        <span>🔔</span>
+                        Notificações
+
+                        <span class="badge-notificacao"
+                              th:if="${notificacoesNaoLidas != null and notificacoesNaoLidas > 0}"
+                              th:text="${notificacoesNaoLidas}">
+                            1
+                        </span>
+
+                    </a>
+
                     <!-- ADMINISTRAÇÃO -->
                     <div class="menu-grupo"
                          th:if="${session.usuarioLogado.perfil == 'DONO' or session.usuarioLogado.perfil == 'GERENTE'}">
@@ -135,9 +150,8 @@
                             Usuários
 
                         </a>
-
-                    </div>
-
+                        
+                    
                     <!-- FINANCEIRO -->
                     <div class="menu-grupo"
                          th:if="${session.usuarioLogado.perfil == 'DONO' or session.usuarioLogado.perfil == 'GERENTE'}">
