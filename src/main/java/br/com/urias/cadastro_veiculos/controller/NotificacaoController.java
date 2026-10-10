@@ -66,8 +66,11 @@ public class NotificacaoController {
     model.addAttribute("lidaSelecionada", lida);
     model.addAttribute("tipoSelecionado", tipo);
 
-    // Disponibiliza os tipos para o select
-    model.addAttribute("tiposNotificacao", TipoNotificacao.values());
+        // Disponibiliza os tipos para o select
+        model.addAttribute(
+                "tiposNotificacao",
+                notificacaoRepository.buscarTiposPorUsuario(usuarioLogado.getId())
+        );
 
     return "notificacoes";
 }

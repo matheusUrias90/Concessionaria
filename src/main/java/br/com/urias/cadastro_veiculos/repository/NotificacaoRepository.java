@@ -33,4 +33,14 @@ public interface NotificacaoRepository extends JpaRepository<Notificacao, Long> 
             @Param("tipo") TipoNotificacao tipo,
             Pageable pageable
     );
+
+    @Query("""
+       SELECT DISTINCT n.tipo
+       FROM Notificacao n
+       WHERE n.usuario.id = :usuarioId
+       ORDER BY n.tipo
+       """)
+    List<TipoNotificacao> buscarTiposPorUsuario(
+            @Param("usuarioId") Long usuarioId
+    );
 }
