@@ -1,0 +1,456 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+    <head th:replace="~{fragments/head :: head('Relatório de Estoque')}"></head>
+
+    <body class="pagina-com-menu">
+
+        <div th:replace="~{fragments/menu :: menu}"></div>
+
+        <div class="container">
+
+            <h1>🚗 Relatório de Estoque</h1>
+
+            <!-- FILTROS -->
+            <button type="button"
+                    class="btn-salvar"
+                    onclick="abrirModal('modalFiltrosEstoque')">
+                🔎 Filtrar Período
+            </button>
+
+            <p th:if="${inicio != null or fim != null}">
+                <strong>Período analisado:</strong>
+
+                <span th:text="${inicio != null
+                      ? #temporals.format(inicio, 'dd/MM/yyyy')
+                      : 'Início'}"></span>
+
+                até
+
+                <span th:text="${fim != null
+                      ? #temporals.format(fim, 'dd/MM/yyyy')
+                      : 'Hoje'}"></span>
+            </p>
+
+            <p th:if="${erro != null}"
+               th:text="${erro}"
+               style="color: #b91c1c;">
+            </p>
+
+            <!-- INDICADORES -->
+            <h2>📦 Situação Atual do Estoque</h2>
+
+            <div class="dashboard-grid">
+
+                <div class="card-dashboard">
+                    <h3>✅ Disponíveis</h3>
+                    <p th:text="${disponiveis}">0</p>
+                </div>
+
+                <div class="card-dashboard">
+                    <h3>🔒 Reservados</h3>
+                    <p th:text="${reservados}">0</p>
+                </div>
+
+                <div class="card-dashboard">
+                    <h3>🚗 Total em Estoque</h3>
+                    <p th:text="${totalEstoque}">0</p>
+                </div>
+
+                <div class="card-dashboard card-valor-estoque">
+                    <h3>💰 Valor Anunciado</h3>
+                    <p th:text="${#numbers.formatCurrency(valorEstoque)}"></p>
+                </div>
+
+            </div>
+
+            <!-- ANÁLISE COMERCIAL -->
+            <h2>📊 Análise Comercial</h2>
+
+            <div class="dashboard-grid">
+
+                <div class="card-dashboard">
+                    <h3>💵 Preço Médio de Venda</h3>
+
+                    <p th:text="${#numbers.formatCurrency(precoMedioVenda)}">
+                        R$ 0,00
+                    </p>
+                </div>
+
+                <div class="card-dashboard">
+                    <h3>⏱️ Tempo Médio até a Venda</h3>
+
+                    <p th:text="|${#numbers.formatDecimal(tempoMedioVenda, 1, 1)} dias|">
+                        0 dias
+                    </p>
+                </div>
+
+            </div>
+
+            <!-- FAIXAS DE PREÇO -->
+            <h2>💰 Faixas de Preço com Mais Vendas</h2>
+
+            <div class="tabela-responsiva">
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Faixa de Preço</th>
+                            <th>Quantidade de Vendas</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        <tr th:each="faixa : ${faixasPreco}">
+                            <td th:text="${faixa.key}"></td>
+                            <td th:text="${faixa.value}"></td>
+                        </tr>
+
+                        <tr th:if="${#maps.isEmpty(faixasPreco)}">
+                            <td colspan="2">
+                                Nenhuma venda encontrada no período.
+                            </td>
+                        </tr>
+
+                    </tbody>
+                </table>
+
+            </div>
+
+            <!-- VEÍCULOS NO ESTOQUE -->
+            <h2>📋 Tempo de Permanência no Estoque</h2>       
+
+            <form th:action="@{/relatorios/estoque}"
+                  method="get"
+                  class="form-busca"
+                  id="formBuscaEstoque">
+
+                <input type="hidden"
+                       name="inicio"
+                       th:if="${inicio != null}"
+                       th:value="${inicio}">
+
+                <input type="hidden"
+                       name="fim"
+                       th:if="${fim != null}"
+                       th:value="${fim}">
+
+                <input type="text"
+                       name="busca"
+                       id="campoBuscaEstoque"
+                       placeholder="Buscar por nome, marca ou placa"
+                       th:value="${busca}">
+
+                <button type="button"
+                        class="btn-limpar"
+                        onclick="limparBuscaEstoque()">
+                    Limpar
+                </button>
+
+            </form>
+
+
+            <p th:if="${busca != null and !busca.isBlank()}"
+               th:text="|${totalResultados} veículo(s) encontrado(s)|">
+            </p>
+
+
+            <div class="tabela-responsiva">
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Veículo</th>
+                            <th>Placa</th>
+                            <th>Situação</th>
+                            <th>Data de Entrada</th>
+                            <th>Dias em Estoque</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="corpoTabelaEstoque">
+
+                        <tr th:each="v : ${veiculos}">
+
+                            <td th:text="${v.nome + ' (' + v.ano + ')'}"></td>
+
+                            <td th:text="${v.placa}"></td>
+
+                            <td th:text="${v.status == T(br.com.urias.cadastro_veiculos.model.StatusVeiculo).DISPONIVEL
+                                ? 'Disponível' : 'Reservado'}"></td>
+
+                            <td th:text="${v.dataEntrada != null
+                                ? #temporals.format(v.dataEntrada, 'dd/MM/yyyy')
+                                : 'Não informada'}"></td>
+
+                            <td th:text="${diasEstoque.containsKey(v.id)
+                                ? diasEstoque.get(v.id) + ' dias'
+                                : 'Não informado'}"></td>
+
+                        </tr>
+
+                        <tr th:if="${#lists.isEmpty(veiculos)}">
+                            <td colspan="5">
+                                Nenhum veículo disponível ou reservado.
+                            </td>
+                        </tr>
+
+                    </tbody>
+                </table>
+
+            </div>
+
+            <div id="paginacaoEstoque"
+                 class="paginacao"
+                 th:style="${totalPaginas > 1} ? '' : 'display:none'">
+
+                <a href="#"
+                   th:if="${paginaAtual > 0}"
+                   th:attr="data-pagina=${paginaAtual - 1}"
+                   onclick="mudarPaginaEstoque(event, this)">
+                    Anterior
+                </a>
+
+                <span>
+                    Página <span th:text="${paginaAtual + 1}"></span>
+                    de <span th:text="${totalPaginas}"></span>
+                </span>
+
+                <a href="#"
+                   th:if="${paginaAtual + 1 < totalPaginas}"
+                   th:attr="data-pagina=${paginaAtual + 1}"
+                   onclick="mudarPaginaEstoque(event, this)">
+                    Próxima
+                </a>
+
+            </div>
+
+        </div>
+
+        <!-- MODAL DE FILTROS -->
+        <div id="modalFiltrosEstoque" class="modal">
+
+            <div class="modal-conteudo">
+
+                <span class="fechar"
+                      onclick="fecharModal('modalFiltrosEstoque')">
+                    X
+                </span>
+
+                <h2>🔎 Filtrar Relatório</h2>
+
+                <form th:action="@{/relatorios/estoque}"
+                      method="get">
+
+                    <div class="form-grid">
+
+                        <div class="campo">
+                            <label for="inicio">Data Inicial</label>
+
+                            <input type="date"
+                                   id="inicio"
+                                   name="inicio"
+                                   th:value="${inicio}">
+                        </div>
+
+                        <div class="campo">
+                            <label for="fim">Data Final</label>
+
+                            <input type="date"
+                                   id="fim"
+                                   name="fim"
+                                   th:value="${fim}">
+                        </div>
+
+                        <input type="hidden" name="busca" th:value="${busca}">
+
+                    </div>
+
+                    <div class="acoes-formulario">
+
+                        <button type="submit" class="btn-salvar">
+                            Aplicar Filtros
+                        </button>
+
+                        <a th:href="@{/relatorios/estoque}"
+                           class="btn-voltar">
+                            Limpar Filtros
+                        </a>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+        <script>
+            function abrirModal(id) {
+                document.getElementById(id).style.display = 'flex';
+            }
+
+            function fecharModal(id) {
+                document.getElementById(id).style.display = 'none';
+            }
+
+
+
+            const campoBuscaEstoque = document.getElementById("campoBuscaEstoque");
+            const formBuscaEstoque = document.getElementById("formBuscaEstoque");
+            const corpoTabelaEstoque = document.getElementById("corpoTabelaEstoque");
+            const paginacaoEstoque = document.getElementById("paginacaoEstoque");
+
+            let tempoEstoque;
+            let controladorBusca;
+
+            formBuscaEstoque.addEventListener("submit", function (event) {
+                event.preventDefault();
+                buscarEstoque(0);
+            });
+
+            campoBuscaEstoque.addEventListener("input", function () {
+                clearTimeout(tempoEstoque);
+
+                tempoEstoque = setTimeout(function () {
+                    buscarEstoque(0);
+                }, 500);
+            });
+
+            async function buscarEstoque(pagina) {
+
+                if (controladorBusca) {
+                    controladorBusca.abort();
+                }
+
+                controladorBusca = new AbortController();
+
+                const busca = campoBuscaEstoque.value.trim();
+
+                const parametros = new URLSearchParams({
+                    busca: busca,
+                    pagina: pagina
+                });
+
+                try {
+                    const resposta = await fetch(
+                            "/relatorios/estoque/buscar?" + parametros.toString(),
+                            {signal: controladorBusca.signal}
+                    );
+
+                    if (!resposta.ok) {
+                        throw new Error("Erro ao pesquisar veículos.");
+                    }
+
+                    const dados = await resposta.json();
+
+                    atualizarTabelaEstoque(dados.veiculos);
+                    atualizarPaginacaoEstoque(dados, busca);
+
+                } catch (erro) {
+                    if (erro.name !== "AbortError") {
+                        console.error(erro);
+                    }
+                }
+            }
+
+            function atualizarTabelaEstoque(veiculos) {
+
+                corpoTabelaEstoque.innerHTML = "";
+
+                if (veiculos.length === 0) {
+                    const linha = corpoTabelaEstoque.insertRow();
+                    const celula = linha.insertCell();
+                    celula.colSpan = 5;
+                    celula.textContent = "Nenhum veículo encontrado.";
+                    return;
+                }
+
+                veiculos.forEach(function (veiculo) {
+
+                    const linha = corpoTabelaEstoque.insertRow();
+
+                    const dataEntrada = veiculo.dataEntrada
+                            ? veiculo.dataEntrada.split("-").reverse().join("/")
+                            : "Não informada";
+
+                    const dias = veiculo.diasEstoque != null
+                            ? veiculo.diasEstoque + " dias"
+                            : "Não informado";
+
+                    const valores = [
+                        veiculo.nome + " (" + veiculo.ano + ")",
+                        veiculo.placa,
+                        veiculo.status === "DISPONIVEL"
+                                ? "Disponível" : "Reservado",
+                        dataEntrada,
+                        dias
+                    ];
+
+                    valores.forEach(function (valor) {
+                        const celula = linha.insertCell();
+                        celula.textContent = valor;
+                    });
+                });
+            }
+
+            function atualizarPaginacaoEstoque(dados, busca) {
+
+                paginacaoEstoque.innerHTML = "";
+
+                if (dados.totalPaginas <= 1) {
+                    paginacaoEstoque.style.display = "none";
+                    return;
+                }
+
+                paginacaoEstoque.style.display = "";
+
+                if (dados.paginaAtual > 0) {
+                    criarBotaoPagina("Anterior", dados.paginaAtual - 1);
+                }
+
+                const indicador = document.createElement("span");
+                indicador.textContent =
+                        "Página " + (dados.paginaAtual + 1)
+                        + " de " + dados.totalPaginas;
+
+                paginacaoEstoque.appendChild(indicador);
+
+                if (dados.paginaAtual + 1 < dados.totalPaginas) {
+                    criarBotaoPagina("Próxima", dados.paginaAtual + 1);
+                }
+            }
+
+            function criarBotaoPagina(texto, pagina) {
+
+                const link = document.createElement("a");
+                link.href = "#";
+                link.textContent = texto;
+
+                link.addEventListener("click", function (event) {
+                    event.preventDefault();
+                    buscarEstoque(pagina);
+                });
+
+                paginacaoEstoque.appendChild(link);
+            }
+
+            function limparBuscaEstoque() {
+                clearTimeout(tempoEstoque);
+                campoBuscaEstoque.value = "";
+                buscarEstoque(0);
+            }
+
+            function mudarPaginaEstoque(event, link) {
+                event.preventDefault();
+
+                const pagina = Number(link.dataset.pagina);
+
+                buscarEstoque(pagina);
+            }
+        </script>
+
+    </body>
+</html>

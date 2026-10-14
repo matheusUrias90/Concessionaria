@@ -51,7 +51,9 @@ public class AdminController {
                 : 0.0;
 
         model.addAttribute("totalClientes", clienteRepository.count());
-        model.addAttribute("totalVeiculos", veiculoRepository.count());
+        model.addAttribute("totalVeiculos",
+                veiculoRepository.countByStatus(StatusVeiculo.DISPONIVEL)
+                + veiculoRepository.countByStatus(StatusVeiculo.RESERVADO));
         model.addAttribute("totalVendas", totalVendas);
 
         model.addAttribute(

@@ -1,0 +1,267 @@
+
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: head('Relatório de Repasses')}"></head>
+
+<body class="pagina-com-menu">
+
+    <div th:replace="~{fragments/menu :: menu}"></div>
+
+    <div class="container">
+
+        <h1>💸 Relatório de Repasses</h1>
+
+        <button type="button"
+                class="btn-salvar"
+                onclick="abrirModal('modalFiltrosRepasses')">
+            🔎 Filtrar Relatório
+        </button>
+
+        <!-- Filtros aplicados -->
+        <p th:if="${inicio != null or fim != null}">
+
+            <strong>Filtros aplicados:</strong>
+
+            <span th:if="${inicio != null}"
+                  th:text="${'De ' + #temporals.format(inicio, 'dd/MM/yyyy')}">
+            </span>
+
+            <span th:if="${fim != null}"
+                  th:text="${' até ' + #temporals.format(fim, 'dd/MM/yyyy')}">
+            </span>
+
+        </p>
+
+        <div th:if="${erro}"
+             class="alerta-erro"
+             th:text="${erro}">
+        </div>
+
+        <!-- Indicadores financeiros -->
+        <h2>💰 Resumo Financeiro</h2>
+
+        <div class="dashboard-grid grid-negociacoes">
+
+            <div class="card-dashboard">
+                <h3>💰 Total Devido</h3>
+
+                <p th:text="${'R$ ' + #numbers.formatDecimal(totalDevido, 1, 'POINT', 2, 'COMMA')}">
+                    R$ 0,00
+                </p>
+            </div>
+
+            <div class="card-dashboard">
+                <h3>✅ Total Pago</h3>
+
+                <p th:text="${'R$ ' + #numbers.formatDecimal(totalPago, 1, 'POINT', 2, 'COMMA')}">
+                    R$ 0,00
+                </p>
+            </div>
+
+            <div class="card-dashboard">
+                <h3>⏳ Saldo a Repassar</h3>
+
+                <p th:text="${'R$ ' + #numbers.formatDecimal(saldoPendente, 1, 'POINT', 2, 'COMMA')}">
+                    R$ 0,00
+                </p>
+            </div>
+
+        </div>
+
+        <!-- Indicadores de situação -->
+        <h2>📋 Situação dos Repasses</h2>
+
+        <div class="dashboard-grid grid-negociacoes">
+
+            <div class="card-dashboard">
+                <h3>🔴 Pendentes</h3>
+                <p th:text="${pendentes}">0</p>
+            </div>
+
+            <div class="card-dashboard">
+                <h3>🟡 Parciais</h3>
+                <p th:text="${parciais}">0</p>
+            </div>
+
+            <div class="card-dashboard">
+                <h3>🟢 Quitados</h3>
+                <p th:text="${quitados}">0</p>
+            </div>
+
+        </div>
+
+        <p class="observacao-relatorio">
+            <strong>Total devido:</strong>
+            valor destinado aos proprietários dos veículos vendidos,
+            incluindo vendas que ainda aguardam o início do repasse.
+        </p>
+
+        <p class="observacao-relatorio">
+            <strong>Total pago:</strong>
+            soma de todos os pagamentos registrados nos repasses
+            das vendas selecionadas.
+        </p>
+
+        <p class="observacao-relatorio">
+            <strong>Saldo a repassar:</strong>
+            valor que ainda precisa ser pago aos proprietários.
+        </p>
+
+        <p class="observacao-relatorio">
+            <strong>Período:</strong>
+            os indicadores consideram a data da venda.
+            O gráfico considera a data de cada pagamento.
+        </p>
+
+        <!-- Gráfico mensal -->
+        <h2>📈 Evolução dos Pagamentos</h2>
+
+        <div class="graficos-vendas">
+
+            <div class="grafico-vendas">
+
+                <h3>💸 Valores Repassados por Mês</h3>
+
+                <canvas id="graficoPagamentosRepasses"></canvas>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Modal de filtros -->
+    <div id="modalFiltrosRepasses" class="modal">
+
+        <div class="modal-conteudo">
+
+            <span class="fechar"
+                  onclick="fecharModal('modalFiltrosRepasses')">
+                &times;
+            </span>
+
+            <h2>🔎 Filtrar Repasses</h2>
+
+            <form th:action="@{/relatorios/repasses}"
+                  method="get">
+
+                <div class="form-grid">
+
+                    <div class="campo">
+
+                        <label for="inicio">Data Inicial</label>
+
+                        <input type="date"
+                               id="inicio"
+                               name="inicio"
+                               th:value="${inicio}">
+
+                    </div>
+
+                    <div class="campo">
+
+                        <label for="fim">Data Final</label>
+
+                        <input type="date"
+                               id="fim"
+                               name="fim"
+                               th:value="${fim}">
+
+                    </div>
+
+                </div>
+
+                <div class="acoes-form">
+
+                    <button type="submit" class="btn-salvar">
+                        Aplicar Filtros
+                    </button>
+
+                    <a th:href="@{/relatorios/repasses}"
+                       class="btn-voltar">
+                        Limpar Filtros
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script th:inline="javascript">
+
+        function abrirModal(id) {
+            document.getElementById(id).style.display = 'flex';
+        }
+
+        function fecharModal(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        const mesesRepasses = /*[[${meses}]]*/ [];
+        const valoresRepasses = /*[[${valoresMensais}]]*/ [];
+
+        new Chart(document.getElementById('graficoPagamentosRepasses'), {
+
+            type: 'bar',
+
+            data: {
+                labels: mesesRepasses,
+
+                datasets: [{
+                    label: 'Valor repassado (R$)',
+                    data: valoresRepasses,
+
+                    backgroundColor: '#198754',
+                    borderColor: '#146c43',
+                    borderWidth: 1,
+                    borderRadius: 5
+                }]
+            },
+
+            options: {
+                responsive: true,
+
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+
+                                const valor = context.parsed.y || 0;
+
+                                return 'R$ ' + valor.toLocaleString(
+                                    'pt-BR',
+                                    {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2
+                                    }
+                                );
+                            }
+                        }
+                    }
+                },
+
+                scales: {
+                    y: {
+                        beginAtZero: true,
+
+                        ticks: {
+                            callback: function(value) {
+                                return 'R$ ' + Number(value)
+                                    .toLocaleString('pt-BR');
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+    </script>
+
+</body>
+</html>

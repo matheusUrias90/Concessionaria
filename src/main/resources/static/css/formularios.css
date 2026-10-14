@@ -182,6 +182,14 @@
     width: calc(50% - 10px);
 }
 
+.acoes-form,
+.acoes-formulario {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+}
+
 /*RESPONSIVIDADE*/
 @media (max-width: 768px) {
     .form-grid {

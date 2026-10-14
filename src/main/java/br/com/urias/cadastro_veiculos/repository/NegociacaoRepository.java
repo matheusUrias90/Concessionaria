@@ -2,6 +2,8 @@ package br.com.urias.cadastro_veiculos.repository;
 
 import br.com.urias.cadastro_veiculos.model.Negociacao;
 import br.com.urias.cadastro_veiculos.model.StatusNegociacao;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -46,5 +48,32 @@ public interface NegociacaoRepository
             @Param("busca") String busca,
             @Param("vendedorId") Long vendedorId,
             Pageable pageable
+    );
+
+    @Query("""
+    SELECT n FROM Negociacao n
+    WHERE (:inicio IS NULL OR n.dataInicio >= :inicio)
+      AND (:fim IS NULL OR n.dataInicio < :fimExclusivo)
+      AND (:vendedorId IS NULL OR n.vendedor.id = :vendedorId)
+    ORDER BY n.dataInicio ASC
+    """)
+    List<Negociacao> buscarNegociacoesRelatorio(
+            @Param("inicio") LocalDate inicio,
+            @Param("fim") LocalDate fim,
+            @Param("fimExclusivo") LocalDate fimExclusivo,
+            @Param("vendedorId") Long vendedorId
+    );
+
+    @Query("""
+    SELECT n FROM Negociacao n
+    WHERE (:inicio IS NULL OR n.dataInicio >= :inicio)
+      AND (:fim IS NULL OR n.dataInicio < :fim)
+      AND (:vendedorId IS NULL OR n.vendedor.id = :vendedorId)
+    ORDER BY n.dataInicio ASC
+    """)
+    List<Negociacao> buscarNegociacoesRelatorio(
+            @Param("inicio") LocalDateTime inicio,
+            @Param("fim") LocalDateTime fim,
+            @Param("vendedorId") Long vendedorId
     );
 }

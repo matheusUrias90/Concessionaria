@@ -186,4 +186,19 @@
         text-align: center;
     }
 
+    @media (max-width: 900px) {
+        .dashboard-grid.grid-negociacoes {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .graficos-vendas {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 600px) {
+        .dashboard-grid.grid-negociacoes {
+            grid-template-columns: 1fr;
+        }
+    }
 }

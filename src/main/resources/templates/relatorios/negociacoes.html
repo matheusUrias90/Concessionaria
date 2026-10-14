@@ -1,0 +1,294 @@
+
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+
+    <head th:replace="~{fragments/head :: head('Relatório de Negociações')}"></head>
+
+    <body class="pagina-com-menu">
+
+        <div th:replace="~{fragments/menu :: menu}"></div>
+
+        <div class="container">
+
+            <h1>🤝 Relatório de Negociações</h1>
+
+            <button type="button"
+                    class="btn-salvar"
+                    onclick="abrirModal('modalFiltrosNegociacoes')">
+                🔎 Filtrar Relatório
+            </button>
+
+            <!-- Filtros aplicados -->
+            <p th:if="${inicio != null or fim != null or (vendedorId != null and !perfilVendedor)}">
+
+                <strong>Filtros aplicados:</strong>
+
+                <span th:if="${inicio != null}"
+                      th:text="${'De ' + #temporals.format(inicio, 'dd/MM/yyyy')}">
+                </span>
+
+                <span th:if="${fim != null}"
+                      th:text="${' até ' + #temporals.format(fim, 'dd/MM/yyyy')}">
+                </span>
+
+                <span th:if="${vendedorId != null and !perfilVendedor}">
+                    | Vendedor selecionado
+                </span>
+
+            </p>
+
+            <div th:if="${erro}"
+                 class="alerta-erro"
+                 th:text="${erro}">
+            </div>
+
+            <!-- Indicadores -->
+            <h2>📊 Situação das Negociações</h2>
+
+            <div class="dashboard-grid grid-negociacoes">
+
+                <div class="card-dashboard">
+                    <h3>📋 Total de Negociações</h3>
+                    <p th:text="${totalNegociacoes}">0</p>
+                </div>
+
+                <div class="card-dashboard">
+                    <h3>⏳ Em Andamento</h3>
+                    <p th:text="${emAndamento}">0</p>
+                </div>
+
+                <div class="card-dashboard">
+                    <h3>✅ Concluídas</h3>
+                    <p th:text="${concluidas}">0</p>
+                </div>
+
+                <div class="card-dashboard">
+                    <h3>❌ Canceladas</h3>
+                    <p th:text="${canceladas}">0</p>
+                </div>
+
+                <div class="card-dashboard">
+                    <h3>💰 Valor Potencial</h3>
+                    <p th:text="${'R$ ' + #numbers.formatDecimal(valorPotencial, 1, 'POINT', 2, 'COMMA')}">
+                        R$ 0,00
+                    </p>
+                </div>
+
+                <div class="card-dashboard">
+                    <h3>🎯 Taxa de Conversão</h3>
+                    <p th:text="${#numbers.formatDecimal(taxaConversao, 1, 'POINT', 2, 'COMMA') + '%'}">
+                        0,00%
+                    </p>
+                </div>
+
+            </div>
+
+            <p class="observacao-relatorio">
+                <strong>Valor potencial:</strong>
+                soma dos valores propostos das negociações em andamento,
+                incluindo a comissão da concessionária.
+            </p>
+
+            <p class="observacao-relatorio">
+                <strong>Taxa de conversão:</strong>
+                percentual de negociações concluídas entre aquelas que
+                já foram concluídas ou canceladas.
+            </p>
+
+            <p class="observacao-relatorio">
+                <strong>Período:</strong>
+                os filtros consideram a data de início das negociações.
+            </p>
+
+            <h2>📈 Análise das Negociações</h2>
+
+            <div class="graficos-vendas">
+
+                <div class="grafico-vendas">
+                    <h3>📊 Situação das Negociações</h3>
+                    <div style="max-width: 300px; margin: 0 auto;">
+                        <canvas id="graficoStatusNegociacoes"></canvas>
+                    </div>
+                </div>
+
+                <div class="grafico-vendas">
+                    <h3>📈 Negociações Iniciadas por Mês</h3>
+                    <canvas id="graficoMensalNegociacoes"></canvas>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Modal de filtros -->
+        <div id="modalFiltrosNegociacoes" class="modal">
+
+            <div class="modal-conteudo">
+
+                <span class="fechar"
+                      onclick="fecharModal('modalFiltrosNegociacoes')">
+                    &times;
+                </span>
+
+                <h2>🔎 Filtrar Negociações</h2>
+
+                <form th:action="@{/relatorios/negociacoes}"
+                      method="get">
+
+                    <div class="form-grid">
+
+                        <div class="campo">
+
+                            <label for="inicio">Data Inicial</label>
+
+                            <input type="date"
+                                   id="inicio"
+                                   name="inicio"
+                                   th:value="${inicio}">
+
+                        </div>
+
+                        <div class="campo">
+
+                            <label for="fim">Data Final</label>
+
+                            <input type="date"
+                                   id="fim"
+                                   name="fim"
+                                   th:value="${fim}">
+
+                        </div>
+
+                        <div class="campo" th:unless="${perfilVendedor}">
+
+                            <label for="vendedorId">Vendedor</label>
+
+                            <select id="vendedorId"
+                                    name="vendedorId">
+
+                                <option value="">Todos</option>
+
+                                <option th:each="u : ${vendedores}"
+                                        th:value="${u.id}"
+                                        th:text="${u.nome}"
+                                        th:selected="${vendedorId != null and vendedorId == u.id}">
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+                    <div class="acoes-form">
+
+                        <button type="submit" class="btn-salvar">
+                            Aplicar Filtros
+                        </button>
+
+                        <a th:href="@{/relatorios/negociacoes}"
+                           class="btn-voltar">
+                            Limpar Filtros
+                        </a>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+        <script th:inline="javascript">
+
+                              function abrirModal(id) {
+                                  document.getElementById(id).style.display = 'flex';
+                              }
+
+                              function fecharModal(id) {
+                                  document.getElementById(id).style.display = 'none';
+                              }
+
+                              const emAndamentoGrafico = /*[[${emAndamento}]]*/ 0;
+                              const concluidasGrafico = /*[[${concluidas}]]*/ 0;
+                              const canceladasGrafico = /*[[${canceladas}]]*/ 0;
+
+                              const mesesGrafico = /*[[${meses}]]*/ [];
+                              const quantidadesGrafico = /*[[${quantidadesMensais}]]*/ [];
+
+                              // Gráfico de situação das negociações
+                              new Chart(document.getElementById('graficoStatusNegociacoes'), {
+
+                                  type: 'doughnut',
+
+                                  data: {
+                                      labels: ['Em andamento', 'Concluídas', 'Canceladas'],
+
+                                      datasets: [{
+                                              data: [
+                                                  emAndamentoGrafico,
+                                                  concluidasGrafico,
+                                                  canceladasGrafico
+                                              ],
+
+                                              backgroundColor: [
+                                                  '#f0ad4e',
+                                                  '#198754',
+                                                  '#dc3545'
+                                              ],
+
+                                              borderWidth: 2
+                                          }]
+                                  },
+
+                                  options: {
+                                      responsive: true,
+                                      maintainAspectRatio: true,
+
+                                      plugins: {
+                                          legend: {
+                                              position: 'bottom'
+                                          }
+                                      }
+                                  }
+                              });
+
+                              // Gráfico mensal de negociações iniciadas
+                              new Chart(document.getElementById('graficoMensalNegociacoes'), {
+
+                                  type: 'line',
+
+                                  data: {
+                                      labels: mesesGrafico,
+
+                                      datasets: [{
+                                              label: 'Negociações iniciadas',
+                                              data: quantidadesGrafico,
+
+                                              borderColor: '#c1121f',
+                                              backgroundColor: 'rgba(193, 18, 31, 0.12)',
+
+                                              tension: 0.3,
+                                              fill: true
+                                          }]
+                                  },
+
+                                  options: {
+                                      responsive: true,
+
+                                      scales: {
+                                          y: {
+                                              beginAtZero: true,
+                                              ticks: {
+                                                  precision: 0
+                                              }
+                                          }
+                                      }
+                                  }
+                              });
+
+        </script>
+
+    </body>
+</html>

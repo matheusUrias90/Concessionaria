@@ -150,35 +150,91 @@
                             Usuários
 
                         </a>
-                        
-                    
-                    <!-- FINANCEIRO -->
-                    <div class="menu-grupo"
-                         th:if="${session.usuarioLogado.perfil == 'DONO' or session.usuarioLogado.perfil == 'GERENTE'}">
 
-                        <span class="menu-titulo">
-                            FINANCEIRO
-                        </span>
 
-                        <a th:href="@{/admin/vendas}"
-                           class="menu-link"
-                           th:classappend="${paginaAtiva == 'vendas'} ? ' ativo'">
+                        <!-- FINANCEIRO -->
+                        <div class="menu-grupo"
+                             th:if="${session.usuarioLogado.perfil == 'DONO' or session.usuarioLogado.perfil == 'GERENTE'}">
 
-                            <span>💰</span>
-                            Vendas
+                            <span class="menu-titulo">
+                                FINANCEIRO
+                            </span>
 
-                        </a>
+                            <a th:href="@{/admin/vendas}"
+                               class="menu-link"
+                               th:classappend="${paginaAtiva == 'vendas'} ? ' ativo'">
 
-                        <a th:href="@{/repasses}"
-                           class="menu-link"
-                           th:classappend="${paginaAtiva == 'repasses'} ? ' ativo'">
+                                <span>💰</span>
+                                Vendas
 
-                            <span>💸</span>
-                            Repasses
+                            </a>
 
-                        </a>
+                            <a th:href="@{/repasses}"
+                               class="menu-link"
+                               th:classappend="${paginaAtiva == 'repasses'} ? ' ativo'">
 
-                    </div>      
+                                <span>💸</span>
+                                Repasses
+
+                            </a>
+
+                        </div>      
+
+
+                        <!-- RELATÓRIOS -->
+                        <div class="menu-grupo">
+
+                            <span class="menu-titulo">
+                                RELATÓRIOS
+                            </span>
+
+                            <div class="menu-relatorios">
+
+                                <button type="button"
+                                        class="menu-link relatorios-botao"
+                                        onclick="alternarRelatorios()">
+
+                                    <span>📊</span>
+                                    Relatórios
+                                    <span class="seta">▼</span>
+
+                                </button>
+
+                                <div class="submenu-relatorios">
+
+                                    <a th:href="@{/relatorios/vendas}"
+                                       th:classappend="${paginaAtiva == 'relatorioVendas'} ? ' ativo'">
+                                        💰 Vendas
+                                    </a>
+
+                                    <a th:href="@{/relatorios/vendedores}"
+                                       th:classappend="${paginaAtiva == 'relatorioVendedores'} ? ' ativo'">
+                                        👔 Vendedores
+                                    </a>
+
+                                    <a th:href="@{/relatorios/negociacoes}"
+                                       th:classappend="${paginaAtiva == 'relatorioNegociacoes'} ? ' ativo'">
+                                        🤝 Negociações
+                                    </a>
+
+                                    <a th:if="${session.usuarioLogado.perfil == 'DONO'
+                                       or session.usuarioLogado.perfil == 'GERENTE'}"
+                                       th:classappend="${paginaAtiva == 'relatorioEstoque'} ? ' ativo'"
+                                       th:href="@{/relatorios/estoque}">
+                                        🚗 Estoque
+                                    </a>
+
+                                    <a th:if="${session.usuarioLogado.perfil == 'DONO' or session.usuarioLogado.perfil == 'GERENTE'}"
+                                       th:href="@{/relatorios/repasses}"
+                                       th:classappend="${paginaAtiva == 'relatorioRepasses'} ? ' ativo'">
+                                        💸 Repasses
+                                    </a>
+                                </div>
+
+                            </div>
+
+                        </div>
+
                 </nav>
             </aside>
 
@@ -192,6 +248,12 @@
 
                     document.body.classList.toggle('menu-mobile-aberto');
                     document.documentElement.classList.toggle('menu-mobile-aberto');
+                }
+
+                function alternarRelatorios() {
+                    const submenu = document.querySelector('.submenu-relatorios');
+
+                    submenu.classList.toggle('aberto');
                 }
             </script>
 

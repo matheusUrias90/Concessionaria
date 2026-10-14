@@ -84,6 +84,7 @@ tr:hover {
 .tabela-negociacoes th:nth-child(8) {
     width: 13%;
 }
+
 .tabela-negociacoes td:nth-child(5) {
     white-space: nowrap;
     font-size: 16px;

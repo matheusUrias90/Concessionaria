@@ -1,0 +1,231 @@
+
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: head('Relatório de Vendas')}"></head>
+
+<body class="pagina-com-menu">
+
+    <div th:replace="~{fragments/menu :: menu}"></div>
+
+    <div class="container">
+
+        <h1>📊 Relatório de Vendas</h1>
+
+        <button type="button"
+                class="btn-salvar"
+                onclick="abrirModal('modalFiltrosVendas')">
+            🔎 Filtrar Relatório
+        </button>
+
+        <p th:if="${inicio != null or fim != null or (vendedorId != null and !perfilVendedor)}">
+            <strong>Filtros aplicados:</strong>
+
+            <span th:if="${inicio != null}"
+                  th:text="${'De ' + #temporals.format(inicio, 'dd/MM/yyyy')}"></span>
+
+            <span th:if="${fim != null}"
+                  th:text="${' até ' + #temporals.format(fim, 'dd/MM/yyyy')}"></span>
+
+            <span th:if="${vendedorId != null and !perfilVendedor}">
+                | Vendedor selecionado
+            </span>
+        </p>
+
+        <div th:if="${erro}" class="alerta-erro" th:text="${erro}"></div>
+
+        <!-- Indicadores -->
+        <div class="dashboard-grid">
+
+            <div class="card-dashboard">
+                <h3>🛒 Vendas Concluídas</h3>
+                <p th:text="${totalVendas}">0</p>
+            </div>
+
+            <div class="card-dashboard">
+                <h3>💰 Valor Total Vendido</h3>
+                <p th:text="${'R$ ' + #numbers.formatDecimal(valorTotal, 1, 'POINT', 2, 'COMMA')}">
+                    R$ 0,00
+                </p>
+            </div>
+
+            <div class="card-dashboard">
+                <h3>🎯 Ticket Médio</h3>
+                <p th:text="${'R$ ' + #numbers.formatDecimal(ticketMedio, 1, 'POINT', 2, 'COMMA')}">
+                    R$ 0,00
+                </p>
+            </div>
+
+        </div>
+
+        <!-- Gráficos -->
+        <h2>📈 Evolução das Vendas</h2>
+
+        <div class="graficos-vendas">
+
+            <div class="grafico-vendas">
+                <h3>💰 Valor Vendido por Mês</h3>
+                <canvas id="graficoValorVendas"></canvas>
+            </div>
+
+            <div class="grafico-vendas">
+                <h3>🛒 Quantidade de Vendas por Mês</h3>
+                <canvas id="graficoQuantidadeVendas"></canvas>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Modal de filtros -->
+    <div id="modalFiltrosVendas" class="modal">
+
+        <div class="modal-conteudo">
+
+            <span class="fechar"
+                  onclick="fecharModal('modalFiltrosVendas')">
+                &times;
+            </span>
+
+            <h2>🔎 Filtrar Vendas</h2>
+
+            <form th:action="@{/relatorios/vendas}" method="get">
+
+                <div class="form-grid">
+
+                    <div class="campo">
+                        <label for="inicio">Data Inicial</label>
+                        <input type="date"
+                               id="inicio"
+                               name="inicio"
+                               th:value="${inicio}">
+                    </div>
+
+                    <div class="campo">
+                        <label for="fim">Data Final</label>
+                        <input type="date"
+                               id="fim"
+                               name="fim"
+                               th:value="${fim}">
+                    </div>
+
+                    <div class="campo" th:unless="${perfilVendedor}">
+
+                        <label for="vendedorId">Vendedor</label>
+
+                        <select id="vendedorId" name="vendedorId">
+
+                            <option value="">Todos</option>
+
+                            <option th:each="u : ${vendedores}"
+                                    th:value="${u.id}"
+                                    th:text="${u.nome}"
+                                    th:selected="${vendedorId != null and vendedorId == u.id}">
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+                <div class="acoes-form">
+
+                    <button type="submit" class="btn-salvar">
+                        Aplicar Filtros
+                    </button>
+
+                    <a th:href="@{/relatorios/vendas}"
+                       class="btn-voltar">
+                        Limpar Filtros
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script th:inline="javascript">
+
+        const meses = /*[[${meses}]]*/ [];
+        const valoresMensais = /*[[${valoresMensais}]]*/ [];
+        const quantidadesMensais = /*[[${quantidadesMensais}]]*/ [];
+
+        const formatoMoeda = new Intl.NumberFormat('pt-BR', {
+            style: 'currency',
+            currency: 'BRL'
+        });
+
+        new Chart(document.getElementById('graficoValorVendas'), {
+            type: 'bar',
+            data: {
+                labels: meses,
+                datasets: [{
+                    label: 'Valor vendido',
+                    data: valoresMensais,
+                    backgroundColor: '#198754',
+                    borderRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: contexto =>
+                                formatoMoeda.format(contexto.parsed.y)
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: valor => formatoMoeda.format(valor)
+                        }
+                    }
+                }
+            }
+        });
+
+        new Chart(document.getElementById('graficoQuantidadeVendas'), {
+            type: 'bar',
+            data: {
+                labels: meses,
+                datasets: [{
+                    label: 'Quantidade de vendas',
+                    data: quantidadesMensais,
+                    backgroundColor: '#d4a017',
+                    borderRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                }
+            }
+        });
+
+        function abrirModal(id) {
+            document.getElementById(id).style.display = 'flex';
+        }
+
+        function fecharModal(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+    </script>
+
+</body>
+</html>
