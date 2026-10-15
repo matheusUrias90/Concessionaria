@@ -48,6 +48,8 @@ public class RelatorioVendasController {
 
             @RequestParam(required = false)
             Long vendedorId,
+            
+            @RequestParam(defaultValue = "0") int pagina,
 
             HttpSession session,
             Model model,
@@ -126,6 +128,21 @@ public class RelatorioVendasController {
             valores.add(valoresMensais.get(mes));
             quantidades.add(quantidadesMensais.get(mes));
         }
+        
+        // Paginação da tabela de vendas
+        int tamanhoPagina = 10;
+        int totalPaginas = (int) Math.ceil(
+                (double) vendas.size() / tamanhoPagina
+        );
+
+        int paginaAtual = Math.max(0, Math.min(pagina, Math.max(0, totalPaginas - 1)));
+
+        int inicioPagina = paginaAtual * tamanhoPagina;
+        int fimPagina = Math.min(inicioPagina + tamanhoPagina, vendas.size());
+
+        model.addAttribute("vendasPagina", vendas.subList(inicioPagina, fimPagina));
+        model.addAttribute("paginaAtual", paginaAtual);
+        model.addAttribute("totalPaginas", totalPaginas);
 
         model.addAttribute("totalVendas", totalVendas);
         model.addAttribute("valorTotal", valorTotal);

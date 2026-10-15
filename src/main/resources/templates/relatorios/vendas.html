@@ -57,6 +57,50 @@
             </div>
 
         </div>
+        
+        <!-- Tabela de vendas -->
+        <h2>📋 Vendas Realizadas</h2>
+
+        <div class="tabela-container">
+            <table class="tabela">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Veículo</th>
+                        <th>Comprador</th>
+                        <th>Vendedor</th>
+                        <th>Valor</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr th:each="v : ${vendasPagina}">
+                        <td th:text="${#temporals.format(v.dataVenda, 'dd/MM/yyyy')}"></td>
+                        <td th:text="${v.veiculo.nome}"></td>
+                        <td th:text="${v.cliente.nome}"></td>
+                        <td th:text="${v.vendedor.nome}"></td>
+                        <td th:text="${'R$ ' + #numbers.formatDecimal(v.valor, 1, 'POINT', 2, 'COMMA')}"></td>
+                    </tr>
+
+                    <tr th:if="${#lists.isEmpty(vendasPagina)}">
+                        <td colspan="5">Nenhuma venda encontrada.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="paginacao" th:if="${totalPaginas > 1}">
+            <a th:each="p : ${#numbers.sequence(0, totalPaginas - 1)}"
+               th:href="@{/relatorios/vendas(
+               pagina=${p},
+               inicio=${inicio},
+               fim=${fim},
+               vendedorId=${vendedorId}
+               )}"
+               th:text="${p + 1}"
+               th:classappend="${p == paginaAtual} ? 'ativo' : ''">
+            </a>
+        </div>
 
         <!-- Gráficos -->
         <h2>📈 Evolução das Vendas</h2>
