@@ -12,11 +12,25 @@
 
         <h1>📊 Relatório de Vendas</h1>
 
-        <button type="button"
-                class="btn-salvar"
-                onclick="abrirModal('modalFiltrosVendas')">
-            🔎 Filtrar Relatório
-        </button>
+        <div class="acoes-relatorio">
+
+            <button type="button"
+                    class="btn-salvar"
+                    onclick="abrirModal('modalFiltrosVendas')">
+                🔎 Filtrar Relatório
+            </button>
+
+            <a th:href="@{/relatorios/vendas/imprimir(
+               inicio=${inicio},
+               fim=${fim},
+               vendedorId=${vendedorId}
+               )}"
+               target="_blank"
+               class="btn-salvar btn-imprimir-relatorio">
+                🖨️ Imprimir Relatório
+            </a>
+
+        </div>
 
         <p th:if="${inicio != null or fim != null or (vendedorId != null and !perfilVendedor)}">
             <strong>Filtros aplicados:</strong>

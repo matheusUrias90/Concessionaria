@@ -748,6 +748,345 @@ body {
     display: block;
     margin: 0 auto 15px;
 }
+
+.acoes-relatorio {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.acoes-relatorio > * {
+    flex: 1;
+}
+
+.btn-imprimir-relatorio {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+}
+
+
+/* ==========================
+   RELATÓRIO DE VENDAS
+========================== */
+
+.relatorio-vendas-documento .tabela-documento {
+    width: 100%;
+    table-layout: auto;
+    border-collapse: collapse;
+    font-size: 11px;
+}
+
+.relatorio-vendas-documento .tabela-documento th,
+.relatorio-vendas-documento .tabela-documento td {
+    padding: 7px 5px;
+    overflow-wrap: normal;
+    word-break: normal;
+    vertical-align: middle;
+}
+
+.relatorio-vendas-documento .tabela-documento th:last-child,
+.relatorio-vendas-documento .tabela-documento td:last-child {
+    white-space: nowrap;
+    width: 110px;
+    text-align: right;
+}
+
+.relatorio-vendas-documento .tabela-documento th:first-child,
+.relatorio-vendas-documento .tabela-documento td:first-child {
+    white-space: nowrap;
+}
+
+/* ==========================
+   TABELA DO RELATÓRIO DE VENDEDORES
+========================== */
+
+.relatorio-vendedores-documento .tabela-documento {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+
+.relatorio-vendedores-documento .tabela-documento th,
+.relatorio-vendedores-documento .tabela-documento td {
+    width: auto;
+    padding: 7px 4px;
+    font-size: 10px;
+    word-break: normal;
+    overflow-wrap: normal;
+    vertical-align: middle;
+}
+
+/* Nome do usuário */
+.relatorio-vendedores-documento .tabela-documento th:nth-child(1),
+.relatorio-vendedores-documento .tabela-documento td:nth-child(1) {
+    width: 17%;
+}
+
+/* Perfil */
+.relatorio-vendedores-documento .tabela-documento th:nth-child(2),
+.relatorio-vendedores-documento .tabela-documento td:nth-child(2) {
+    width: 12%;
+}
+
+/* Indicadores */
+.relatorio-vendedores-documento .tabela-documento th:nth-child(n+3):nth-child(-n+6),
+.relatorio-vendedores-documento .tabela-documento td:nth-child(n+3):nth-child(-n+6) {
+    width: 9%;
+}
+
+/* Valores monetários */
+.relatorio-vendedores-documento .tabela-documento th:nth-child(n+7),
+.relatorio-vendedores-documento .tabela-documento td:nth-child(n+7) {
+    width: 17.5%;
+    white-space: nowrap;
+}
+
+@media print {
+    .relatorio-vendas-documento .secao-documento:has(.tabela-documento) {
+        break-inside: auto;
+        page-break-inside: auto;
+    }
+
+    .relatorio-vendas-documento .tabela-documento thead {
+        display: table-header-group;
+    }
+
+    .relatorio-vendas-documento .tabela-documento tr {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+}
+
+
+/* ==========================
+   RELATÓRIO DE NEGOCIAÇÕES
+========================== */
+
+.relatorio-negociacoes-documento .tabela-documento {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+
+.relatorio-negociacoes-documento .tabela-documento th,
+.relatorio-negociacoes-documento .tabela-documento td {
+    width: auto;
+    padding: 7px 4px;
+    font-size: 10px;
+    line-height: 1.3;
+    word-break: normal;
+    overflow-wrap: break-word;
+    vertical-align: middle;
+}
+
+/* Data */
+.relatorio-negociacoes-documento .tabela-documento th:nth-child(1),
+.relatorio-negociacoes-documento .tabela-documento td:nth-child(1) {
+    width: 13%;
+    white-space: nowrap;
+}
+
+/* Comprador */
+.relatorio-negociacoes-documento .tabela-documento th:nth-child(2),
+.relatorio-negociacoes-documento .tabela-documento td:nth-child(2) {
+    width: 19%;
+}
+
+/* Veículo */
+.relatorio-negociacoes-documento .tabela-documento th:nth-child(3),
+.relatorio-negociacoes-documento .tabela-documento td:nth-child(3) {
+    width: 19%;
+}
+
+/* Vendedor */
+.relatorio-negociacoes-documento .tabela-documento th:nth-child(4),
+.relatorio-negociacoes-documento .tabela-documento td:nth-child(4) {
+    width: 18%;
+}
+
+/* Status */
+.relatorio-negociacoes-documento .tabela-documento th:nth-child(5),
+.relatorio-negociacoes-documento .tabela-documento td:nth-child(5) {
+    width: 14%;
+}
+
+/* Valor proposto */
+.relatorio-negociacoes-documento .tabela-documento th:nth-child(6),
+.relatorio-negociacoes-documento .tabela-documento td:nth-child(6) {
+    width: 17%;
+    white-space: nowrap;
+    text-align: right;
+}
+
+@media print {
+
+    .relatorio-negociacoes-documento .secao-documento:has(.tabela-documento) {
+        break-inside: auto;
+        page-break-inside: auto;
+    }
+
+    .relatorio-negociacoes-documento .tabela-documento thead {
+        display: table-header-group;
+    }
+
+    .relatorio-negociacoes-documento .tabela-documento tr {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+}
+
+
+/* ==========================
+   RELATÓRIO DE REPASSES
+========================== */
+
+.relatorio-repasses-documento .tabela-documento {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+
+.relatorio-repasses-documento .tabela-documento th,
+.relatorio-repasses-documento .tabela-documento td {
+    width: auto;
+    padding: 6px 3px;
+    font-size: 9px;
+    line-height: 1.3;
+    word-break: normal;
+    overflow-wrap: break-word;
+    vertical-align: middle;
+}
+
+/* Data */
+.relatorio-repasses-documento .tabela-documento th:nth-child(1),
+.relatorio-repasses-documento .tabela-documento td:nth-child(1) {
+    width: 12%;
+}
+
+/* Veículo */
+.relatorio-repasses-documento .tabela-documento th:nth-child(2),
+.relatorio-repasses-documento .tabela-documento td:nth-child(2) {
+    width: 16%;
+}
+
+/* Proprietário */
+.relatorio-repasses-documento .tabela-documento th:nth-child(3),
+.relatorio-repasses-documento .tabela-documento td:nth-child(3) {
+    width: 17%;
+}
+
+/* Valores */
+.relatorio-repasses-documento .tabela-documento th:nth-child(4),
+.relatorio-repasses-documento .tabela-documento td:nth-child(4),
+.relatorio-repasses-documento .tabela-documento th:nth-child(5),
+.relatorio-repasses-documento .tabela-documento td:nth-child(5),
+.relatorio-repasses-documento .tabela-documento th:nth-child(6),
+.relatorio-repasses-documento .tabela-documento td:nth-child(6) {
+    width: 13%;
+    white-space: nowrap;
+}
+
+/* Situação */
+.relatorio-repasses-documento .tabela-documento th:nth-child(7),
+.relatorio-repasses-documento .tabela-documento td:nth-child(7) {
+    width: 16%;
+}
+
+@media print {
+
+    .relatorio-repasses-documento .secao-documento:has(.tabela-documento) {
+        break-inside: auto;
+        page-break-inside: auto;
+    }
+
+    .relatorio-repasses-documento .tabela-documento thead {
+        display: table-header-group;
+    }
+
+    .relatorio-repasses-documento .tabela-documento tr {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+}
+
+
+/* ==========================
+   RELATÓRIO DE ESTOQUE
+========================== */
+
+.relatorio-estoque-documento .tabela-documento {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+
+.relatorio-estoque-documento .tabela-documento th,
+.relatorio-estoque-documento .tabela-documento td {
+    width: auto;
+    padding: 7px 6px;
+    font-size: 10px;
+    line-height: 1.3;
+    overflow-wrap: break-word;
+    vertical-align: middle;
+}
+
+/* Faixas de preço */
+.relatorio-estoque-documento .tabela-faixas-estoque th,
+.relatorio-estoque-documento .tabela-faixas-estoque td {
+    width: 50%;
+}
+
+/* Veículo */
+.relatorio-estoque-documento .tabela-veiculos-estoque th:nth-child(1),
+.relatorio-estoque-documento .tabela-veiculos-estoque td:nth-child(1) {
+    width: 29%;
+}
+
+/* Placa */
+.relatorio-estoque-documento .tabela-veiculos-estoque th:nth-child(2),
+.relatorio-estoque-documento .tabela-veiculos-estoque td:nth-child(2) {
+    width: 16%;
+}
+
+/* Situação */
+.relatorio-estoque-documento .tabela-veiculos-estoque th:nth-child(3),
+.relatorio-estoque-documento .tabela-veiculos-estoque td:nth-child(3) {
+    width: 17%;
+}
+
+/* Data de entrada */
+.relatorio-estoque-documento .tabela-veiculos-estoque th:nth-child(4),
+.relatorio-estoque-documento .tabela-veiculos-estoque td:nth-child(4) {
+    width: 18%;
+}
+
+/* Dias em estoque */
+.relatorio-estoque-documento .tabela-veiculos-estoque th:nth-child(5),
+.relatorio-estoque-documento .tabela-veiculos-estoque td:nth-child(5) {
+    width: 20%;
+}
+
+@media print {
+
+    .relatorio-estoque-documento .secao-documento:has(.tabela-documento) {
+        break-inside: auto;
+        page-break-inside: auto;
+    }
+
+    .relatorio-estoque-documento .tabela-documento thead {
+        display: table-header-group;
+    }
+
+    .relatorio-estoque-documento .tabela-documento tr {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+}
+
+
 /* ==========================
    RESPONSIVIDADE NA TELA
 ========================== */
@@ -829,6 +1168,20 @@ body {
 
         .contrato-venda .assinaturas-contrato .assinatura p {
             font-size: 10px;
+        }
+
+        .relatorio-vendas-documento .secao-documento:has(.tabela-documento) {
+            break-inside: auto;
+            page-break-inside: auto;
+        }
+
+        .relatorio-vendas-documento .tabela-documento thead {
+            display: table-header-group;
+        }
+
+        .relatorio-vendas-documento .tabela-documento tr {
+            break-inside: avoid;
+            page-break-inside: avoid;
         }
     }
 }

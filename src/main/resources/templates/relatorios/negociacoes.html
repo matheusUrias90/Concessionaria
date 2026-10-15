@@ -12,11 +12,26 @@
 
             <h1>🤝 Relatório de Negociações</h1>
 
-            <button type="button"
-                    class="btn-salvar"
-                    onclick="abrirModal('modalFiltrosNegociacoes')">
-                🔎 Filtrar Relatório
-            </button>
+            <div class="acoes-relatorio">
+
+                <button type="button"
+                        class="btn-salvar"
+                        onclick="abrirModal('modalFiltrosNegociacoes')">
+                    🔎 Filtrar Relatório
+                </button>
+
+                <a th:href="@{/relatorios/negociacoes(
+                   imprimir=true,
+                   inicio=${inicio},
+                   fim=${fim},
+                   vendedorId=${vendedorId}
+                   )}"
+                   target="_blank"
+                   class="btn-salvar btn-imprimir-relatorio">
+                    🖨️ Imprimir Relatório
+                </a>
+
+            </div>
 
             <!-- Filtros aplicados -->
             <p th:if="${inicio != null or fim != null or (vendedorId != null and !perfilVendedor)}">

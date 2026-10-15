@@ -5,6 +5,7 @@ import br.com.urias.cadastro_veiculos.model.StatusNegociacao;
 import br.com.urias.cadastro_veiculos.model.Usuario;
 import br.com.urias.cadastro_veiculos.repository.NegociacaoRepository;
 import br.com.urias.cadastro_veiculos.repository.UsuarioRepository;
+import br.com.urias.cadastro_veiculos.repository.ConfiguracaoConcessionariaRepository;
 import jakarta.servlet.http.HttpSession;
 import java.time.LocalDate;
 import java.util.List;
@@ -28,13 +29,16 @@ public class RelatorioNegociacoesController {
 
     private final NegociacaoRepository negociacaoRepository;
     private final UsuarioRepository usuarioRepository;
+    private final ConfiguracaoConcessionariaRepository configuracaoRepository;
 
     public RelatorioNegociacoesController(
             NegociacaoRepository negociacaoRepository,
-            UsuarioRepository usuarioRepository) {
+            UsuarioRepository usuarioRepository,
+            ConfiguracaoConcessionariaRepository configuracaoRepository) {
 
         this.negociacaoRepository = negociacaoRepository;
         this.usuarioRepository = usuarioRepository;
+        this.configuracaoRepository = configuracaoRepository;
     }
 
     @GetMapping
@@ -44,6 +48,7 @@ public class RelatorioNegociacoesController {
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fim,
             @RequestParam(required = false) Long vendedorId,
+            @RequestParam(defaultValue = "false") boolean imprimir,
             HttpSession session,
             Model model,
             RedirectAttributes redirectAttributes) {
@@ -140,6 +145,7 @@ public class RelatorioNegociacoesController {
         model.addAttribute("canceladas", canceladas);
         model.addAttribute("valorPotencial", valorPotencial);
         model.addAttribute("taxaConversao", taxaConversao);
+        model.addAttribute("negociacoes", negociacoes);
 
         model.addAttribute("inicio", inicio);
         model.addAttribute("fim", fim);
@@ -156,6 +162,27 @@ public class RelatorioNegociacoesController {
         }
 
         model.addAttribute("paginaAtiva", "relatorioNegociacoes");
+
+        if (imprimir) {
+
+            model.addAttribute(
+                    "configuracao",
+                    configuracaoRepository.findById(1L).orElse(null)
+            );
+
+            model.addAttribute("dataEmissao", LocalDate.now());
+
+            model.addAttribute(
+                    "nomeVendedor",
+                    vendedorId != null
+                            ? usuarioRepository.findById(vendedorId)
+                                    .map(Usuario::getNome)
+                                    .orElse("Não encontrado")
+                            : "Todos"
+            );
+
+            return "relatorios/impressao-negociacoes";
+        }
 
         return "relatorios/negociacoes";
     }

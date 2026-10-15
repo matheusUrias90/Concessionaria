@@ -1,4 +1,3 @@
-
 package br.com.urias.cadastro_veiculos.controller;
 
 import br.com.urias.cadastro_veiculos.model.Negociacao;
@@ -8,6 +7,7 @@ import br.com.urias.cadastro_veiculos.model.Venda;
 import br.com.urias.cadastro_veiculos.repository.NegociacaoRepository;
 import br.com.urias.cadastro_veiculos.repository.UsuarioRepository;
 import br.com.urias.cadastro_veiculos.repository.VendaRepository;
+import br.com.urias.cadastro_veiculos.repository.ConfiguracaoConcessionariaRepository;
 import jakarta.servlet.http.HttpSession;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -32,30 +32,28 @@ public class RelatorioVendedoresController {
     private final VendaRepository vendaRepository;
     private final UsuarioRepository usuarioRepository;
     private final NegociacaoRepository negociacaoRepository;
+    private final ConfiguracaoConcessionariaRepository configuracaoRepository;
 
     public RelatorioVendedoresController(
             VendaRepository vendaRepository,
             UsuarioRepository usuarioRepository,
-            NegociacaoRepository negociacaoRepository) {
+            NegociacaoRepository negociacaoRepository,
+            ConfiguracaoConcessionariaRepository configuracaoRepository) {
 
         this.vendaRepository = vendaRepository;
         this.usuarioRepository = usuarioRepository;
         this.negociacaoRepository = negociacaoRepository;
+        this.configuracaoRepository = configuracaoRepository;
     }
 
     @GetMapping
     public String relatorioVendedores(
             @RequestParam(required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-            LocalDate inicio,
-
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
             @RequestParam(required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-            LocalDate fim,
-
-            @RequestParam(required = false)
-            Long vendedorId,
-
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fim,
+            @RequestParam(required = false) Long vendedorId,
+            @RequestParam(defaultValue = "false") boolean imprimir,
             HttpSession session,
             Model model,
             RedirectAttributes redirectAttributes) {
@@ -112,8 +110,8 @@ public class RelatorioVendedoresController {
 
         // Negociações no período.
         // A data final é inclusiva.
-        List<Negociacao> negociacoes =
-                negociacaoRepository.buscarNegociacoesRelatorio(
+        List<Negociacao> negociacoes
+                = negociacaoRepository.buscarNegociacoesRelatorio(
                         inicio != null ? inicio.atStartOfDay() : null,
                         fim != null ? fim.plusDays(1).atStartOfDay() : null,
                         vendedorId
@@ -286,8 +284,8 @@ public class RelatorioVendedoresController {
                 : 0.0;
 
         // Preparação dos gráficos.
-        DateTimeFormatter formatoMes =
-                DateTimeFormatter.ofPattern("MM/yyyy");
+        DateTimeFormatter formatoMes
+                = DateTimeFormatter.ofPattern("MM/yyyy");
 
         List<String> meses = new ArrayList<>();
         List<Double> valores = new ArrayList<>();
@@ -327,6 +325,18 @@ public class RelatorioVendedoresController {
         model.addAttribute("perfilVendedor", perfilVendedor);
 
         model.addAttribute("paginaAtiva", "relatorioVendedores");
+
+        if (imprimir) {
+
+            model.addAttribute(
+                    "configuracao",
+                    configuracaoRepository.findById(1L).orElse(null)
+            );
+
+            model.addAttribute("dataEmissao", LocalDate.now());
+
+            return "relatorios/impressao-vendedores";
+        }
 
         return "relatorios/vendedores";
     }

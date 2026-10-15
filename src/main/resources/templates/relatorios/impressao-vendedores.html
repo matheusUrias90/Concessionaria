@@ -1,0 +1,141 @@
+
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+
+    <head>
+        <meta charset="UTF-8">
+        <title>Impressão - Relatório de Vendedores</title>
+
+        <link rel="stylesheet" th:href="@{/css/style.css}">
+        <link rel="stylesheet" th:href="@{/css/impressao.css}">
+    </head>
+
+    <body>
+
+        <div class="documento relatorio-vendedores-documento">
+
+            <header class="cabecalho-documento">
+                <h1>RELATÓRIO DE VENDEDORES</h1>
+
+                <img th:if="${configuracao != null and configuracao.logo != null}"
+                     th:src="@{'/img/' + ${configuracao.logo}}"
+                     alt="Logo da Empresa"
+                     class="logo-documento">
+            </header>
+
+            <section class="secao-documento">
+                <h2>Dados da Empresa</h2>
+
+                <div class="grade-dados">
+                    <div class="campo">
+                        <strong>Empresa:</strong>
+                        <span th:text="${configuracao != null ? configuracao.nomeEmpresa : 'Não configurada'}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>CNPJ:</strong>
+                        <span th:text="${configuracao != null ? configuracao.cnpj : 'Não informado'}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Telefone:</strong>
+                        <span th:text="${configuracao != null ? configuracao.telefone : 'Não informado'}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Endereço:</strong>
+                        <span th:text="${configuracao != null ? configuracao.endereco : 'Não informado'}"></span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="secao-documento">
+                <h2>Informações do Relatório</h2>
+
+                <div class="grade-dados">
+                    <div class="campo">
+                        <strong>Período:</strong>
+                        <span th:text="${(inicio != null ? #temporals.format(inicio, 'dd/MM/yyyy') : 'Desde o início dos registros')
+                              + ' a ' +
+                              (fim != null ? #temporals.format(fim, 'dd/MM/yyyy') : 'Até o momento')}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Vendedor:</strong>
+                        <span th:text="${vendedorId != null and !#lists.isEmpty(desempenho) ? desempenho[0].nome : 'Todos'}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Data de emissão:</strong>
+                        <span th:text="${#temporals.format(dataEmissao, 'dd/MM/yyyy')}"></span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="secao-documento">
+                <h2>Resumo das Vendas</h2>
+
+                <div class="grade-dados">
+                    <div class="campo">
+                        <strong>Vendas concluídas:</strong>
+                        <span th:text="${totalVendas}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Valor total vendido:</strong>
+                        <span th:text="${#numbers.formatCurrency(valorTotal)}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Ticket médio:</strong>
+                        <span th:text="${#numbers.formatCurrency(ticketMedio)}"></span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="secao-documento">
+                <h2>Desempenho dos Vendedores</h2>
+
+                <table class="tabela-documento">
+                    <thead>
+                        <tr>
+                            <th>Usuário</th>
+                            <th>Perfil</th>
+                            <th>Negociações</th>
+                            <th>Em andamento</th>
+                            <th>Canceladas</th>
+                            <th>Vendas</th>
+                            <th>Valor vendido</th>
+                            <th>Ticket médio</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr th:each="item : ${desempenho}">
+                            <td th:text="${item.nome}"></td>
+                            <td th:text="${item.perfil}"></td>
+                            <td th:text="${item.negociacoes}"></td>
+                            <td th:text="${item.emAndamento}"></td>
+                            <td th:text="${item.canceladas}"></td>
+                            <td th:text="${item.quantidade}"></td>
+                            <td th:text="${#numbers.formatCurrency(item.valor)}"></td>
+                            <td th:text="${#numbers.formatCurrency(item.ticketMedio)}"></td>
+                        </tr>
+
+                        <tr th:if="${#lists.isEmpty(desempenho)}">
+                            <td colspan="9">Nenhum vendedor encontrado.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <div class="acoes-documento">
+                <button type="button" onclick="window.print()">
+                    🖨️ Imprimir Relatório
+                </button>
+            </div>
+
+        </div>
+
+    </body>
+</html>

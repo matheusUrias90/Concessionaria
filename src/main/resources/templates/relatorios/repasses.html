@@ -12,11 +12,26 @@
 
         <h1>💸 Relatório de Repasses</h1>
 
-        <button type="button"
-                class="btn-salvar"
-                onclick="abrirModal('modalFiltrosRepasses')">
-            🔎 Filtrar Relatório
-        </button>
+        <div class="acoes-relatorio">
+
+            <button type="button"
+                    class="btn-salvar"
+                    onclick="abrirModal('modalFiltrosRepasses')">
+                🔎 Filtrar Relatório
+            </button>
+
+            <a th:href="@{/relatorios/repasses(
+               imprimir=true,
+               inicio=${inicio},
+               fim=${fim}
+               )}"
+               target="_blank"
+               class="btn-salvar btn-imprimir-relatorio">
+                🖨️ Imprimir Relatório
+            </a>
+
+        </div>
+
 
         <!-- Filtros aplicados -->
         <p th:if="${inicio != null or fim != null}">

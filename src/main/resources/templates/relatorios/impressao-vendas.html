@@ -1,0 +1,145 @@
+
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+
+    <head>
+        <meta charset="UTF-8">
+        <title>Impressão - Relatório de Vendas</title>
+
+        <link rel="stylesheet" th:href="@{/css/style.css}">
+        <link rel="stylesheet" th:href="@{/css/impressao.css}">
+    </head>
+
+    <body>
+
+        <div class="documento relatorio-vendas-documento">
+
+            <header class="cabecalho-documento">
+                <h1>RELATÓRIO DE VENDAS</h1>
+
+                <img th:if="${configuracao != null and configuracao.logo != null}"
+                     th:src="@{'/img/' + ${configuracao.logo}}"
+                     alt="Logo da Empresa"
+                     class="logo-documento">
+            </header>
+
+            <section class="secao-documento">
+                <h2>Dados da Empresa</h2>
+
+                <div class="grade-dados">
+                    <div class="campo">
+                        <strong>Empresa:</strong>
+                        <span th:text="${configuracao != null ? configuracao.nomeEmpresa : 'Não configurada'}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>CNPJ:</strong>
+                        <span th:text="${configuracao != null ? configuracao.cnpj : 'Não informado'}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Telefone:</strong>
+                        <span th:text="${configuracao != null ? configuracao.telefone : 'Não informado'}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Endereço:</strong>
+                        <span th:text="${configuracao != null ? configuracao.endereco : 'Não informado'}"></span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="secao-documento">
+                <h2>Informações do Relatório</h2>
+
+                <div class="grade-dados">
+                    <div class="campo">
+                        <strong>Período:</strong>
+                        <span th:text="${(inicio != null ? #temporals.format(inicio, 'dd/MM/yyyy') : 'Desde o início dos registros')
+                              + ' a ' +
+                              (fim != null ? #temporals.format(fim, 'dd/MM/yyyy') : 'Até o momento')}">
+                        </span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Vendedor:</strong>
+                        <span th:text="${nomeVendedor != null ? nomeVendedor : 'Todos'}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Data de emissão:</strong>
+                        <span th:text="${#temporals.format(dataEmissao, 'dd/MM/yyyy')}"></span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="secao-documento">
+                <h2>Resumo das Vendas</h2>
+
+                <div class="grade-dados">
+                    <div class="campo">
+                        <strong>Vendas concluídas:</strong>
+                        <span th:text="${totalVendas}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Valor total vendido:</strong>
+                        <span th:text="${#numbers.formatCurrency(valorTotal)}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Ticket médio:</strong>
+                        <span th:text="${#numbers.formatCurrency(ticketMedio)}"></span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="secao-documento">
+                <h2>Vendas Realizadas</h2>
+
+                <table class="tabela-documento">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Veículo</th>
+                            <th>Comprador</th>
+                            <th>Vendedor</th>
+                            <th>Valor</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr th:each="v : ${vendas}">
+                            <td th:text="${v.dataVenda != null ? #temporals.format(v.dataVenda, 'dd/MM/yyyy') : '-'}"></td>
+                            <td th:text="${v.veiculo != null ? v.veiculo.nome : '-'}"></td>
+                            <td th:text="${v.cliente != null ? v.cliente.nome : '-'}"></td>
+                            <td th:text="${v.vendedor != null ? v.vendedor.nome : '-'}"></td>
+                            <td th:text="${v.valor != null ? #numbers.formatCurrency(v.valor) : '-'}"></td>
+                        </tr>
+
+                        <tr th:if="${#lists.isEmpty(vendas)}">
+                            <td colspan="5">Nenhuma venda encontrada para o período selecionado.</td>
+                        </tr>
+                    </tbody>
+
+                    <tfoot th:if="${not #lists.isEmpty(vendas)}">
+                        <tr>
+                            <td colspan="4"><strong>Total vendido</strong></td>
+                            <td>
+                                <strong th:text="${#numbers.formatCurrency(valorTotal)}"></strong>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </section>
+
+            <div class="acoes-documento">
+                <button type="button" onclick="window.print()">
+                    🖨️ Imprimir Relatório
+                </button>
+            </div>
+
+        </div>
+
+    </body>
+</html>

@@ -12,11 +12,26 @@
 
             <h1>👔 Relatório de Vendedores</h1>
 
-            <button type="button"
-                    class="btn-salvar"
-                    onclick="abrirModal('modalFiltrosVendedores')">
-                🔎 Filtrar Relatório
-            </button>
+            <div class="acoes-relatorio">
+
+                <button type="button"
+                        class="btn-salvar"
+                        onclick="abrirModal('modalFiltrosVendedores')">
+                    🔎 Filtrar Relatório
+                </button>
+
+                <a th:href="@{/relatorios/vendedores(
+                   imprimir=true,
+                   inicio=${inicio},
+                   fim=${fim},
+                   vendedorId=${vendedorId}
+                   )}"
+                   target="_blank"
+                   class="btn-salvar btn-imprimir-relatorio">
+                    🖨️ Imprimir Relatório
+                </a>
+
+            </div>
 
             <p th:if="${inicio != null or fim != null or (vendedorId != null and !perfilVendedor)}">
 
@@ -57,7 +72,6 @@
                             <th>Perfil</th>
                             <th>Negociações</th>
                             <th>Em andamento</th>
-                            <th>Concluídas</th>
                             <th>Canceladas</th>
                             <th>Vendas</th>
                             <th>Valor Vendido</th>
@@ -82,10 +96,6 @@
                             </td>
 
                             <td th:text="${item.emAndamento}">
-                                0
-                            </td>
-
-                            <td th:text="${item.concluidas}">
                                 0
                             </td>
 

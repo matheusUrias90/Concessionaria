@@ -1,0 +1,249 @@
+
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+
+    <head>
+        <meta charset="UTF-8">
+        <title>Impressão - Relatório de Estoque</title>
+
+        <link rel="stylesheet" th:href="@{/css/style.css}">
+        <link rel="stylesheet" th:href="@{/css/impressao.css}">
+    </head>
+
+    <body>
+
+        <div class="documento relatorio-estoque-documento">
+
+            <header class="cabecalho-documento">
+                <h1>RELATÓRIO DE ESTOQUE</h1>
+
+                <img th:if="${configuracao != null and configuracao.logo != null}"
+                     th:src="@{'/img/' + ${configuracao.logo}}"
+                     alt="Logo da Empresa"
+                     class="logo-documento">
+            </header>
+
+            <!-- DADOS DA EMPRESA -->
+            <section class="secao-documento">
+                <h2>Dados da Empresa</h2>
+
+                <div class="grade-dados">
+
+                    <div class="campo">
+                        <strong>Empresa:</strong>
+                        <span th:text="${configuracao != null ? configuracao.nomeEmpresa : 'Não configurada'}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>CNPJ:</strong>
+                        <span th:text="${configuracao != null ? configuracao.cnpj : 'Não informado'}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Telefone:</strong>
+                        <span th:text="${configuracao != null ? configuracao.telefone : 'Não informado'}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Endereço:</strong>
+                        <span th:text="${configuracao != null ? configuracao.endereco : 'Não informado'}"></span>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- INFORMAÇÕES -->
+            <section class="secao-documento">
+                <h2>Informações do Relatório</h2>
+
+                <div class="grade-dados">
+
+                    <div class="campo">
+                        <strong>Período analisado:</strong>
+
+                        <span th:text="${inicio == null and fim == null
+                              ? 'Desde o início dos registros até o momento'
+                              : (inicio != null
+                              ? #temporals.format(inicio, 'dd/MM/yyyy')
+                              : 'Desde o início dos registros')
+                              + ' a ' +
+                              (fim != null
+                              ? #temporals.format(fim, 'dd/MM/yyyy')
+                              : 'Até o momento')}">
+                        </span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Data de emissão:</strong>
+                        <span th:text="${#temporals.format(dataEmissao, 'dd/MM/yyyy')}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Busca:</strong>
+                        <span th:text="${busca != null and !busca.isBlank()
+                              ? busca : 'Todos os veículos em estoque'}"></span>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- ESTOQUE ATUAL -->
+            <section class="secao-documento">
+                <h2>Situação Atual do Estoque</h2>
+
+                <div class="grade-dados">
+
+                    <div class="campo">
+                        <strong>Disponíveis:</strong>
+                        <span th:text="${disponiveis}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Reservados:</strong>
+                        <span th:text="${reservados}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Total em estoque:</strong>
+                        <span th:text="${totalEstoque}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Valor anunciado:</strong>
+                        <span th:text="${#numbers.formatCurrency(valorEstoque != null ? valorEstoque : 0)}"></span>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- ANÁLISE COMERCIAL -->
+            <section class="secao-documento">
+                <h2>Análise Comercial</h2>
+
+                <div class="grade-dados">
+
+                    <div class="campo">
+                        <strong>Preço médio de venda:</strong>
+                        <span th:text="${#numbers.formatCurrency(precoMedioVenda)}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Tempo médio até a venda:</strong>
+                        <span th:text="|${#numbers.formatDecimal(tempoMedioVenda, 1, 1)} dias|"></span>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- FAIXAS DE PREÇO -->
+            <section class="secao-documento">
+                <h2>Faixas de Preço com Mais Vendas</h2>
+
+                <table class="tabela-documento tabela-faixas-estoque">
+                    <thead>
+                        <tr>
+                            <th>Faixa de Preço</th>
+                            <th>Quantidade de Vendas</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr th:each="faixa : ${faixasPreco}">
+                            <td th:text="${faixa.key}"></td>
+                            <td th:text="${faixa.value}"></td>
+                        </tr>
+
+                        <tr th:if="${#maps.isEmpty(faixasPreco)}">
+                            <td colspan="2">
+                                Nenhuma venda encontrada no período.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- VEÍCULOS -->
+            <section class="secao-documento">
+                <h2>Veículos em Estoque</h2>
+
+                <table class="tabela-documento tabela-veiculos-estoque">
+
+                    <thead>
+                        <tr>
+                            <th>Veículo</th>
+                            <th>Placa</th>
+                            <th>Situação</th>
+                            <th>Entrada</th>
+                            <th>Dias em Estoque</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        <tr th:each="v : ${veiculos}">
+
+                            <td th:text="${v.nome + ' (' + v.ano + ')'}"></td>
+
+                            <td th:text="${v.placa}"></td>
+
+                            <td th:text="${v.status == T(br.com.urias.cadastro_veiculos.model.StatusVeiculo).DISPONIVEL
+                                ? 'Disponível' : 'Reservado'}"></td>
+
+                            <td th:text="${v.dataEntrada != null
+                                ? #temporals.format(v.dataEntrada, 'dd/MM/yyyy')
+                                : 'Não informada'}"></td>
+
+                            <td th:text="${diasEstoque.containsKey(v.id)
+                                ? diasEstoque.get(v.id) + ' dias'
+                                : 'Não informado'}"></td>
+
+                        </tr>
+
+                        <tr th:if="${#lists.isEmpty(veiculos)}">
+                            <td colspan="5">
+                                Nenhum veículo encontrado.
+                            </td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- OBSERVAÇÕES -->
+            <section class="secao-documento">
+                <h2>Observações</h2>
+
+                <p>
+                    <strong>Estoque:</strong>
+                    apresenta os veículos disponíveis e reservados
+                    na data de emissão do relatório.
+                </p>
+
+                <p>
+                    <strong>Período:</strong>
+                    utilizado exclusivamente para os indicadores
+                    de análise comercial e faixas de preço.
+                </p>
+
+                <p>
+                    <strong>Valor anunciado:</strong>
+                    soma dos preços dos veículos disponíveis e reservados.
+                </p>
+
+                <p>
+                    <strong>Busca:</strong>
+                    quando informada, filtra a relação de veículos,
+                    sem alterar os indicadores gerais do estoque.
+                </p>
+            </section>
+
+            <div class="acoes-documento">
+                <button type="button" onclick="window.print()">
+                    🖨️ Imprimir Relatório
+                </button>
+            </div>
+
+        </div>
+
+    </body>
+</html>

@@ -6,6 +6,7 @@ import br.com.urias.cadastro_veiculos.model.Venda;
 import br.com.urias.cadastro_veiculos.model.Usuario;
 import br.com.urias.cadastro_veiculos.repository.VeiculoRepository;
 import br.com.urias.cadastro_veiculos.repository.VendaRepository;
+import br.com.urias.cadastro_veiculos.repository.ConfiguracaoConcessionariaRepository;
 
 import jakarta.servlet.http.HttpSession;
 import java.time.LocalDate;
@@ -36,13 +37,16 @@ public class RelatorioEstoqueController {
 
     private final VeiculoRepository veiculoRepository;
     private final VendaRepository vendaRepository;
+    private final ConfiguracaoConcessionariaRepository configuracaoRepository;
 
     public RelatorioEstoqueController(
             VeiculoRepository veiculoRepository,
-            VendaRepository vendaRepository) {
+            VendaRepository vendaRepository,
+            ConfiguracaoConcessionariaRepository configuracaoRepository) {
 
         this.veiculoRepository = veiculoRepository;
         this.vendaRepository = vendaRepository;
+        this.configuracaoRepository = configuracaoRepository;
     }
 
     @GetMapping
@@ -51,6 +55,7 @@ public class RelatorioEstoqueController {
             @RequestParam(required = false) LocalDate fim,
             @RequestParam(defaultValue = "") String busca,
             @RequestParam(defaultValue = "0") int pagina,
+            @RequestParam(defaultValue = "false") boolean imprimir,
             HttpSession session,
             Model model,
             RedirectAttributes redirectAttributes) {
@@ -107,7 +112,19 @@ public class RelatorioEstoqueController {
                         pageable
                 );
 
-        List<Veiculo> veiculos = paginaVeiculos.getContent();
+        List<Veiculo> veiculos;
+
+        if (imprimir) {
+
+            veiculos = veiculoRepository.buscarEstoqueRelatorio(
+                    busca.trim(),
+                    Pageable.unpaged(pageable.getSort())
+            ).getContent();
+
+        } else {
+
+            veiculos = paginaVeiculos.getContent();
+        }
 
         Map<Long, Long> diasEstoque = new java.util.HashMap<>();
 
@@ -185,6 +202,18 @@ public class RelatorioEstoqueController {
         model.addAttribute("fim", fim);
 
         model.addAttribute("paginaAtiva", "relatorioEstoque");
+        
+        if (imprimir) {
+
+            model.addAttribute(
+                    "configuracao",
+                    configuracaoRepository.findById(1L).orElse(null)
+            );
+
+            model.addAttribute("dataEmissao", LocalDate.now());
+
+            return "relatorios/impressao-estoque";
+        }
 
         return "relatorios/estoque";
     }

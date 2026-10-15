@@ -1,4 +1,3 @@
-
 package br.com.urias.cadastro_veiculos.controller;
 
 import br.com.urias.cadastro_veiculos.model.PagamentoRepasse;
@@ -8,6 +7,7 @@ import br.com.urias.cadastro_veiculos.model.Venda;
 import br.com.urias.cadastro_veiculos.repository.PagamentoRepasseRepository;
 import br.com.urias.cadastro_veiculos.repository.RepasseRepository;
 import br.com.urias.cadastro_veiculos.repository.VendaRepository;
+import br.com.urias.cadastro_veiculos.repository.ConfiguracaoConcessionariaRepository;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -37,27 +37,27 @@ public class RelatorioRepassesController {
     private final RepasseRepository repasseRepository;
     private final PagamentoRepasseRepository pagamentoRepasseRepository;
     private final VendaRepository vendaRepository;
+    private final ConfiguracaoConcessionariaRepository configuracaoRepository;
 
     public RelatorioRepassesController(
             RepasseRepository repasseRepository,
             PagamentoRepasseRepository pagamentoRepasseRepository,
-            VendaRepository vendaRepository) {
+            VendaRepository vendaRepository,
+            ConfiguracaoConcessionariaRepository configuracaoRepository) {
 
         this.repasseRepository = repasseRepository;
         this.pagamentoRepasseRepository = pagamentoRepasseRepository;
         this.vendaRepository = vendaRepository;
+        this.configuracaoRepository = configuracaoRepository;
     }
 
     @GetMapping
     public String relatorio(
             @RequestParam(required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-            LocalDate inicio,
-
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
             @RequestParam(required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-            LocalDate fim,
-
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fim,
+            @RequestParam(defaultValue = "false") boolean imprimir,
             HttpSession session,
             Model model,
             RedirectAttributes redirectAttributes) {
@@ -97,8 +97,8 @@ public class RelatorioRepassesController {
         // Indexa os pagamentos por repasse.
         Map<Long, Double> totalPagoPorRepasse = new HashMap<>();
 
-        List<PagamentoRepasse> pagamentos =
-                pagamentoRepasseRepository.findAll();
+        List<PagamentoRepasse> pagamentos
+                = pagamentoRepasseRepository.findAll();
 
         for (PagamentoRepasse pagamento : pagamentos) {
 
@@ -110,6 +110,8 @@ public class RelatorioRepassesController {
                     Double::sum
             );
         }
+
+        List<Map<String, Object>> detalhesRepasses = new ArrayList<>();
 
         double totalDevido = 0.0;
         double totalPago = 0.0;
@@ -172,6 +174,28 @@ public class RelatorioRepassesController {
             } else {
                 pendentes++;
             }
+
+            String status;
+
+            if (saldo <= 0.001) {
+                status = "Quitado";
+            } else if (valorPago > 0.001) {
+                status = "Parcial";
+            } else {
+                status = "Pendente";
+            }
+
+            Map<String, Object> detalhe = new HashMap<>();
+
+            detalhe.put("dataVenda", dataVenda);
+            detalhe.put("veiculo", venda.getVeiculo().getNome());
+            detalhe.put("proprietario", venda.getVeiculo().getNomeProprietario());
+            detalhe.put("valorDevido", valorDevido);
+            detalhe.put("valorPago", valorPago);
+            detalhe.put("saldo", saldo);
+            detalhe.put("status", status);
+
+            detalhesRepasses.add(detalhe);
         }
 
         // Gráfico mensal: utiliza a data de cada pagamento,
@@ -203,8 +227,8 @@ public class RelatorioRepassesController {
             );
         }
 
-        DateTimeFormatter formatoMes =
-                DateTimeFormatter.ofPattern("MM/yyyy");
+        DateTimeFormatter formatoMes
+                = DateTimeFormatter.ofPattern("MM/yyyy");
 
         List<String> meses = new ArrayList<>();
         List<Double> valoresMensais = new ArrayList<>();
@@ -229,7 +253,29 @@ public class RelatorioRepassesController {
         model.addAttribute("inicio", inicio);
         model.addAttribute("fim", fim);
 
-        model.addAttribute("paginaAtiva", "relatorioRepasses");
+        model.addAttribute("paginaAtevido\", totalDevido);\n"
+                + "        model.addAttribute(\"totalPago\", totalPago);\n"
+                + "        model.addAttribute(\"saldoPendente\", saldoPendente);\n"
+                + "iva", "relatorioRepasses");
+
+        if (imprimir) {
+
+            detalhesRepasses.sort((a, b)
+                    -> ((LocalDate) b.get("dataVenda"))
+                            .compareTo((LocalDate) a.get("dataVenda"))
+            );
+
+            model.addAttribute("detalhesRepasses", detalhesRepasses);
+
+            model.addAttribute(
+                    "configuracao",
+                    configuracaoRepository.findById(1L).orElse(null)
+            );
+
+            model.addAttribute("dataEmissao", LocalDate.now());
+
+            return "relatorios/impressao-repasses";
+        }
 
         return "relatorios/repasses";
     }

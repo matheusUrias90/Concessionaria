@@ -1,0 +1,217 @@
+
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+
+    <head>
+        <meta charset="UTF-8">
+        <title>Impressão - Relatório de Repasses</title>
+
+        <link rel="stylesheet" th:href="@{/css/style.css}">
+        <link rel="stylesheet" th:href="@{/css/impressao.css}">
+    </head>
+
+    <body>
+
+        <div class="documento relatorio-repasses-documento">
+
+            <header class="cabecalho-documento">
+                <h1>RELATÓRIO DE REPASSES</h1>
+
+                <img th:if="${configuracao != null and configuracao.logo != null}"
+                     th:src="@{'/img/' + ${configuracao.logo}}"
+                     alt="Logo da Empresa"
+                     class="logo-documento">
+            </header>
+
+            <!-- DADOS DA EMPRESA -->
+            <section class="secao-documento">
+                <h2>Dados da Empresa</h2>
+
+                <div class="grade-dados">
+
+                    <div class="campo">
+                        <strong>Empresa:</strong>
+                        <span th:text="${configuracao != null ? configuracao.nomeEmpresa : 'Não configurada'}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>CNPJ:</strong>
+                        <span th:text="${configuracao != null ? configuracao.cnpj : 'Não informado'}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Telefone:</strong>
+                        <span th:text="${configuracao != null ? configuracao.telefone : 'Não informado'}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Endereço:</strong>
+                        <span th:text="${configuracao != null ? configuracao.endereco : 'Não informado'}"></span>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- INFORMAÇÕES -->
+            <section class="secao-documento">
+                <h2>Informações do Relatório</h2>
+
+                <div class="grade-dados">
+
+                    <div class="campo">
+                        <strong>Período:</strong>
+
+                        <span th:text="${inicio == null and fim == null
+                              ? 'Desde o início dos registros até o momento'
+                              : (inicio != null
+                              ? #temporals.format(inicio, 'dd/MM/yyyy')
+                              : 'Desde o início dos registros')
+                              + ' a ' +
+                              (fim != null
+                              ? #temporals.format(fim, 'dd/MM/yyyy')
+                              : 'Até o momento')}">
+                        </span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Data de emissão:</strong>
+                        <span th:text="${#temporals.format(dataEmissao, 'dd/MM/yyyy')}"></span>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- RESUMO FINANCEIRO -->
+            <section class="secao-documento">
+                <h2>Resumo Financeiro</h2>
+
+                <div class="grade-dados">
+
+                    <div class="campo">
+                        <strong>Total devido:</strong>
+                        <span th:text="${#numbers.formatCurrency(totalDevido)}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Total pago:</strong>
+                        <span th:text="${#numbers.formatCurrency(totalPago)}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Saldo a repassar:</strong>
+                        <span th:text="${#numbers.formatCurrency(saldoPendente)}"></span>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- SITUAÇÃO -->
+            <section class="secao-documento">
+                <h2>Situação dos Repasses</h2>
+
+                <div class="grade-dados">
+
+                    <div class="campo">
+                        <strong>Pendentes:</strong>
+                        <span th:text="${pendentes}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Parciais:</strong>
+                        <span th:text="${parciais}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Quitados:</strong>
+                        <span th:text="${quitados}"></span>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- TABELA -->
+            <section class="secao-documento">
+                <h2>Detalhamento dos Repasses</h2>
+
+                <table class="tabela-documento">
+
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Veículo</th>
+                            <th>Proprietário</th>
+                            <th>Devido</th>
+                            <th>Pago</th>
+                            <th>Saldo</th>
+                            <th>Situação</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        <tr th:each="item : ${detalhesRepasses}">
+
+                            <td th:text="${#temporals.format(item.dataVenda, 'dd/MM/yyyy')}"></td>
+
+                            <td th:text="${item.veiculo}"></td>
+
+                            <td th:text="${item.proprietario}"></td>
+
+                            <td th:text="${#numbers.formatCurrency(item.valorDevido)}"></td>
+
+                            <td th:text="${#numbers.formatCurrency(item.valorPago)}"></td>
+
+                            <td th:text="${#numbers.formatCurrency(item.saldo)}"></td>
+
+                            <td th:text="${item.status}"></td>
+
+                        </tr>
+
+                        <tr th:if="${#lists.isEmpty(detalhesRepasses)}">
+                            <td colspan="7">
+                                Nenhum repasse encontrado para os filtros informados.
+                            </td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+            </section>
+
+            <!-- OBSERVAÇÕES -->
+            <section class="secao-documento">
+                <h2>Observações</h2>
+
+                <p>
+                    <strong>Total devido:</strong>
+                    valor destinado aos proprietários dos veículos vendidos,
+                    incluindo vendas que ainda aguardam o início do repasse.
+                </p>
+
+                <p>
+                    <strong>Total pago:</strong>
+                    soma dos pagamentos registrados nos repasses
+                    das vendas selecionadas.
+                </p>
+
+                <p>
+                    <strong>Saldo a repassar:</strong>
+                    valor que ainda precisa ser pago aos proprietários.
+                </p>
+
+                <p>
+                    <strong>Período:</strong>
+                    os indicadores e a tabela consideram a data da venda.
+                </p>
+            </section>
+
+            <div class="acoes-documento">
+                <button type="button" onclick="window.print()">
+                    🖨️ Imprimir Relatório
+                </button>
+            </div>
+
+        </div>
+
+    </body>
+</html>

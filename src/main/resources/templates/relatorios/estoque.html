@@ -12,12 +12,27 @@
 
             <h1>🚗 Relatório de Estoque</h1>
 
-            <!-- FILTROS -->
-            <button type="button"
-                    class="btn-salvar"
-                    onclick="abrirModal('modalFiltrosEstoque')">
-                🔎 Filtrar Período
-            </button>
+            <div class="acoes-relatorio">
+
+                <button type="button"
+                        class="btn-salvar"
+                        onclick="abrirModal('modalFiltrosEstoque')">
+                    🔎 Filtrar Período
+                </button>
+
+                <a id="btnImprimirEstoque"
+                   th:href="@{/relatorios/estoque(
+                   imprimir=true,
+                   inicio=${inicio},
+                   fim=${fim},
+                   busca=${busca}
+                   )}"
+                   target="_blank"
+                   class="btn-salvar btn-imprimir-relatorio">
+                    🖨️ Imprimir Relatório
+                </a>
+
+            </div>
 
             <p th:if="${inicio != null or fim != null}">
                 <strong>Período analisado:</strong>
@@ -450,6 +465,21 @@
 
                 buscarEstoque(pagina);
             }
+
+            document.getElementById("btnImprimirEstoque")
+                    .addEventListener("click", function (event) {
+
+                        event.preventDefault();
+
+                        const url = new URL(this.href);
+
+                        url.searchParams.set(
+                                "busca",
+                                document.getElementById("campoBuscaEstoque").value.trim()
+                                );
+
+                        window.open(url.toString(), "_blank");
+                    });
         </script>
 
     </body>

@@ -1,0 +1,204 @@
+
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+
+    <head>
+        <meta charset="UTF-8">
+        <title>Impressão - Relatório de Negociações</title>
+
+        <link rel="stylesheet" th:href="@{/css/style.css}">
+        <link rel="stylesheet" th:href="@{/css/impressao.css}">
+    </head>
+
+    <body>
+
+        <div class="documento relatorio-negociacoes-documento">
+
+            <header class="cabecalho-documento">
+                <h1>RELATÓRIO DE NEGOCIAÇÕES</h1>
+
+                <img th:if="${configuracao != null and configuracao.logo != null}"
+                     th:src="@{'/img/' + ${configuracao.logo}}"
+                     alt="Logo da Empresa"
+                     class="logo-documento">
+            </header>
+
+            <!-- DADOS DA EMPRESA -->
+            <section class="secao-documento">
+                <h2>Dados da Empresa</h2>
+
+                <div class="grade-dados">
+
+                    <div class="campo">
+                        <strong>Empresa:</strong>
+                        <span th:text="${configuracao != null ? configuracao.nomeEmpresa : 'Não configurada'}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>CNPJ:</strong>
+                        <span th:text="${configuracao != null ? configuracao.cnpj : 'Não informado'}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Telefone:</strong>
+                        <span th:text="${configuracao != null ? configuracao.telefone : 'Não informado'}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Endereço:</strong>
+                        <span th:text="${configuracao != null ? configuracao.endereco : 'Não informado'}"></span>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- INFORMAÇÕES DO RELATÓRIO -->
+            <section class="secao-documento">
+                <h2>Informações do Relatório</h2>
+
+                <div class="grade-dados">
+
+                    <div class="campo">
+                        <strong>Período:</strong>
+                        <span th:text="${(inicio != null ? #temporals.format(inicio, 'dd/MM/yyyy') : 'Desde o início dos registros')
+                              + ' a ' +
+                              (fim != null ? #temporals.format(fim, 'dd/MM/yyyy') : 'até o momento')}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Vendedor:</strong>
+                        <span th:text="${nomeVendedor}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Data de emissão:</strong>
+                        <span th:text="${#temporals.format(dataEmissao, 'dd/MM/yyyy')}"></span>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- INDICADORES -->
+            <section class="secao-documento">
+                <h2>Resumo das Negociações</h2>
+
+                <div class="grade-dados">
+
+                    <div class="campo">
+                        <strong>Total de negociações:</strong>
+                        <span th:text="${totalNegociacoes}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Em andamento:</strong>
+                        <span th:text="${emAndamento}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Concluídas:</strong>
+                        <span th:text="${concluidas}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Canceladas:</strong>
+                        <span th:text="${canceladas}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Valor potencial:</strong>
+                        <span th:text="${#numbers.formatCurrency(valorPotencial)}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <strong>Taxa de conversão:</strong>
+                        <span th:text="${#numbers.formatDecimal(taxaConversao, 1, 'POINT', 2, 'COMMA') + '%'}"></span>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- TABELA -->
+            <section class="secao-documento">
+                <h2>Negociações Registradas</h2>
+
+                <table class="tabela-documento">
+
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Comprador</th>
+                            <th>Veículo</th>
+                            <th>Vendedor</th>
+                            <th>Status</th>
+                            <th>Valor proposto</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        <tr th:each="n : ${negociacoes}">
+
+                            <td th:text="${n.dataInicio != null
+                                ? #temporals.format(n.dataInicio, 'dd/MM/yyyy')
+                                : '-'}"></td>
+
+                            <td th:text="${n.cliente != null ? n.cliente.nome : '-'}"></td>
+
+                            <td th:text="${n.veiculo != null ? n.veiculo.nome : '-'}"></td>
+
+                            <td th:text="${n.vendedor != null ? n.vendedor.nome : '-'}"></td>
+
+                            <td th:text="${n.status != null
+                                ? (n.status.name() == 'EM_ANDAMENTO' ? 'Em andamento'
+                                : (n.status.name() == 'CONCLUIDA' ? 'Concluída' : 'Cancelada'))
+                                : '-'}"></td>
+
+                            <td th:text="${n.valorProposto != null
+                                ? #numbers.formatCurrency(n.valorProposto)
+                                : '-'}"></td>
+
+                        </tr>
+
+                        <tr th:if="${#lists.isEmpty(negociacoes)}">
+                            <td colspan="6">
+                                Nenhuma negociação encontrada para os filtros informados.
+                            </td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+            </section>
+
+            <!-- OBSERVAÇÕES -->
+            <section class="secao-documento">
+                <h2>Observações</h2>
+
+                <p>
+                    <strong>Valor potencial:</strong>
+                    soma dos valores propostos das negociações em andamento,
+                    incluindo a comissão da concessionária.
+                </p>
+
+                <p>
+                    <strong>Taxa de conversão:</strong>
+                    percentual de negociações concluídas entre aquelas
+                    que já foram concluídas ou canceladas.
+                </p>
+
+                <p>
+                    <strong>Período:</strong>
+                    os filtros consideram a data de início das negociações.
+                </p>
+            </section>
+
+            <div class="acoes-documento">
+                <button type="button" onclick="window.print()">
+                    🖨️ Imprimir Relatório
+                </button>
+            </div>
+
+        </div>
+
+    </body>
+</html>
