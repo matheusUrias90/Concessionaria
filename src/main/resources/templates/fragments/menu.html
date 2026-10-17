@@ -1,9 +1,11 @@
+
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
     <body>
 
         <div th:fragment="menu">
 
+            <!-- BOTÃO MOBILE -->
             <button type="button"
                     class="menu-mobile-botao"
                     onclick="alternarMenu()">
@@ -16,10 +18,12 @@
 
             <aside class="menu-lateral">
 
+                <!-- CABEÇALHO -->
                 <div class="menu-cabecalho">
                     <h2>🚗 Urias Veiculos</h2>
                 </div>
 
+                <!-- USUÁRIO LOGADO -->
                 <div class="menu-usuario"
                      th:if="${session.usuarioLogado != null}">
 
@@ -64,14 +68,18 @@
 
                 </div>
 
-                <nav class="menu-links">
+                <!-- NAVEGAÇÃO -->
+                <nav class="menu-links"
+                     th:if="${session.usuarioLogado != null}">
 
+                    <!-- GERENCIAMENTO -->
                     <span class="menu-titulo">
                         GERENCIAMENTO
                     </span>
 
                     <!-- DASHBOARD ADMIN -->
-                    <a th:if="${session.usuarioLogado.perfil == 'DONO' or session.usuarioLogado.perfil == 'GERENTE'}"
+                    <a th:if="${session.usuarioLogado.perfil == 'DONO'
+                       or session.usuarioLogado.perfil == 'GERENTE'}"
                        th:href="@{/admin}"
                        class="menu-link"
                        th:classappend="${paginaAtiva == 'admin'} ? ' ativo'">
@@ -92,6 +100,7 @@
 
                     </a>
 
+                    <!-- VEÍCULOS -->
                     <a th:href="@{/veiculos}"
                        class="menu-link"
                        th:classappend="${paginaAtiva == 'veiculos'} ? ' ativo'">
@@ -101,6 +110,7 @@
 
                     </a>
 
+                    <!-- COMPRADORES -->
                     <a th:href="@{/compradores}"
                        class="menu-link"
                        th:classappend="${paginaAtiva == 'compradores'} ? ' ativo'">
@@ -110,6 +120,7 @@
 
                     </a>
 
+                    <!-- NEGOCIAÇÕES -->
                     <a th:href="@{/negociacoes}"
                        class="menu-link"
                        th:classappend="${paginaAtiva == 'negociacoes'} ? ' ativo'">
@@ -119,6 +130,7 @@
 
                     </a>
 
+                    <!-- NOTIFICAÇÕES -->
                     <a th:href="@{/notificacoes}"
                        class="menu-link"
                        th:classappend="${paginaAtiva == 'notificacoes'} ? ' ativo'">
@@ -127,16 +139,18 @@
                         Notificações
 
                         <span class="badge-notificacao"
-                              th:if="${notificacoesNaoLidas != null and notificacoesNaoLidas > 0}"
+                              th:if="${notificacoesNaoLidas != null
+                              and notificacoesNaoLidas > 0}"
                               th:text="${notificacoesNaoLidas}">
                             1
                         </span>
 
                     </a>
 
-                    <!-- ADMINISTRAÇÃO -->
+                    <!-- ADMINISTRAÇÃO: DONO E GERENTE -->
                     <div class="menu-grupo"
-                         th:if="${session.usuarioLogado.perfil == 'DONO' or session.usuarioLogado.perfil == 'GERENTE'}">
+                         th:if="${session.usuarioLogado.perfil == 'DONO'
+                         or session.usuarioLogado.perfil == 'GERENTE'}">
 
                         <span class="menu-titulo">
                             ADMINISTRAÇÃO
@@ -151,95 +165,122 @@
 
                         </a>
 
-
-                        <!-- FINANCEIRO -->
-                        <div class="menu-grupo"
-                             th:if="${session.usuarioLogado.perfil == 'DONO' or session.usuarioLogado.perfil == 'GERENTE'}">
-
-                            <span class="menu-titulo">
-                                FINANCEIRO
-                            </span>
-
-                            <a th:href="@{/admin/vendas}"
-                               class="menu-link"
-                               th:classappend="${paginaAtiva == 'vendas'} ? ' ativo'">
-
-                                <span>💰</span>
-                                Vendas
-
-                            </a>
-
-                            <a th:href="@{/repasses}"
-                               class="menu-link"
-                               th:classappend="${paginaAtiva == 'repasses'} ? ' ativo'">
-
-                                <span>💸</span>
-                                Repasses
-
-                            </a>
-
-                        </div>      
+                    </div>
+                    <!-- FIM ADMINISTRAÇÃO -->
 
 
-                        <!-- RELATÓRIOS -->
-                        <div class="menu-grupo">
+                    <!-- FINANCEIRO: DONO E GERENTE -->
+                    <div class="menu-grupo"
+                         th:if="${session.usuarioLogado.perfil == 'DONO'
+                         or session.usuarioLogado.perfil == 'GERENTE'}">
 
-                            <span class="menu-titulo">
-                                RELATÓRIOS
-                            </span>
+                        <span class="menu-titulo">
+                            FINANCEIRO
+                        </span>
 
-                            <div class="menu-relatorios">
+                        <a th:href="@{/admin/vendas}"
+                           class="menu-link"
+                           th:classappend="${paginaAtiva == 'vendas'} ? ' ativo'">
 
-                                <button type="button"
-                                        class="menu-link relatorios-botao"
-                                        onclick="alternarRelatorios()">
+                            <span>💰</span>
+                            Vendas
 
-                                    <span>📊</span>
-                                    Relatórios
-                                    <span class="seta">▼</span>
+                        </a>
 
-                                </button>
+                        <a th:href="@{/repasses}"
+                           class="menu-link"
+                           th:classappend="${paginaAtiva == 'repasses'} ? ' ativo'">
 
-                                <div class="submenu-relatorios">
+                            <span>💸</span>
+                            Repasses
 
-                                    <a th:href="@{/relatorios/vendas}"
-                                       th:classappend="${paginaAtiva == 'relatorioVendas'} ? ' ativo'">
-                                        💰 Vendas
-                                    </a>
+                        </a>
 
-                                    <a th:href="@{/relatorios/vendedores}"
-                                       th:classappend="${paginaAtiva == 'relatorioVendedores'} ? ' ativo'">
-                                        👔 Vendedores
-                                    </a>
+                    </div>
+                    <!-- FIM FINANCEIRO -->
 
-                                    <a th:href="@{/relatorios/negociacoes}"
-                                       th:classappend="${paginaAtiva == 'relatorioNegociacoes'} ? ' ativo'">
-                                        🤝 Negociações
-                                    </a>
 
-                                    <a th:if="${session.usuarioLogado.perfil == 'DONO'
-                                       or session.usuarioLogado.perfil == 'GERENTE'}"
-                                       th:classappend="${paginaAtiva == 'relatorioEstoque'} ? ' ativo'"
-                                       th:href="@{/relatorios/estoque}">
-                                        🚗 Estoque
-                                    </a>
+                    <!-- RELATÓRIOS: TODOS OS PERFIS -->
+                    <div class="menu-grupo">
 
-                                    <a th:if="${session.usuarioLogado.perfil == 'DONO' or session.usuarioLogado.perfil == 'GERENTE'}"
-                                       th:href="@{/relatorios/repasses}"
-                                       th:classappend="${paginaAtiva == 'relatorioRepasses'} ? ' ativo'">
-                                        💸 Repasses
-                                    </a>
-                                </div>
+                        <span class="menu-titulo">
+                            RELATÓRIOS
+                        </span>
+
+                        <div class="menu-relatorios">
+
+                            <button type="button"
+                                    class="menu-link relatorios-botao"
+                                    onclick="alternarRelatorios()">
+
+                                <span>📊</span>
+                                Relatórios
+                                <span class="seta">▼</span>
+
+                            </button>
+
+                            <div class="submenu-relatorios">
+
+                                <!-- VENDAS -->
+                                <a th:href="@{/relatorios/vendas}"
+                                   th:classappend="${paginaAtiva == 'relatorioVendas'} ? ' ativo'">
+
+                                    💰 <span th:text="${session.usuarioLogado.perfil == 'VENDEDOR'
+                                             ? 'Minhas Vendas' : 'Vendas'}"></span>
+
+                                </a>
+
+                                <!-- VENDEDORES -->
+                                <a th:href="@{/relatorios/vendedores}"
+                                   th:classappend="${paginaAtiva == 'relatorioVendedores'} ? ' ativo'">
+
+                                    👔 <span th:text="${session.usuarioLogado.perfil == 'VENDEDOR'
+                                             ? 'Meu Desempenho' : 'Vendedores'}"></span>
+
+                                </a>
+
+                                <!-- NEGOCIAÇÕES -->
+                                <a th:href="@{/relatorios/negociacoes}"
+                                   th:classappend="${paginaAtiva == 'relatorioNegociacoes'} ? ' ativo'">
+
+                                    🤝 <span th:text="${session.usuarioLogado.perfil == 'VENDEDOR'
+                                             ? 'Minhas Negociações' : 'Negociações'}"></span>
+
+                                </a>
+
+
+                                <!-- ESTOQUE: DONO E GERENTE -->
+                                <a th:if="${session.usuarioLogado.perfil == 'DONO'
+                                   or session.usuarioLogado.perfil == 'GERENTE'}"
+                                   th:href="@{/relatorios/estoque}"
+                                   th:classappend="${paginaAtiva == 'relatorioEstoque'} ? ' ativo'">
+                                    🚗 Estoque
+                                </a>
+
+                                <!-- REPASSES: DONO E GERENTE -->
+                                <a th:if="${session.usuarioLogado.perfil == 'DONO'
+                                   or session.usuarioLogado.perfil == 'GERENTE'}"
+                                   th:href="@{/relatorios/repasses}"
+                                   th:classappend="${paginaAtiva == 'relatorioRepasses'} ? ' ativo'">
+                                    💸 Repasses
+                                </a>
 
                             </div>
 
                         </div>
 
+                    </div>
+                    <!-- FIM RELATÓRIOS -->
+
                 </nav>
+
             </aside>
 
+            <!-- JAVASCRIPT -->
             <script>
+
                 function alternarMenu() {
+
                     const menu = document.querySelector('.menu-lateral');
                     const overlay = document.querySelector('.menu-overlay');
 
@@ -251,12 +292,17 @@
                 }
 
                 function alternarRelatorios() {
+
                     const submenu = document.querySelector('.submenu-relatorios');
 
-                    submenu.classList.toggle('aberto');
+                    if (submenu) {
+                        submenu.classList.toggle('aberto');
+                    }
                 }
+
             </script>
 
         </div>
+
     </body>
 </html>

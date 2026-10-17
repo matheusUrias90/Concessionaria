@@ -4,7 +4,10 @@
 
     <head>
         <meta charset="UTF-8">
-        <title>Impressão - Relatório de Negociações</title>
+        <title th:text="${perfilVendedor
+               ? 'Impressão - Minhas Negociações'
+               : 'Impressão - Relatório de Negociações'}">
+        </title>
 
         <link rel="stylesheet" th:href="@{/css/style.css}">
         <link rel="stylesheet" th:href="@{/css/impressao.css}">
@@ -15,7 +18,10 @@
         <div class="documento relatorio-negociacoes-documento">
 
             <header class="cabecalho-documento">
-                <h1>RELATÓRIO DE NEGOCIAÇÕES</h1>
+                <h1 th:text="${perfilVendedor
+                    ? 'MINHAS NEGOCIAÇÕES'
+                    : 'RELATÓRIO DE NEGOCIAÇÕES'}">
+                </h1>
 
                 <img th:if="${configuracao != null and configuracao.logo != null}"
                      th:src="@{'/img/' + ${configuracao.logo}}"
@@ -80,7 +86,10 @@
 
             <!-- INDICADORES -->
             <section class="secao-documento">
-                <h2>Resumo das Negociações</h2>
+                <h2 th:text="${perfilVendedor
+                    ? 'Resumo das Minhas Negociações'
+                    : 'Resumo das Negociações'}">
+                </h2>
 
                 <div class="grade-dados">
 
@@ -119,7 +128,10 @@
 
             <!-- TABELA -->
             <section class="secao-documento">
-                <h2>Negociações Registradas</h2>
+                <h2 th:text="${perfilVendedor
+                    ? 'Minhas Negociações Registradas'
+                    : 'Negociações Registradas'}">
+                </h2>
 
                 <table class="tabela-documento">
 
@@ -194,7 +206,11 @@
 
             <div class="acoes-documento">
                 <button type="button" onclick="window.print()">
-                    🖨️ Imprimir Relatório
+
+                    🖨️ <span th:text="${perfilVendedor
+                              ? 'Imprimir Minhas Negociações'
+                              : 'Imprimir Relatório'}"></span>
+
                 </button>
             </div>
 

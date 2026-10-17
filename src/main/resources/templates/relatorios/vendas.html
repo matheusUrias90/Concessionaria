@@ -2,7 +2,10 @@
 <!DOCTYPE html>
 <html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
 
-<head th:replace="~{fragments/head :: head('Relatório de Vendas')}"></head>
+    <head th:replace="~{fragments/head :: head(
+          session.usuarioLogado.perfil == 'VENDEDOR'
+          ? 'Minhas Vendas'
+          : 'Relatório de Vendas')}"></head>
 
 <body class="pagina-com-menu">
 
@@ -10,7 +13,11 @@
 
     <div class="container">
 
-        <h1>📊 Relatório de Vendas</h1>
+        <h1>
+            📊 <span th:text="${perfilVendedor
+                     ? 'Minhas Vendas'
+                     : 'Relatório de Vendas'}"></span>
+        </h1>
 
         <div class="acoes-relatorio">
 
@@ -27,7 +34,9 @@
                )}"
                target="_blank"
                class="btn-salvar btn-imprimir-relatorio">
-                🖨️ Imprimir Relatório
+                🖨️ <span th:text="${perfilVendedor
+                          ? 'Imprimir Minhas Vendas'
+                          : 'Imprimir Relatório'}"></span>
             </a>
 
         </div>
@@ -73,7 +82,11 @@
         </div>
         
         <!-- Tabela de vendas -->
-        <h2>📋 Vendas Realizadas</h2>
+        <h2>
+            📋 <span th:text="${perfilVendedor
+                     ? 'Minhas Vendas Realizadas'
+                     : 'Vendas Realizadas'}"></span>
+        </h2>
 
         <div class="tabela-container">
             <table class="tabela">

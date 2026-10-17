@@ -17,12 +17,12 @@
         </div>
 
         <div class="aviso-pendente">
-            Informe o preço de venda de cada veículo recebido antes de
-            concluir a negociação.
+            Informe o preço de venda de cada veículo recebido e seus 
+            itens de checklist antes de concluir a negociação.
         </div>
 
         <form th:action="@{/negociacoes/{id}/veiculos-entrada/cadastrar(
-                         id=${negociacao.id})}"
+              id=${negociacao.id})}"
               th:object="${conclusao}"
               method="post"
               class="card-form">
@@ -88,9 +88,41 @@
                                    placeholder="Informe o preço para o estoque"
                                    required>
 
-                        </div>
+                        </div>                       
 
                     </div>
+                    
+                    <div class="campo campo-largura-total">
+
+                            <h3>☑️ Checklist de Recebimento</h3>
+
+                            <label th:for="|itemChecklist${iteracao.index}|">
+                                Item
+                            </label>
+
+                            <input type="text"
+                                   th:id="|itemChecklist${iteracao.index}|"
+                                   placeholder="Ex.: Chave reserva">
+
+                            <button type="button"
+                                    class="btn-salvar"
+                                    th:attr="onclick=|adicionarChecklistEntrada(${iteracao.index})|">
+                                ➕ Adicionar Item
+                            </button>
+
+                            <table class="tabela-checklist">
+                                <thead>
+                                    <tr>
+                                        <th>Item</th>
+                                        <th>Ação</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody th:id="|itensChecklist${iteracao.index}|">
+                                </tbody>
+                            </table>
+
+                        </div>
 
                 </section>
 
@@ -103,6 +135,59 @@
         </form>
 
     </main>
+
+    <script>
+        function adicionarChecklistEntrada(indice) {
+
+            const input = document.getElementById(
+                    "itemChecklist" + indice
+                    );
+
+            const descricao = input.value.trim();
+
+            if (descricao === "") {
+                return;
+            }
+
+            const tabela = document.getElementById(
+                    "itensChecklist" + indice
+                    );
+
+            const linha = document.createElement("tr");
+
+            const colunaDescricao = document.createElement("td");
+            colunaDescricao.textContent = descricao;
+
+            const campoOculto = document.createElement("input");
+            campoOculto.type = "hidden";
+            campoOculto.name =
+                    "veiculosEntrada[" + indice + "].itensChecklist";
+            campoOculto.value = descricao;
+
+            colunaDescricao.appendChild(campoOculto);
+
+            const colunaAcao = document.createElement("td");
+
+            const botaoRemover = document.createElement("button");
+            botaoRemover.type = "button";
+            botaoRemover.className = "btn-excluir";
+            botaoRemover.textContent = "🗑 Remover";
+
+            botaoRemover.addEventListener("click", function () {
+                linha.remove();
+            });
+
+            colunaAcao.appendChild(botaoRemover);
+
+            linha.appendChild(colunaDescricao);
+            linha.appendChild(colunaAcao);
+
+            tabela.appendChild(linha);
+
+            input.value = "";
+            input.focus();
+        }
+    </script>
 
 </body>
 </html>

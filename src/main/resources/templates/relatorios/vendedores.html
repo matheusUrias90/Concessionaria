@@ -2,7 +2,10 @@
 <!DOCTYPE html>
 <html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
 
-    <head th:replace="~{fragments/head :: head('Relatório de Vendedores')}"></head>
+    <head th:replace="~{fragments/head :: head(
+      session.usuarioLogado.perfil == 'VENDEDOR'
+      ? 'Meu Desempenho'
+      : 'Relatório de Vendedores')}"></head>
 
     <body class="pagina-com-menu">
 
@@ -10,7 +13,11 @@
 
         <div class="container">
 
-            <h1>👔 Relatório de Vendedores</h1>
+            <h1>
+                👔 <span th:text="${perfilVendedor
+                         ? 'Meu Desempenho'
+                         : 'Relatório de Vendedores'}"></span>
+            </h1>
 
             <div class="acoes-relatorio">
 
@@ -28,7 +35,9 @@
                    )}"
                    target="_blank"
                    class="btn-salvar btn-imprimir-relatorio">
-                    🖨️ Imprimir Relatório
+                    🖨️ <span th:text="${perfilVendedor
+                              ? 'Imprimir Meu Relatório'
+                              : 'Imprimir Relatório'}"></span>
                 </a>
 
             </div>
@@ -59,8 +68,11 @@
 
             <!-- Ranking -->
 
-            <!-- Desempenho dos Vendedores -->
-            <h2>📋 Desempenho dos Vendedores</h2>
+            <h2>
+                📋 <span th:text="${perfilVendedor
+                         ? 'Meu Desempenho'
+                         : 'Desempenho dos Vendedores'}"></span>
+            </h2>
 
             <div class="tabela-responsiva">
 

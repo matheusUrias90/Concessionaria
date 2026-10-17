@@ -4,7 +4,10 @@
 
     <head>
         <meta charset="UTF-8">
-        <title>Impressão - Relatório de Vendedores</title>
+        <title th:text="${perfilVendedor
+               ? 'Impressão - Meu Desempenho'
+               : 'Impressão - Relatório de Vendedores'}">
+        </title>
 
         <link rel="stylesheet" th:href="@{/css/style.css}">
         <link rel="stylesheet" th:href="@{/css/impressao.css}">
@@ -15,8 +18,11 @@
         <div class="documento relatorio-vendedores-documento">
 
             <header class="cabecalho-documento">
-                <h1>RELATÓRIO DE VENDEDORES</h1>
-
+                <h1 th:text="${perfilVendedor
+                    ? 'MEU DESEMPENHO'
+                    : 'RELATÓRIO DE VENDEDORES'}">
+                </h1>
+                
                 <img th:if="${configuracao != null and configuracao.logo != null}"
                      th:src="@{'/img/' + ${configuracao.logo}}"
                      alt="Logo da Empresa"
@@ -94,7 +100,10 @@
             </section>
 
             <section class="secao-documento">
-                <h2>Desempenho dos Vendedores</h2>
+                <h2 th:text="${perfilVendedor
+                    ? 'Meu Desempenho'
+                    : 'Desempenho dos Vendedores'}">
+                </h2>
 
                 <table class="tabela-documento">
                     <thead>

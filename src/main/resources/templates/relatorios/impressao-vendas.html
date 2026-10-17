@@ -4,7 +4,10 @@
 
     <head>
         <meta charset="UTF-8">
-        <title>Impressão - Relatório de Vendas</title>
+        <title th:text="${session.usuarioLogado.perfil == 'VENDEDOR'
+               ? 'Impressão - Minhas Vendas'
+               : 'Impressão - Relatório de Vendas'}">
+        </title>
 
         <link rel="stylesheet" th:href="@{/css/style.css}">
         <link rel="stylesheet" th:href="@{/css/impressao.css}">
@@ -15,7 +18,10 @@
         <div class="documento relatorio-vendas-documento">
 
             <header class="cabecalho-documento">
-                <h1>RELATÓRIO DE VENDAS</h1>
+                <h1 th:text="${session.usuarioLogado.perfil == 'VENDEDOR'
+                    ? 'MINHAS VENDAS'
+                    : 'RELATÓRIO DE VENDAS'}">
+                </h1>
 
                 <img th:if="${configuracao != null and configuracao.logo != null}"
                      th:src="@{'/img/' + ${configuracao.logo}}"
@@ -95,7 +101,10 @@
             </section>
 
             <section class="secao-documento">
-                <h2>Vendas Realizadas</h2>
+                <h2 th:text="${session.usuarioLogado.perfil == 'VENDEDOR'
+                    ? 'Minhas Vendas Realizadas'
+                    : 'Vendas Realizadas'}">
+                </h2>
 
                 <table class="tabela-documento">
                     <thead>
@@ -135,7 +144,11 @@
 
             <div class="acoes-documento">
                 <button type="button" onclick="window.print()">
-                    🖨️ Imprimir Relatório
+
+                    🖨️ <span th:text="${session.usuarioLogado.perfil == 'VENDEDOR'
+                              ? 'Imprimir Minhas Vendas'
+                              : 'Imprimir Relatório'}"></span>
+
                 </button>
             </div>
 

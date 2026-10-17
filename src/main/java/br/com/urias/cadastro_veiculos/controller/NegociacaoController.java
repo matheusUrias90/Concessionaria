@@ -12,6 +12,8 @@ import br.com.urias.cadastro_veiculos.model.Usuario;
 import br.com.urias.cadastro_veiculos.model.Veiculo;
 import br.com.urias.cadastro_veiculos.dto.ConclusaoNegociacaoDTO;
 import br.com.urias.cadastro_veiculos.dto.VeiculoEntradaCadastroDTO;
+import br.com.urias.cadastro_veiculos.model.ChecklistEntrega;
+import br.com.urias.cadastro_veiculos.model.ItemChecklistEntrega;
 import br.com.urias.cadastro_veiculos.repository.ClienteRepository;
 import br.com.urias.cadastro_veiculos.repository.NegociacaoRepository;
 import br.com.urias.cadastro_veiculos.repository.VeiculoRepository;
@@ -820,6 +822,29 @@ public class NegociacaoController {
 
             veiculoEstoque.setStatus(StatusVeiculo.DISPONIVEL);
             veiculoEstoque.setDataEntrada(LocalDate.now());
+
+            ChecklistEntrega checklist = new ChecklistEntrega();
+            checklist.setVeiculo(veiculoEstoque);
+
+            if (dadosCadastro.getItensChecklist() != null) {
+
+                for (String descricao : dadosCadastro.getItensChecklist()) {
+
+                    if (descricao == null || descricao.isBlank()) {
+                        continue;
+                    }
+
+                    ItemChecklistEntrega item = new ItemChecklistEntrega();
+
+                    item.setDescricao(descricao.trim());
+                    item.setConferido(false);
+                    item.setChecklist(checklist);
+
+                    checklist.getItens().add(item);
+                }
+            }
+
+            veiculoEstoque.setChecklistEntrega(checklist);
 
             veiculoRepository.save(veiculoEstoque);
         }

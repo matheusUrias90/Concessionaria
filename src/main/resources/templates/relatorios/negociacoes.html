@@ -2,7 +2,10 @@
 <!DOCTYPE html>
 <html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
 
-    <head th:replace="~{fragments/head :: head('Relatório de Negociações')}"></head>
+    <head th:replace="~{fragments/head :: head(
+          session.usuarioLogado.perfil == 'VENDEDOR'
+          ? 'Minhas Negociações'
+          : 'Relatório de Negociações')}"></head>
 
     <body class="pagina-com-menu">
 
@@ -10,7 +13,11 @@
 
         <div class="container">
 
-            <h1>🤝 Relatório de Negociações</h1>
+            <h1>
+                🤝 <span th:text="${perfilVendedor
+                         ? 'Minhas Negociações'
+                         : 'Relatório de Negociações'}"></span>
+            </h1>
 
             <div class="acoes-relatorio">
 
@@ -28,7 +35,9 @@
                    )}"
                    target="_blank"
                    class="btn-salvar btn-imprimir-relatorio">
-                    🖨️ Imprimir Relatório
+                    🖨️ <span th:text="${perfilVendedor
+                              ? 'Imprimir Minhas Negociações'
+                              : 'Imprimir Relatório'}"></span>
                 </a>
 
             </div>
@@ -58,7 +67,11 @@
             </div>
 
             <!-- Indicadores -->
-            <h2>📊 Situação das Negociações</h2>
+            <h2>
+                📊 <span th:text="${perfilVendedor
+                         ? 'Situação das Minhas Negociações'
+                         : 'Situação das Negociações'}"></span>
+            </h2>
 
             <div class="dashboard-grid grid-negociacoes">
 
@@ -115,7 +128,11 @@
                 os filtros consideram a data de início das negociações.
             </p>
 
-            <h2>📈 Análise das Negociações</h2>
+            <h2>
+                📈 <span th:text="${perfilVendedor
+                         ? 'Análise das Minhas Negociações'
+                         : 'Análise das Negociações'}"></span>
+            </h2>
 
             <div class="graficos-vendas">
 
@@ -217,91 +234,91 @@
 
         <script th:inline="javascript">
 
-                              function abrirModal(id) {
-                                  document.getElementById(id).style.display = 'flex';
+                          function abrirModal(id) {
+                              document.getElementById(id).style.display = 'flex';
+                          }
+
+                          function fecharModal(id) {
+                              document.getElementById(id).style.display = 'none';
+                          }
+
+                          const emAndamentoGrafico = /*[[${emAndamento}]]*/ 0;
+                          const concluidasGrafico = /*[[${concluidas}]]*/ 0;
+                          const canceladasGrafico = /*[[${canceladas}]]*/ 0;
+
+                          const mesesGrafico = /*[[${meses}]]*/ [];
+                          const quantidadesGrafico = /*[[${quantidadesMensais}]]*/ [];
+
+                          // Gráfico de situação das negociações
+                          new Chart(document.getElementById('graficoStatusNegociacoes'), {
+
+                              type: 'doughnut',
+
+                              data: {
+                                  labels: ['Em andamento', 'Concluídas', 'Canceladas'],
+
+                                  datasets: [{
+                                          data: [
+                                              emAndamentoGrafico,
+                                              concluidasGrafico,
+                                              canceladasGrafico
+                                          ],
+
+                                          backgroundColor: [
+                                              '#f0ad4e',
+                                              '#198754',
+                                              '#dc3545'
+                                          ],
+
+                                          borderWidth: 2
+                                      }]
+                              },
+
+                              options: {
+                                  responsive: true,
+                                  maintainAspectRatio: true,
+
+                                  plugins: {
+                                      legend: {
+                                          position: 'bottom'
+                                      }
+                                  }
                               }
+                          });
 
-                              function fecharModal(id) {
-                                  document.getElementById(id).style.display = 'none';
-                              }
+                          // Gráfico mensal de negociações iniciadas
+                          new Chart(document.getElementById('graficoMensalNegociacoes'), {
 
-                              const emAndamentoGrafico = /*[[${emAndamento}]]*/ 0;
-                              const concluidasGrafico = /*[[${concluidas}]]*/ 0;
-                              const canceladasGrafico = /*[[${canceladas}]]*/ 0;
+                              type: 'line',
 
-                              const mesesGrafico = /*[[${meses}]]*/ [];
-                              const quantidadesGrafico = /*[[${quantidadesMensais}]]*/ [];
+                              data: {
+                                  labels: mesesGrafico,
 
-                              // Gráfico de situação das negociações
-                              new Chart(document.getElementById('graficoStatusNegociacoes'), {
+                                  datasets: [{
+                                          label: 'Negociações iniciadas',
+                                          data: quantidadesGrafico,
 
-                                  type: 'doughnut',
+                                          borderColor: '#c1121f',
+                                          backgroundColor: 'rgba(193, 18, 31, 0.12)',
 
-                                  data: {
-                                      labels: ['Em andamento', 'Concluídas', 'Canceladas'],
+                                          tension: 0.3,
+                                          fill: true
+                                      }]
+                              },
 
-                                      datasets: [{
-                                              data: [
-                                                  emAndamentoGrafico,
-                                                  concluidasGrafico,
-                                                  canceladasGrafico
-                                              ],
+                              options: {
+                                  responsive: true,
 
-                                              backgroundColor: [
-                                                  '#f0ad4e',
-                                                  '#198754',
-                                                  '#dc3545'
-                                              ],
-
-                                              borderWidth: 2
-                                          }]
-                                  },
-
-                                  options: {
-                                      responsive: true,
-                                      maintainAspectRatio: true,
-
-                                      plugins: {
-                                          legend: {
-                                              position: 'bottom'
+                                  scales: {
+                                      y: {
+                                          beginAtZero: true,
+                                          ticks: {
+                                              precision: 0
                                           }
                                       }
                                   }
-                              });
-
-                              // Gráfico mensal de negociações iniciadas
-                              new Chart(document.getElementById('graficoMensalNegociacoes'), {
-
-                                  type: 'line',
-
-                                  data: {
-                                      labels: mesesGrafico,
-
-                                      datasets: [{
-                                              label: 'Negociações iniciadas',
-                                              data: quantidadesGrafico,
-
-                                              borderColor: '#c1121f',
-                                              backgroundColor: 'rgba(193, 18, 31, 0.12)',
-
-                                              tension: 0.3,
-                                              fill: true
-                                          }]
-                                  },
-
-                                  options: {
-                                      responsive: true,
-
-                                      scales: {
-                                          y: {
-                                              beginAtZero: true,
-                                              ticks: {
-                                                  precision: 0
-                                              }
-                                          }
-                                      }
-                                  }
-                              });
+                              }
+                          });
 
         </script>
 
