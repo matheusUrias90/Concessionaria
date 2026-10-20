@@ -10,6 +10,11 @@
         <div class="container">
 
             <h1>🚗 Veículos</h1>
+            
+            <div th:if="${erro != null}"
+                 class="alerta-erro"
+                 th:text="${erro}">
+            </div>
 
             <button type="button" class="btn-salvar" onclick="abrirModal('modal-novo')">
                 + Novo Veículo
@@ -102,8 +107,7 @@
 
                     <form action="/veiculos/salvar"
                           method="post"
-                          class="card-form"
-                          onsubmit="prepararGuiaContrato()">
+                          class="card-form">
 
                         <h3>🚗 Dados do Veículo</h3>
 
@@ -510,8 +514,7 @@
                 const pagina = Number(new URL(link.href).searchParams.get("pagina") || 0);
                 atualizarBuscaVeiculos(pagina);
             });
-        </script>
-        <script>
+            
             function aplicarMascarasVeiculos() {
             document.querySelectorAll('input[name="cpfProprietario"]').forEach(function (cpf) {
 
@@ -560,19 +563,7 @@
                 abrirModal("modal-exclusao");
             }
 
-            function prepararGuiaContrato() {
-
-                const id = document.getElementById("id").value;
-
-                if (id === "") {
-                    window.open(
-                            "about:blank",
-                            "contratoConsignacao"
-                            );
-                }
-            }
-
-            document.addEventListener("DOMContentLoaded", function () {
+             document.addEventListener("DOMContentLoaded", function () {
 
                 const parametros = new URLSearchParams(window.location.search);
                 const contratoId = parametros.get("contrato");

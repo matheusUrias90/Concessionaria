@@ -313,3 +313,13 @@ h2 {
 .grafico-vendas canvas {
     width: 100% !important;
 }
+
+.alerta-erro {
+    background: #ffe5e5;
+    color: #a00000;
+    padding: 12px 16px;
+    border: 1px solid #e5a0a0;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    font-weight: 500;
+}
