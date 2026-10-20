@@ -17,16 +17,24 @@
 
             <br><br>
 
-            <form method="get" action="/veiculos" class="form-busca" id="formBuscaVeiculos">
+            <form method="get"
+                  th:action="@{/veiculos}"
+                  class="form-busca"
+                  id="formBuscaVeiculos">
+
                 <input type="text"
                        name="busca"
                        id="campoBuscaVeiculos"
                        placeholder="Buscar por nome, marca ou placa"
                        th:value="${busca}">
 
-                <a href="/veiculos" class="btn-limpar">Limpar</a>
+                <a th:href="@{/veiculos}" class="btn-limpar">
+                    Limpar
+                </a>
+
             </form>
 
+        <div id="resultadosVeiculos" th:fragment="resultadosBusca">
         <div class="tabela-responsiva">
             <table>
                 <thead>
@@ -423,6 +431,8 @@
                 </div>
             </div>
 
+        </div> <!-- /resultadosVeiculos -->
+
             <div class="modal" id="modal-exclusao">
                 <div class="modal-conteudo modal-confirmacao">
 
@@ -449,6 +459,60 @@
         </div>
 
         <script>
+            const campoBuscaVeiculos = document.getElementById("campoBuscaVeiculos");
+            const formularioBuscaVeiculos = document.getElementById("formBuscaVeiculos");
+            const resultadosVeiculos = document.getElementById("resultadosVeiculos");
+            const parametrosIniciais = new URLSearchParams(window.location.search);
+                  campoBuscaVeiculos.value = parametrosIniciais.get("busca") || "";
+            let temporizadorBusca;
+            let requisicaoBusca;
+
+            async function atualizarBuscaVeiculos(pagina = 0) {
+                if (requisicaoBusca) requisicaoBusca.abort();
+                const controlador = new AbortController();
+                requisicaoBusca = controlador;
+                const parametros = new URLSearchParams({
+                    busca: campoBuscaVeiculos.value,
+                    pagina: String(pagina),
+                    ajax: "true"
+                });
+                try {
+                    const resposta = await fetch(formularioBuscaVeiculos.action + "?" + parametros,
+                        {signal: controlador.signal});
+                    if (!resposta.ok) throw new Error("Falha na busca: " + resposta.status);
+                    const documento = new DOMParser().parseFromString(await resposta.text(), "text/html");
+                    const conteudo = documento.getElementById("resultadosVeiculos");
+                    if (!conteudo) throw new Error("Fragmento de resultados não encontrado");
+                    resultadosVeiculos.innerHTML = conteudo.innerHTML;
+                    aplicarMascarasVeiculos();
+                    const url = new URL(formularioBuscaVeiculos.action, location.href);
+                    if (campoBuscaVeiculos.value) url.searchParams.set("busca", campoBuscaVeiculos.value);
+                    if (pagina > 0) url.searchParams.set("pagina", pagina);
+                    history.replaceState({}, "", url);
+                } catch (erro) {
+                    if (erro.name !== "AbortError") console.error(erro);
+                }
+            }
+
+            campoBuscaVeiculos.addEventListener("input", () => {
+                clearTimeout(temporizadorBusca);
+                temporizadorBusca = setTimeout(() => atualizarBuscaVeiculos(0), 350);
+            });
+            formularioBuscaVeiculos.addEventListener("submit", evento => {
+                evento.preventDefault();
+                clearTimeout(temporizadorBusca);
+                atualizarBuscaVeiculos(0);
+            });
+            resultadosVeiculos.addEventListener("click", evento => {
+                const link = evento.target.closest(".paginacao a");
+                if (!link) return;
+                evento.preventDefault();
+                const pagina = Number(new URL(link.href).searchParams.get("pagina") || 0);
+                atualizarBuscaVeiculos(pagina);
+            });
+        </script>
+        <script>
+            function aplicarMascarasVeiculos() {
             document.querySelectorAll('input[name="cpfProprietario"]').forEach(function (cpf) {
 
                 cpf.addEventListener("input", function () {
@@ -483,20 +547,11 @@
                             .replace(/[^A-Z0-9]/g, "")
                             .slice(0, 7);
                 });
-            });
+            });        
 
-            const campoBuscaVeiculos = document.getElementById("campoBuscaVeiculos");
-            const formBuscaVeiculos = document.getElementById("formBuscaVeiculos");
+            }
 
-            let tempoVeiculos;
-
-            campoBuscaVeiculos.addEventListener("input", function () {
-                clearTimeout(tempoVeiculos);
-
-                tempoVeiculos = setTimeout(function () {
-                    formBuscaVeiculos.submit();
-                }, 500);
-            });
+            aplicarMascarasVeiculos();
 
             function abrirModalExclusao(url) {
                 const botao = document.getElementById("btn-confirmar-exclusao");

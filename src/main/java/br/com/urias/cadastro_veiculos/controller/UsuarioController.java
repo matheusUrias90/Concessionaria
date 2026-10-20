@@ -36,6 +36,7 @@ public class UsuarioController {
     public String listarUsuarios(
             @RequestParam(defaultValue = "") String busca,
             @RequestParam(defaultValue = "0") int pagina,
+            @RequestParam(defaultValue = "false") boolean ajax,
             Model model,
             HttpSession session
     ) {
@@ -61,6 +62,10 @@ public class UsuarioController {
         model.addAttribute("busca", busca);
         
         model.addAttribute("paginaAtiva", "usuarios");
+        
+        if (ajax) {
+            return "usuarios :: resultadosBusca";
+        }
 
         return "usuarios";
     }

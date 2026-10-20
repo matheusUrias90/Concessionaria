@@ -1,39 +1,34 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Repasses ao Proprietário')}"></head>
+<body class="pagina-com-menu">
+    <div th:replace="~{fragments/menu :: menu}"></div>
+    <div class="container">
+        <h1>💸 Repasses ao Proprietário</h1>
 
-    <head th:replace="~{fragments/head :: head('Repasses ao Proprietário')}"></head>
+        <div class="filtros-status-negociacao" role="group" aria-label="Situação dos repasses">
+            <button type="button" class="filtro-status filtro-andamento" data-aba="aguardando" aria-pressed="false">⏳ Aguardando</button>
+            <button type="button" class="filtro-status filtro-canceladas ativo" data-aba="andamento" aria-pressed="true">🔴 Em andamento</button>
+            <button type="button" class="filtro-status filtro-concluidas" data-aba="finalizados" aria-pressed="false">🟢 Finalizados</button>
+        </div>
 
-    <body class="pagina-com-menu">
+        <form method="get" th:action="@{/repasses}" class="form-busca" id="formBuscaRepasses">
+            <input type="search" name="busca" id="campoBuscaRepasses"
+                   placeholder="Buscar por proprietário, veículo ou placa"
+                   autocomplete="off" th:value="${busca}">
+            <button type="button" id="btnLimparRepasses" class="btn-limpar">Limpar</button>
+        </form>
 
+        <style>
+            .secao-repasse[hidden] { display: none !important; }
+        </style>
 
-        <div th:replace="~{fragments/menu :: menu}"></div>
-
-        <div class="container">
-
-            <h1>💸 Repasses ao Proprietário</h1>
-
-            <form method="get"
-                  action="/repasses"
-                  class="form-busca"
-                  id="formBuscaRepasses">
-
-                <input type="text"
-                       name="busca"
-                       id="campoBuscaRepasses"
-                       placeholder="Buscar por proprietário, veículo ou placa"
-                       th:value="${busca}">
-
-                <a href="/repasses"
-                   class="btn-limpar">
-                    Limpar
-                </a>
-
-            </form>
-
+        <div id="resultadosRepasses">
             <!-- =========================================
                  VENDAS AGUARDANDO INÍCIO DO REPASSE
             ========================================== -->
 
+            <section class="secao-repasse" data-secao="aguardando" hidden>
             <h2>⏳ Vendas aguardando repasse</h2>
 
         <div class="tabela-responsiva">
@@ -90,10 +85,13 @@
             </table>
         </div>
 
+            </section>
+
             <!-- =========================================
                  REPASSES EM ANDAMENTO
             ========================================== -->
 
+            <section class="secao-repasse" data-secao="andamento">
             <h2>🔴 Repasses em andamento</h2>
             
         <div class="tabela-responsiva">
@@ -178,10 +176,13 @@
         </div>
 
 
+            </section>
+
             <!-- =========================================
                  REPASSES FINALIZADOS
             ========================================== -->
 
+            <section class="secao-repasse" data-secao="finalizados" hidden>
             <h2>🟢 Repasses finalizados</h2>
             
         <div class="tabela-responsiva">
@@ -302,24 +303,108 @@
 
             </div>
 
+            </section>
         </div>
+    </div>
 
-        <script>
-            const campoBuscaRepasses =
-                    document.getElementById("campoBuscaRepasses");
+    <script>
+        const campoBuscaRepasses = document.getElementById("campoBuscaRepasses");
+        const formularioRepasses = document.getElementById("formBuscaRepasses");
+        const resultadosRepasses = document.getElementById("resultadosRepasses");
+        const botoesRepasses = document.querySelectorAll("[data-aba]");
+        const botaoLimparRepasses = document.getElementById("btnLimparRepasses");
 
-            const formBuscaRepasses =
-                    document.getElementById("formBuscaRepasses");
+        let abaAtualRepasses = "andamento";
+        let temporizadorRepasses;
+        let requisicaoRepasses;
 
-            let tempoRepasses;
-
-            campoBuscaRepasses.addEventListener("input", function () {
-                clearTimeout(tempoRepasses);
-
-                tempoRepasses = setTimeout(function () {
-                    formBuscaRepasses.submit();
-                }, 500);
+        function exibirAbaRepasses() {
+            botoesRepasses.forEach(botao => {
+                const selecionado = botao.dataset.aba === abaAtualRepasses;
+                botao.classList.toggle("ativo", selecionado);
+                botao.setAttribute("aria-pressed", String(selecionado));
             });
-        </script>
-    </body>
+
+            resultadosRepasses.querySelectorAll(".secao-repasse").forEach(secao => {
+                secao.hidden = secao.dataset.secao !== abaAtualRepasses;
+            });
+        }
+
+        async function carregarRepasses(pagina = 0) {
+            if (requisicaoRepasses) requisicaoRepasses.abort();
+            const controle = new AbortController();
+            requisicaoRepasses = controle;
+
+            const parametros = new URLSearchParams();
+            parametros.set("busca", campoBuscaRepasses.value.trim());
+            parametros.set("pagina", pagina);
+            const url = `/repasses?${parametros.toString()}`;
+
+            try {
+                const resposta = await fetch(url, {
+                    signal: controle.signal,
+                    headers: {"X-Requested-With": "XMLHttpRequest"}
+                });
+
+                if (resposta.redirected) {
+                    window.location.href = resposta.url;
+                    return;
+                }
+                if (!resposta.ok) throw new Error("Erro ao carregar repasses");
+
+                const html = await resposta.text();
+                const documento = new DOMParser().parseFromString(html, "text/html");
+                const novosResultados = documento.getElementById("resultadosRepasses");
+                if (!novosResultados) throw new Error("Resultados não encontrados");
+
+                resultadosRepasses.innerHTML = novosResultados.innerHTML;
+                exibirAbaRepasses();
+                history.replaceState(null, "", url);
+            } catch (erro) {
+                if (erro.name !== "AbortError") {
+                    console.error(erro);
+                    alert("Não foi possível atualizar os repasses. Tente novamente.");
+                }
+            } finally {
+                if (requisicaoRepasses === controle) requisicaoRepasses = null;
+            }
+        }
+
+        botoesRepasses.forEach(botao => {
+            botao.addEventListener("click", () => {
+                abaAtualRepasses = botao.dataset.aba;
+                exibirAbaRepasses();
+            });
+        });
+
+        campoBuscaRepasses.addEventListener("input", () => {
+            clearTimeout(temporizadorRepasses);
+            temporizadorRepasses = setTimeout(() => carregarRepasses(0), 350);
+        });
+
+        formularioRepasses.addEventListener("submit", evento => {
+            evento.preventDefault();
+            clearTimeout(temporizadorRepasses);
+            carregarRepasses(0);
+        });
+
+        botaoLimparRepasses.addEventListener("click", () => {
+            clearTimeout(temporizadorRepasses);
+            campoBuscaRepasses.value = "";
+            campoBuscaRepasses.focus();
+            carregarRepasses(0);
+        });
+
+        resultadosRepasses.addEventListener("click", evento => {
+            const link = evento.target.closest(".paginacao a[href]");
+            if (!link) return;
+            evento.preventDefault();
+            clearTimeout(temporizadorRepasses);
+            const url = new URL(link.href, window.location.origin);
+            carregarRepasses(Number(url.searchParams.get("pagina") || 0));
+        });
+
+        exibirAbaRepasses();
+    </script>
+</body>
 </html>

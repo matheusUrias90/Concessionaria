@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
     <head th:replace="~{fragments/head :: head('Usuários')}"></head>
 
-        <body class="pagina-com-menu">
+    <body class="pagina-com-menu">
 
 
         <div th:replace="~{fragments/menu :: menu}"></div>
@@ -27,154 +27,156 @@
                 <a href="/usuarios" class="btn-limpar">Limpar</a>
             </form>
 
-        <div class="tabela-responsiva">
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Nome</th>
-                        <th>Perfil</th>
-                        <th>Login</th>                        
-                        <th>Ações</th>
-                    </tr>
-                </thead>
+            <div id="resultadosUsuarios" th:fragment="resultadosBusca">
+                <div class="tabela-responsiva">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nome</th>
+                                <th>Perfil</th>
+                                <th>Login</th>                        
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
 
-                <tbody>
-                    <tr th:each="u : ${usuarios.content}">
-                        <td th:text="${u.id}"></td>
-                        <td th:text="${u.nome}"></td>
-                        <td th:text="${u.perfil}"></td>
-                        <td th:text="${u.login}"></td>
-                        
-                        <td class="acoes">
-                            <button type="button"
-                                    class="btn-editar"
-                                    th:attr="onclick=|abrirModal('modal-editar-${u.id}')|">
-                                ✏ Editar
-                            </button>
+                        <tbody>
+                            <tr th:each="u : ${usuarios.content}">
+                                <td th:text="${u.id}"></td>
+                                <td th:text="${u.nome}"></td>
+                                <td th:text="${u.perfil}"></td>
+                                <td th:text="${u.login}"></td>
 
-                            <a th:href="@{/usuarios/{id}/historico(id=${u.id})}" class="btn-detalhes">
-                                📊 Histórico
-                            </a>
+                                <td class="acoes">
+                                    <button type="button"
+                                            class="btn-editar"
+                                            th:attr="onclick=|abrirModal('modal-editar-${u.id}')|">
+                                        ✏ Editar
+                                    </button>
 
-                            <button type="button"
-                                    class="btn-excluir"
-                                    th:attr="onclick=|abrirModalExclusao('/usuarios/excluir/${u.id}')|">
-                                🗑 Excluir
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+                                    <a th:href="@{/usuarios/{id}/historico(id=${u.id})}" class="btn-detalhes">
+                                        📊 Histórico
+                                    </a>
 
-            <div class="paginacao" th:if="${usuarios.totalPages > 1}">
-                <a th:if="${usuarios.number > 0}"
-                   th:href="@{/usuarios(pagina=${usuarios.number - 1}, busca=${busca})}">
-                    Anterior
-                </a>
-
-                <span>
-                    Página <span th:text="${usuarios.number + 1}"></span>
-                    de <span th:text="${usuarios.totalPages}"></span>
-                </span>
-
-                <a th:if="${usuarios.number + 1 < usuarios.totalPages}"
-                   th:href="@{/usuarios(pagina=${usuarios.number + 1}, busca=${busca})}">
-                    Próxima
-                </a>
-            </div>
-
-            <!-- MODAL NOVO -->
-            <div class="modal" id="modal-novo">
-                <div class="modal-conteudo modal-grande">
-
-                    <span class="fechar" onclick="fecharModal('modal-novo')">X</span>
-
-                    <h2>👥 Novo Usuário</h2>
-
-                    <form action="/usuarios/salvar" method="post" class="card-form">
-
-                        <div class="form-grid">
-                            <div class="campo">
-                                <label>Nome</label>
-                                <input type="text" name="nome" placeholder="Nome do usuário" required>
-                            </div>
-
-                            <div class="campo">
-                                <label>Login</label>
-                                <input type="text" name="login" placeholder="Login do usuário" required>
-                            </div>
-
-                            <div class="campo">
-                                <label>Senha</label>
-                                <input type="password" name="senha" placeholder="Senha" required>
-                            </div>
-
-                            <div class="campo">
-                                <label>Perfil</label>
-                                <select name="perfil" required>
-                                    <option value="DONO">DONO</option>
-                                    <option value="GERENTE">GERENTE</option>
-                                    <option value="VENDEDOR">VENDEDOR</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <button type="submit" class="btn-salvar">💾 Salvar</button>
-                    </form>
-
+                                    <button type="button"
+                                            class="btn-excluir"
+                                            th:attr="onclick=|abrirModalExclusao('/usuarios/excluir/${u.id}')|">
+                                        🗑 Excluir
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
-            </div>
 
-            <!-- MODAIS EDITAR -->
-            <div th:each="u : ${usuarios.content}">
-                <div class="modal" th:id="|modal-editar-${u.id}|">
+                <div class="paginacao" th:if="${usuarios.totalPages > 1}">
+                    <a th:if="${usuarios.number > 0}"
+                       th:href="@{/usuarios(pagina=${usuarios.number - 1}, busca=${busca})}">
+                        Anterior
+                    </a>
+
+                    <span>
+                        Página <span th:text="${usuarios.number + 1}"></span>
+                        de <span th:text="${usuarios.totalPages}"></span>
+                    </span>
+
+                    <a th:if="${usuarios.number + 1 < usuarios.totalPages}"
+                       th:href="@{/usuarios(pagina=${usuarios.number + 1}, busca=${busca})}">
+                        Próxima
+                    </a>
+                </div>
+
+                <!-- MODAL NOVO -->
+                <div class="modal" id="modal-novo">
                     <div class="modal-conteudo modal-grande">
 
-                        <span class="fechar"
-                              th:attr="onclick=|fecharModal('modal-editar-${u.id}')|">
-                            X
-                        </span>
+                        <span class="fechar" onclick="fecharModal('modal-novo')">X</span>
 
-                        <h2>✏ Editar Usuário</h2>
+                        <h2>👥 Novo Usuário</h2>
 
                         <form action="/usuarios/salvar" method="post" class="card-form">
-
-                            <input type="hidden" name="id" th:value="${u.id}">
 
                             <div class="form-grid">
                                 <div class="campo">
                                     <label>Nome</label>
-                                    <input type="text" name="nome" th:value="${u.nome}" required>
+                                    <input type="text" name="nome" placeholder="Nome do usuário" required>
                                 </div>
 
                                 <div class="campo">
                                     <label>Login</label>
-                                    <input type="text" name="login" th:value="${u.login}" required>
+                                    <input type="text" name="login" placeholder="Login do usuário" required>
                                 </div>
 
                                 <div class="campo">
                                     <label>Senha</label>
-                                    <input type="password" name="senha" th:value="${u.senha}" required>
+                                    <input type="password" name="senha" placeholder="Senha" required>
                                 </div>
 
                                 <div class="campo">
                                     <label>Perfil</label>
                                     <select name="perfil" required>
-                                        <option value="DONO" th:selected="${u.perfil == 'DONO'}">DONO</option>
-                                        <option value="GERENTE" th:selected="${u.perfil == 'GERENTE'}">GERENTE</option>
-                                        <option value="VENDEDOR" th:selected="${u.perfil == 'VENDEDOR'}">VENDEDOR</option>
+                                        <option value="DONO">DONO</option>
+                                        <option value="GERENTE">GERENTE</option>
+                                        <option value="VENDEDOR">VENDEDOR</option>
                                     </select>
                                 </div>
                             </div>
 
-                            <button type="submit" class="btn-salvar">💾 Salvar Alterações</button>
+                            <button type="submit" class="btn-salvar">💾 Salvar</button>
                         </form>
 
                     </div>
                 </div>
-            </div>
+
+                <!-- MODAIS EDITAR -->
+                <div th:each="u : ${usuarios.content}">
+                    <div class="modal" th:id="|modal-editar-${u.id}|">
+                        <div class="modal-conteudo modal-grande">
+
+                            <span class="fechar"
+                                  th:attr="onclick=|fecharModal('modal-editar-${u.id}')|">
+                                X
+                            </span>
+
+                            <h2>✏ Editar Usuário</h2>
+
+                            <form action="/usuarios/salvar" method="post" class="card-form">
+
+                                <input type="hidden" name="id" th:value="${u.id}">
+
+                                <div class="form-grid">
+                                    <div class="campo">
+                                        <label>Nome</label>
+                                        <input type="text" name="nome" th:value="${u.nome}" required>
+                                    </div>
+
+                                    <div class="campo">
+                                        <label>Login</label>
+                                        <input type="text" name="login" th:value="${u.login}" required>
+                                    </div>
+
+                                    <div class="campo">
+                                        <label>Senha</label>
+                                        <input type="password" name="senha" th:value="${u.senha}" required>
+                                    </div>
+
+                                    <div class="campo">
+                                        <label>Perfil</label>
+                                        <select name="perfil" required>
+                                            <option value="DONO" th:selected="${u.perfil == 'DONO'}">DONO</option>
+                                            <option value="GERENTE" th:selected="${u.perfil == 'GERENTE'}">GERENTE</option>
+                                            <option value="VENDEDOR" th:selected="${u.perfil == 'VENDEDOR'}">VENDEDOR</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn-salvar">💾 Salvar Alterações</button>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+            </div> <!-- Fim do fragmento resultadosBusca -->
 
             <!-- MODAL EXCLUSÃO -->
             <div class="modal" id="modal-exclusao">
@@ -205,15 +207,124 @@
         <script>
             const campoBuscaUsuarios = document.getElementById("campoBuscaUsuarios");
             const formBuscaUsuarios = document.getElementById("formBuscaUsuarios");
+            const resultadosUsuarios = document.getElementById("resultadosUsuarios");
 
             let tempoUsuarios;
+            let requisicaoUsuarios;
 
+            async function atualizarBuscaUsuarios(pagina = 0) {
+
+                if (requisicaoUsuarios) {
+                    requisicaoUsuarios.abort();
+                }
+
+                const controlador = new AbortController();
+                requisicaoUsuarios = controlador;
+
+                const parametros = new URLSearchParams({
+                    busca: campoBuscaUsuarios.value,
+                    pagina: String(pagina),
+                    ajax: "true"
+                });
+
+                try {
+
+                    const resposta = await fetch(
+                            formBuscaUsuarios.action + "?" + parametros.toString(),
+                            {signal: controlador.signal}
+                    );
+
+                    if (!resposta.ok) {
+                        throw new Error("Erro na busca: " + resposta.status);
+                    }
+
+                    // Detecta redirecionamento, por exemplo, sessão expirada
+                    if (resposta.redirected) {
+                        window.location.href = resposta.url;
+                        return;
+                    }
+
+                    const html = await resposta.text();
+
+                    const documento = new DOMParser().parseFromString(
+                            html,
+                            "text/html"
+                            );
+
+                    const conteudo = documento.getElementById("resultadosUsuarios");
+
+                    if (!conteudo) {
+                        throw new Error("Fragmento de usuários não encontrado");
+                    }
+
+                    resultadosUsuarios.innerHTML = conteudo.innerHTML;
+
+                    const url = new URL(formBuscaUsuarios.action, location.href);
+
+                    if (campoBuscaUsuarios.value) {
+                        url.searchParams.set("busca", campoBuscaUsuarios.value);
+                    }
+
+                    if (pagina > 0) {
+                        url.searchParams.set("pagina", pagina);
+                    }
+
+                    history.replaceState({}, "", url);
+
+                } catch (erro) {
+
+                    if (erro.name !== "AbortError") {
+                        console.error(erro);
+                    }
+
+                } finally {
+
+                    if (requisicaoUsuarios === controlador) {
+                        requisicaoUsuarios = null;
+                    }
+
+            }
+            }
+
+// Pesquisa automática enquanto digita
             campoBuscaUsuarios.addEventListener("input", function () {
+
                 clearTimeout(tempoUsuarios);
 
                 tempoUsuarios = setTimeout(function () {
-                    formBuscaUsuarios.submit();
-                }, 500);
+                    atualizarBuscaUsuarios(0);
+                }, 350);
+
+            });
+
+// Impede o recarregamento ao pressionar Enter
+            formBuscaUsuarios.addEventListener("submit", function (evento) {
+
+                evento.preventDefault();
+
+                clearTimeout(tempoUsuarios);
+
+                atualizarBuscaUsuarios(0);
+
+            });
+
+// Paginação sem recarregar a página
+            resultadosUsuarios.addEventListener("click", function (evento) {
+
+                const link = evento.target.closest(".paginacao a");
+
+                if (!link) {
+                    return;
+                }
+
+                evento.preventDefault();
+
+                const pagina = Number(
+                        new URL(link.href).searchParams.get("pagina") || 0
+                        );
+
+                atualizarBuscaUsuarios(pagina);
+
             });
 
             function abrirModalExclusao(url) {

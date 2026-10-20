@@ -32,6 +32,7 @@ public class PaginaClienteController {
     public String formulario(
             @RequestParam(defaultValue = "") String busca,
             @RequestParam(defaultValue = "0") int pagina,
+            @RequestParam(defaultValue = "false") boolean ajax,
             Model model) {
 
         Pageable pageable = PageRequest.of(
@@ -65,7 +66,11 @@ public class PaginaClienteController {
         model.addAttribute("vendaRepository", vendaRepository);
         
         model.addAttribute("paginaAtiva", "compradores");
-
+        
+        if (ajax) {
+            return "cliente :: resultadosBusca";
+        }
+       
         return "cliente";
     }
 
