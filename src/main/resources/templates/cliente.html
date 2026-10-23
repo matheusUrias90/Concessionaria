@@ -9,6 +9,8 @@
         <div class="container">
 
             <h1>👤 Compradores</h1>
+            
+            <div th:if="${erro != null}" class="alerta-erro" th:text="${erro}"></div>
 
             <button type="button" class="btn-salvar" onclick="abrirModal('modal-novo')">
                 + Novo Comprador
@@ -96,17 +98,17 @@
                             <div class="form-grid">
                                 <div class="campo">
                                     <label>Nome</label>
-                                    <input type="text" name="nome" placeholder="Nome do cliente">
+                                    <input type="text" name="nome" placeholder="Nome do cliente" required>
                                 </div>
 
                                 <div class="campo">
                                     <label>CPF</label>
-                                    <input type="text" name="cpf" placeholder="CPF">
+                                    <input type="text" name="cpf" placeholder="CPF" required>
                                 </div>
 
                                 <div class="campo">
                                     <label>Telefone</label>
-                                    <input type="text" name="telefone" placeholder="Telefone">
+                                    <input type="text" name="telefone" placeholder="Telefone" required>
                                 </div>
 
                                 <div class="campo">
@@ -192,17 +194,17 @@
                                 <div class="form-grid">
                                     <div class="campo">
                                         <label>Nome</label>
-                                        <input type="text" name="nome" th:value="${c.nome}">
+                                        <input type="text" name="nome" th:value="${c.nome}" required>
                                     </div>
 
                                     <div class="campo">
                                         <label>CPF</label>
-                                        <input type="text" name="cpf" th:value="${c.cpf}">
+                                        <input type="text" name="cpf" th:value="${c.cpf}" required>
                                     </div>
 
                                     <div class="campo">
                                         <label>Telefone</label>
-                                        <input type="text" name="telefone" th:value="${c.telefone}">
+                                        <input type="text" name="telefone" th:value="${c.telefone}" required>
                                     </div>
 
                                     <div class="campo">
@@ -245,131 +247,142 @@
         </div>
 
         <script>
-            document.querySelectorAll('input[name="cpf"]').forEach(function (cpf) {
-                cpf.addEventListener("input", function () {
-                    let v = cpf.value.replace(/\D/g, "");
 
-                    v = v.replace(/(\d{3})(\d)/, "$1.$2");
-                    v = v.replace(/(\d{3})(\d)/, "$1.$2");
-                    v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+            function aplicarMascarasCompradores() {
 
-                    cpf.value = v;
+                // Máscara CPF
+                document.querySelectorAll('input[name="cpf"]').forEach(function (cpf) {
+                    cpf.addEventListener("input", function () {
+                        let v = cpf.value.replace(/\D/g, "");
+
+                        v = v.replace(/(\d{3})(\d)/, "$1.$2");
+                        v = v.replace(/(\d{3})(\d)/, "$1.$2");
+                        v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+
+                        cpf.value = v;
+                    });
                 });
+
+                // Máscara telefone
+                document.querySelectorAll('input[name="telefone"]').forEach(function (telefone) {
+                    telefone.addEventListener("input", function () {
+                        let v = telefone.value.replace(/\D/g, "");
+
+                        v = v.replace(/^(\d{2})(\d)/, "($1) $2");
+                        v = v.replace(/(\d{5})(\d{4})$/, "$1-$2");
+
+                        telefone.value = v;
+                    });
+                });
+            }
+
+            aplicarMascarasCompradores();
+
+
+            const campoBuscaCompradores = document.getElementById("campoBuscaCompradores");
+            const formBuscaCompradores = document.getElementById("formBuscaCompradores");
+            const resultadosCompradores = document.getElementById("resultadosCompradores");
+
+            let tempoCompradores;
+            let requisicaoCompradores;
+
+            async function atualizarBuscaCompradores(pagina = 0) {
+
+                if (requisicaoCompradores) {
+                    requisicaoCompradores.abort();
+                }
+
+                const controlador = new AbortController();
+                requisicaoCompradores = controlador;
+
+                const parametros = new URLSearchParams({
+                    busca: campoBuscaCompradores.value,
+                    pagina: String(pagina),
+                    ajax: "true"
+                });
+
+                try {
+
+                    const resposta = await fetch(
+                            formBuscaCompradores.action + "?" + parametros.toString(),
+                            {signal: controlador.signal}
+                    );
+
+                    if (!resposta.ok) {
+                        throw new Error("Erro na busca: " + resposta.status);
+                    }
+
+                    const html = await resposta.text();
+
+                    const documento = new DOMParser().parseFromString(html, "text/html");
+
+                    const conteudo = documento.getElementById("resultadosCompradores");
+
+                    if (!conteudo) {
+                        throw new Error("Fragmento de compradores não encontrado");
+                    }
+
+                   resultadosCompradores.innerHTML = conteudo.innerHTML;
+
+                   aplicarMascarasCompradores();
+
+                    const url = new URL(formBuscaCompradores.action, location.href);
+
+                    if (campoBuscaCompradores.value) {
+                        url.searchParams.set("busca", campoBuscaCompradores.value);
+                    }
+
+                    if (pagina > 0) {
+                        url.searchParams.set("pagina", pagina);
+                    }
+
+                    history.replaceState({}, "", url);
+
+                } catch (erro) {
+
+                    if (erro.name !== "AbortError") {
+                        console.error(erro);
+                    }
+            }
+            }
+
+            campoBuscaCompradores.addEventListener("input", function () {
+
+                clearTimeout(tempoCompradores);
+
+                tempoCompradores = setTimeout(function () {
+                    atualizarBuscaCompradores(0);
+                }, 350);
+
             });
 
-            document.querySelectorAll('input[name="telefone"]').forEach(function (telefone) {
-                telefone.addEventListener("input", function () {
-                    let v = telefone.value.replace(/\D/g, "");
+            formBuscaCompradores.addEventListener("submit", function (evento) {
 
-                    v = v.replace(/^(\d{2})(\d)/g, "($1) $2");
-                    v = v.replace(/(\d{5})(\d{4})$/, "$1-$2");
+                evento.preventDefault();
 
-                    telefone.value = v;
-                });
+                clearTimeout(tempoCompradores);
+
+                atualizarBuscaCompradores(0);
+
             });
 
-           const campoBuscaCompradores = document.getElementById("campoBuscaCompradores");
-const formBuscaCompradores = document.getElementById("formBuscaCompradores");
-const resultadosCompradores = document.getElementById("resultadosCompradores");
+            resultadosCompradores.addEventListener("click", function (evento) {
 
-let tempoCompradores;
-let requisicaoCompradores;
+                const link = evento.target.closest(".paginacao a");
 
-async function atualizarBuscaCompradores(pagina = 0) {
+                if (!link) {
+                    return;
+                }
 
-    if (requisicaoCompradores) {
-        requisicaoCompradores.abort();
-    }
+                evento.preventDefault();
 
-    const controlador = new AbortController();
-    requisicaoCompradores = controlador;
+                const pagina = Number(
+                        new URL(link.href).searchParams.get("pagina") || 0
+                        );
 
-    const parametros = new URLSearchParams({
-        busca: campoBuscaCompradores.value,
-        pagina: String(pagina),
-        ajax: "true"
-    });
+                atualizarBuscaCompradores(pagina);
 
-    try {
-
-        const resposta = await fetch(
-            formBuscaCompradores.action + "?" + parametros.toString(),
-            { signal: controlador.signal }
-        );
-
-        if (!resposta.ok) {
-            throw new Error("Erro na busca: " + resposta.status);
-        }
-
-        const html = await resposta.text();
-
-        const documento = new DOMParser().parseFromString(html, "text/html");
-
-        const conteudo = documento.getElementById("resultadosCompradores");
-
-        if (!conteudo) {
-            throw new Error("Fragmento de compradores não encontrado");
-        }
-
-        resultadosCompradores.innerHTML = conteudo.innerHTML;
-
-        const url = new URL(formBuscaCompradores.action, location.href);
-
-        if (campoBuscaCompradores.value) {
-            url.searchParams.set("busca", campoBuscaCompradores.value);
-        }
-
-        if (pagina > 0) {
-            url.searchParams.set("pagina", pagina);
-        }
-
-        history.replaceState({}, "", url);
-
-    } catch (erro) {
-
-        if (erro.name !== "AbortError") {
-            console.error(erro);
-        }
-    }
-}
-
-campoBuscaCompradores.addEventListener("input", function () {
-
-    clearTimeout(tempoCompradores);
-
-    tempoCompradores = setTimeout(function () {
-        atualizarBuscaCompradores(0);
-    }, 350);
-
-});
-
-formBuscaCompradores.addEventListener("submit", function (evento) {
-
-    evento.preventDefault();
-
-    clearTimeout(tempoCompradores);
-
-    atualizarBuscaCompradores(0);
-
-});
-
-resultadosCompradores.addEventListener("click", function (evento) {
-
-    const link = evento.target.closest(".paginacao a");
-
-    if (!link) {
-        return;
-    }
-
-    evento.preventDefault();
-
-    const pagina = Number(
-        new URL(link.href).searchParams.get("pagina") || 0
-    );
-
-    atualizarBuscaCompradores(pagina);
-
-});
+            });
         </script>
 
     </body>
