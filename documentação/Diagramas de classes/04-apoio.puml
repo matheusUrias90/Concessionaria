@@ -1,0 +1,71 @@
+@startuml
+title Concessionaria - Checklist, notificacoes e acesso
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam shadowing false
+hide methods
+top to bottom direction
+
+class ChecklistEntrega {
+  - id : Long
+  - entregaConcluida : boolean
+  - dataEntrega : LocalDate
+}
+
+class ItemChecklistEntrega {
+  - id : Long
+  - descricao : String
+  - conferido : boolean
+}
+
+class Notificacao {
+  - id : Long
+  - tipo : TipoNotificacao
+  - titulo : String
+  - mensagem : String
+  - dataCriacao : LocalDateTime
+  - lida : Boolean
+  - link : String
+  - referenciaId : Long
+}
+
+class SolicitacaoAlteracaoLogin {
+  - id : Long
+  - loginAtual : String
+  - novoLogin : String
+  - dataSolicitacao : LocalDateTime
+  - status : StatusSolicitacaoLogin
+}
+
+class Usuario <<referencia>>
+
+class Veiculo <<referencia>>
+
+
+enum TipoNotificacao {
+  SOLICITACAO_LOGIN
+  SENHA_ALTERADA
+  NEGOCIACAO_INICIADA
+  PENDENCIA_CRIADA
+  PENDENCIA_RESOLVIDA
+  NEGOCIACAO_CANCELADA
+  VENDA_REALIZADA
+  REPASSE_QUITADO
+  ENTREGA_CONCLUIDA
+}
+
+enum StatusSolicitacaoLogin {
+  PENDENTE
+  APROVADA
+  RECUSADA
+}
+
+
+ChecklistEntrega "1" -- "0..1" Veiculo : veiculo
+ItemChecklistEntrega "0..*" -- "1" ChecklistEntrega : checklist
+Notificacao "0..*" -- "1" Usuario : usuario
+SolicitacaoAlteracaoLogin "0..*" -- "1" Usuario : usuario
+Notificacao ..> TipoNotificacao : tipo
+SolicitacaoAlteracaoLogin ..> StatusSolicitacaoLogin : status
+
+@enduml

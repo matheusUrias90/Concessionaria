@@ -1,0 +1,53 @@
+@startuml
+title Concessionaria - Vendas e repasses
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam shadowing false
+hide methods
+top to bottom direction
+
+class Venda {
+  - id : Long
+  - dataVenda : LocalDate
+  - valor : Double
+}
+
+class Pagamento {
+  - id : Long
+  - tipo : String
+  - entrada : Double
+  - parcelas : Integer
+  - valorParcela : Double
+  - instituicaoFinanceira : String
+}
+
+class Repasse {
+  - id : Long
+  - valorDevido : Double
+}
+
+class PagamentoRepasse {
+  - id : Long
+  - dataPagamento : LocalDate
+  - formaPagamento : String
+  - valor : Double
+  - observacao : String
+}
+
+class Cliente <<referencia>>
+
+class Veiculo <<referencia>>
+
+class Usuario <<referencia>>
+
+class Negociacao <<referencia>>
+
+PagamentoRepasse "0..*" -- "1" Repasse : repasse
+Repasse "1" -- "0..1" Venda : venda
+Venda "0..*" -- "1" Cliente : cliente
+Venda "0..*" -- "1" Usuario : vendedor
+Venda "0..*" -- "1" Veiculo : veiculo
+Venda "1" -- "0..1" Pagamento : pagamento
+Venda "1" -- "0..1" Negociacao : negociacao
+
+@enduml

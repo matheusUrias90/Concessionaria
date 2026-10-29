@@ -1,0 +1,59 @@
+@startuml
+title Concessionaria - Cadastros e veiculos
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam shadowing false
+hide methods
+top to bottom direction
+
+class Cliente {
+  - id : Long
+  - nome : String
+  - cpf : String
+  - telefone : String
+  - email : String
+}
+
+class Veiculo {
+  - id : Long
+  - nome : String
+  - marca : String
+  - cor : String
+  - placa : String
+  - ano : Integer
+  - preco : Double
+  - status : StatusVeiculo
+  - nomeProprietario : String
+  - cpfProprietario : String
+  - telefoneProprietario : String
+  - emailProprietario : String
+  - dataEntrada : LocalDate
+}
+
+class Usuario {
+  - id : Long
+  - nome : String
+  - login : String
+  - senha : String
+  - perfil : String
+}
+
+class ConfiguracaoConcessionaria {
+  - id : Long
+  - nomeEmpresa : String
+  - cnpj : String
+  - endereco : String
+  - telefone : String
+  - email : String
+  - logo : String
+}
+
+enum StatusVeiculo {
+    DISPONIVEL
+    RESERVADO
+    VENDIDO
+}
+
+Veiculo ..> StatusVeiculo : status
+
+@enduml

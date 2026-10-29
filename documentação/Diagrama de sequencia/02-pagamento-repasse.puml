@@ -1,0 +1,45 @@
+
+@startuml
+title Urias Veiculos - Sequencia: pagamento do repasse
+
+skinparam shadowing false
+hide footbox
+
+actor "Dono / Gerente" as U
+boundary "Tela de repasse" as T
+control "RepasseController" as C
+database "RepasseRepository" as RR
+database "PagamentoRepasseRepository" as PR
+participant "Repasse" as R
+participant "NotificacaoService" as NS
+
+U -> T : Registrar pagamento
+T -> C : POST /repasses/pagar
+
+C -> C : Verificar usuario e perfil
+
+C -> RR : findById(repasseId)
+RR --> C : Repasse
+
+C -> R : getSaldo()
+R --> C : Saldo disponivel
+
+C -> C : Validar valor do pagamento
+C -> C : Criar PagamentoRepasse
+
+C -> PR : save(pagamento)
+PR --> C : Pagamento registrado
+
+C -> R : getSaldo()
+R --> C : Saldo para verificacao
+
+C -> C : Verificar quitacao
+
+opt Pagamento quitou o repasse
+    C -> NS : Notificar DONO e GERENTE
+end
+
+C --> T : redirect:/repasses/{repasseId}
+T --> U : Exibir detalhes do repasse
+
+@enduml

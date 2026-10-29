@@ -1,0 +1,36 @@
+
+@startuml
+title Urias Veiculos - Atividades: negociacao e venda
+
+skinparam shadowing false
+
+start
+
+:Selecionar comprador e veiculo;
+:Informar valor e formas de pagamento;
+:Validar composicao do pagamento;
+
+:Iniciar negociacao;
+:Reservar veiculo;
+
+:Analisar e confirmar pagamentos;
+
+if (Todas as formas confirmadas?) then (Sim)
+    if (Possui veiculo de entrada?) then (Sim)
+        :Cadastrar veiculos recebidos;
+        :Informar precos de revenda;
+        :Registrar checklists;
+    endif
+
+    :Registrar venda;
+    :Concluir negociacao;
+    :Marcar veiculo como VENDIDO;
+    :Notificar DONO e GERENTE;
+    :Encaminhar para entrega;
+
+else (Nao)
+    :Manter negociacao em andamento;
+endif
+
+stop
+@enduml

@@ -1,0 +1,33 @@
+
+@startuml
+title Urias Veiculos - Diagrama de Implantacao
+
+skinparam shadowing false
+skinparam componentStyle rectangle
+left to right direction
+
+node "Computador local" {
+
+    node "Navegador Web" {
+        artifact "Interface HTML / CSS / JS" as WEB
+    }
+
+    node "JVM - Java 17" {
+        artifact "Aplicacao Spring Boot" as APP
+        component "Controllers" as CTRL
+        component "Thymeleaf" as TH
+        component "Spring Data JPA" as JPA
+    }
+
+    database "MySQL" {
+        artifact "concessionaria_db" as DB
+    }
+}
+
+WEB --> APP : HTTP / localhost
+APP --> CTRL
+APP --> TH
+CTRL --> JPA
+JPA --> DB : JDBC
+
+@enduml

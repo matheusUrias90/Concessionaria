@@ -1,0 +1,39 @@
+
+@startuml
+title Urias Veiculos - Atividades: repasse ao proprietario
+
+skinparam shadowing false
+
+start
+
+:Selecionar venda sem repasse;
+:Iniciar repasse;
+:Definir valor devido ao proprietario;
+
+:Consultar detalhes do repasse;
+
+repeat
+    :Informar data, forma e valor do pagamento;
+    :Validar valor e saldo disponivel;
+
+    if (Pagamento valido?) then (Sim)
+        :Registrar pagamento;
+        :Calcular total pago e saldo;
+
+        if (Saldo quitado?) then (Sim)
+            :Status PAGO;
+            :Notificar DONO e GERENTE;
+        else (Nao)
+            :Status PARCIAL;
+        endif
+
+    else (Nao)
+        :Rejeitar pagamento;
+    endif
+
+repeat while (Repasse ainda possui saldo?) is (Sim) not (Nao)
+
+:Consultar repasse quitado;
+
+stop
+@enduml

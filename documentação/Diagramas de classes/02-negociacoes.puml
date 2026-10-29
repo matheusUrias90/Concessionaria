@@ -1,0 +1,111 @@
+
+@startuml
+title Concessionaria - Negociacoes
+
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam shadowing false
+hide methods
+top to bottom direction
+
+class Negociacao {
+  - id : Long
+  - dataInicio : LocalDateTime
+  - dataEncerramento : LocalDateTime
+  - valorProposto : Double
+  - status : StatusNegociacao
+  - observacao : String
+  - motivoCancelamento : String
+}
+
+class FormaPagamentoNegociacao {
+  - id : Long
+  - tipo : TipoFormaPagamento
+  - valor : Double
+  - status : StatusFormaPagamento
+  - dataPrevista : LocalDate
+  - parcelas : Integer
+  - valorParcela : Double
+  - instituicaoFinanceira : String
+  - administradoraConsorcio : String
+  - numeroCartaCredito : String
+  - bandeiraCartao : String
+}
+
+class PendenciaNegociacao {
+  - id : Long
+  - tipo : TipoPendencia
+  - status : StatusPendencia
+  - dataCriacao : LocalDateTime
+  - dataResolucao : LocalDateTime
+  - observacaoResolucao : String
+  - valor : Double
+  - descricao : String
+}
+
+class VeiculoEntrada {
+  - id : Long
+  - nome : String
+  - marca : String
+  - cor : String
+  - placa : String
+  - ano : Integer
+}
+
+class Cliente <<referencia>>
+class Veiculo <<referencia>>
+class Usuario <<referencia>>
+
+enum StatusNegociacao {
+  EM_ANDAMENTO
+  CONCLUIDA
+  CANCELADA
+}
+
+enum TipoFormaPagamento {
+  DINHEIRO
+  PIX
+  CARTAO
+  FINANCIAMENTO
+  CONSORCIO
+  VEICULO_ENTRADA
+}
+
+enum StatusFormaPagamento {
+  PENDENTE
+  CONFIRMADA
+  RECUSADA
+}
+
+enum TipoPendencia {
+  FINANCIAMENTO
+  CONSORCIO
+  VEICULO_ENTRADA
+  DEVOLUCAO_CLIENTE
+}
+
+enum StatusPendencia {
+  PENDENTE
+  RESOLVIDA
+}
+
+' Relacionamentos entre entidades
+FormaPagamentoNegociacao "0..*" -- "1" Negociacao : negociacao
+FormaPagamentoNegociacao "1" -- "0..1" VeiculoEntrada : veiculoEntrada
+
+Negociacao "0..*" -- "1" Cliente : cliente
+Negociacao "0..*" -- "1" Veiculo : veiculo
+Negociacao "0..*" -- "1" Usuario : vendedor
+
+PendenciaNegociacao "0..*" -- "1" Negociacao : negociacao
+PendenciaNegociacao "0..*" -- "1" Usuario : resolvidaPor
+PendenciaNegociacao "0..*" -- "1" FormaPagamentoNegociacao : formaPagamento
+
+' Dependencias com enums
+FormaPagamentoNegociacao ..> TipoFormaPagamento : tipo
+FormaPagamentoNegociacao ..> StatusFormaPagamento : status
+Negociacao ..> StatusNegociacao : status
+PendenciaNegociacao ..> TipoPendencia : tipo
+PendenciaNegociacao ..> StatusPendencia : status
+
+@enduml

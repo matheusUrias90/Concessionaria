@@ -1,0 +1,28 @@
+
+@startuml
+title Urias Veiculos - Diagrama de Componentes
+
+skinparam shadowing false
+skinparam componentStyle rectangle
+left to right direction
+
+package "Interface Web" {
+    [Thymeleaf / HTML / CSS / JS] as WEB
+}
+
+package "Aplicacao Spring Boot" {
+    [Controllers] as CTRL
+    [NotificacaoService] as NOTIF
+    [Spring Data JPA\nRepositories] as REPO
+    [Entidades JPA] as MODEL
+}
+
+database "MySQL\nconcessionaria_db" as DB
+
+WEB --> CTRL : Requisicoes HTTP
+CTRL --> NOTIF : Notificacoes
+CTRL --> REPO : Consultas e persistencia
+REPO --> MODEL : Mapeamento JPA
+REPO --> DB : Acesso aos dados
+
+@enduml

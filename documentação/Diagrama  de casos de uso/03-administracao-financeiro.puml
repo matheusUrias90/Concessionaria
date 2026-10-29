@@ -1,0 +1,21 @@
+@startuml
+left to right direction
+skinparam shadowing false
+skinparam linetype polyline
+skinparam packageStyle rectangle
+skinparam defaultFontName Arial
+skinparam nodesep 40
+skinparam ranksep 45
+title Urias Veiculos - Casos de uso: administracao e financeiro
+actor "Dono / Gerente" as ADM
+rectangle "Administracao e financeiro" {
+ usecase "Gerenciar usuarios" as U
+ usecase "Avaliar solicitacoes\nde alteracao de login" as L
+ usecase "Gerenciar repasses" as R
+ usecase "Consultar relatorios" as REL
+}
+ADM -- U
+ADM -- L
+ADM -- R
+ADM -- REL
+@enduml

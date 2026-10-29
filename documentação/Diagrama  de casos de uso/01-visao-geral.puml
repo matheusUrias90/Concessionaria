@@ -1,0 +1,29 @@
+@startuml
+left to right direction
+skinparam shadowing false
+skinparam linetype polyline
+skinparam packageStyle rectangle
+skinparam defaultFontName Arial
+skinparam nodesep 45
+skinparam ranksep 50
+title Urias Veiculos - Casos de uso: visao geral
+actor "Usuario autenticado" as U
+rectangle "Urias Veiculos" {
+ usecase "Acessar painel" as P
+ usecase "Gerenciar veiculos" as VE
+ usecase "Gerenciar compradores" as C
+ usecase "Gerenciar negociacoes" as N
+ usecase "Registrar vendas" as V
+ usecase "Consultar documentos" as DOC
+}
+U -- P
+U -- VE
+U -- C
+U -- N
+U -- V
+U -- DOC
+note right of U
+  Perfis: Dono, Gerente e Vendedor.
+  Permissoes detalhadas nos diagramas especificos.
+end note
+@enduml

@@ -1,0 +1,43 @@
+
+@startuml
+title Urias Veiculos - Sequencia: conclusao da venda
+
+skinparam shadowing false
+hide footbox
+
+actor "Usuario" as U
+boundary "Tela" as T
+control "NegociacaoController" as C
+database "NegociacaoRepository" as NR
+database "VendaRepository" as VR
+database "VeiculoRepository" as VeR
+participant "NotificacaoService" as NS
+
+U -> T : Concluir negociacao
+T -> C : POST /negociacoes/{id}/concluir
+
+C -> NR : findById(id)
+NR --> C : Negociacao
+
+C -> C : Validar usuario, status e pagamentos
+C -> C : Verificar ausencia de veiculo de entrada
+
+C -> VR : findByNegociacaoId(id)
+VR --> C : Venda inexistente
+
+C -> C : finalizarNegociacao()
+
+C -> VR : save(venda)
+C -> NR : save(negociacao)
+C -> VeR : save(veiculo)
+
+note over VR, VeR
+  Negociacao = CONCLUIDA
+  Veiculo = VENDIDO
+end note
+
+C -> NS : Notificar DONO e GERENTE
+C --> T : redirect:/entregas/{vendaId}
+T --> U : Abrir etapa de entrega
+
+@enduml

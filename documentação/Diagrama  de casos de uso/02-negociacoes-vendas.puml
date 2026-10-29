@@ -1,0 +1,32 @@
+@startuml
+left to right direction
+skinparam shadowing false
+skinparam linetype polyline
+skinparam packageStyle rectangle
+skinparam defaultFontName Arial
+skinparam nodesep 40
+skinparam ranksep 45
+title Urias Veiculos - Casos de uso: negociacoes e vendas
+actor "Usuario comercial" as U
+rectangle "Operacao comercial" {
+ usecase "Iniciar negociacao" as IN
+ usecase "Registrar formas\nde pagamento" as FP
+ usecase "Acompanhar pendencias" as PE
+ usecase "Concluir ou cancelar\nnegociacao" as CN
+ usecase "Registrar venda" as VE
+ usecase "Consultar historico\nde vendas" as HI
+ usecase "Conferir entrega" as EN
+}
+U -- IN
+U -- FP
+U -- PE
+U -- CN
+U -- VE
+U -- HI
+U -- EN
+note bottom of U
+  Usuario comercial representa o perfil
+  habilitado a executar cada operacao.
+  Validar permissoes no controller.
+end note
+@enduml
