@@ -277,20 +277,11 @@
                     Anterior
                 </a>
 
-                <span th:each="numero : ${#numbers.sequence(
-                      0,
-                      paginaFinalizados.totalPages - 1
-                      )}">
-
-                    <a th:href="@{/repasses(
-                       busca=${busca},
-                       pagina=${numero}
-                       )}"
-                       th:text="${numero + 1}"
-                       th:classappend="${numero == paginaFinalizados.number}
-                       ? 'ativa'">
-                    </a>
-
+                <span>
+                    Página
+                    <span th:text="${paginaFinalizados.number + 1}"></span>
+                    de
+                    <span th:text="${paginaFinalizados.totalPages}"></span>
                 </span>
 
                 <a th:if="${paginaFinalizados.hasNext()}"

@@ -140,6 +140,37 @@
                 </table>
 
             </div>
+            
+            <div class="paginacao" th:if="${totalPaginas > 1}">
+
+                <a th:if="${paginaAtual > 0}"
+                   th:href="@{/relatorios/vendedores(
+                   pagina=${paginaAtual - 1},
+                   inicio=${inicio},
+                   fim=${fim},
+                   vendedorId=${vendedorId}
+                   )}">
+                    Anterior
+                </a>
+
+                <span>
+                    Página
+                    <span th:text="${paginaAtual + 1}"></span>
+                    de
+                    <span th:text="${totalPaginas}"></span>
+                </span>
+
+                <a th:if="${paginaAtual + 1 < totalPaginas}"
+                   th:href="@{/relatorios/vendedores(
+                   pagina=${paginaAtual + 1},
+                   inicio=${inicio},
+                   fim=${fim},
+                   vendedorId=${vendedorId}
+                   )}">
+                    Próxima
+                </a>
+
+            </div>
 
 
             <!-- Gráficos -->

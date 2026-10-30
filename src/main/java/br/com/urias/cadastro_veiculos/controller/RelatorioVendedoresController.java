@@ -24,6 +24,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
 @Controller
 @RequestMapping("/relatorios/vendedores")
@@ -56,7 +59,8 @@ public class RelatorioVendedoresController {
             @RequestParam(defaultValue = "false") boolean imprimir,
             HttpSession session,
             Model model,
-            RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes,
+            @RequestParam(defaultValue = "0") int pagina) {
 
         Usuario usuario = (Usuario) session.getAttribute("usuarioLogado");
 
@@ -269,6 +273,35 @@ public class RelatorioVendedoresController {
             return ((String) a.get("nome"))
                     .compareToIgnoreCase((String) b.get("nome"));
         });
+        
+        // Paginação da tabela de desempenho
+        int tamanhoPagina = 10;
+
+        int totalRegistros = desempenho.size();
+        int totalPaginas = (int) Math.ceil(
+                (double) totalRegistros / tamanhoPagina
+        );
+
+        pagina = Math.max(0, pagina);
+
+        if (totalPaginas > 0) {
+            pagina = Math.min(pagina, totalPaginas - 1);
+        } else {
+            pagina = 0;
+        }
+
+        int inicioPagina = Math.min(
+                pagina * tamanhoPagina,
+                totalRegistros
+        );
+
+        int fimPagina = Math.min(
+                inicioPagina + tamanhoPagina,
+                totalRegistros
+        );
+
+        List<Map<String, Object>> desempenhoPaginado
+                = desempenho.subList(inicioPagina, fimPagina);
 
         // Totais das vendas.
         long totalVendas = vendas.size();
@@ -299,7 +332,13 @@ public class RelatorioVendedoresController {
         }
 
         // Dados enviados ao Thymeleaf.
-        model.addAttribute("desempenho", desempenho);
+        model.addAttribute(
+                "desempenho",
+                imprimir ? desempenho : desempenhoPaginado
+        );
+
+        model.addAttribute("paginaAtual", pagina);
+        model.addAttribute("totalPaginas", totalPaginas);
 
         model.addAttribute("totalVendas", totalVendas);
         model.addAttribute("valorTotal", valorTotal);

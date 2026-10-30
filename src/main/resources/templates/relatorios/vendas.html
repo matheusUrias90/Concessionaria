@@ -117,17 +117,35 @@
         </div>
 
         <div class="paginacao" th:if="${totalPaginas > 1}">
-            <a th:each="p : ${#numbers.sequence(0, totalPaginas - 1)}"
+
+            <a th:if="${paginaAtual > 0}"
                th:href="@{/relatorios/vendas(
-               pagina=${p},
+               pagina=${paginaAtual - 1},
                inicio=${inicio},
                fim=${fim},
                vendedorId=${vendedorId}
-               )}"
-               th:text="${p + 1}"
-               th:classappend="${p == paginaAtual} ? 'ativo' : ''">
+               )}">
+                Anterior
             </a>
-        </div>
+
+            <span>
+                Página
+                <span th:text="${paginaAtual + 1}"></span>
+                de
+                <span th:text="${totalPaginas}"></span>
+            </span>
+
+    <a th:if="${paginaAtual + 1 < totalPaginas}"
+       th:href="@{/relatorios/vendas(
+           pagina=${paginaAtual + 1},
+           inicio=${inicio},
+           fim=${fim},
+           vendedorId=${vendedorId}
+       )}">
+        Próxima
+    </a>
+
+</div>
 
         <!-- Gráficos -->
         <h2>📈 Evolução das Vendas</h2>
