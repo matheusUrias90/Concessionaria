@@ -323,3 +323,27 @@ h2 {
     margin-bottom: 15px;
     font-weight: 500;
 }
+
+.aviso-estoque {
+    background: #f0f6ff;
+    border-left: 4px solid #4169e1;
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin: 15px 0 20px;
+    color: #333;
+    font-size: 14px;
+}
+
+.aviso-estoque p {
+    margin: 6px 0;
+}
+
+.aviso-estoque a {
+    color: #2455d6;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.aviso-estoque a:hover {
+    text-decoration: underline;
+}

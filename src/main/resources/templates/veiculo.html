@@ -15,6 +15,22 @@
                  class="alerta-erro"
                  th:text="${erro}">
             </div>
+            
+            <div class="aviso-estoque">
+                <strong>ℹ️ Estoque disponível</strong>
+
+                <p>
+                    Esta página apresenta apenas os veículos disponíveis
+                    para negociação.
+                </p>
+
+                <p>
+                    Para consultar veículos reservados, acesse
+                    <a th:href="@{/negociacoes}">Negociação</a>.
+                    Para veículos vendidos, consulte
+                    <a th:href="@{/admin/vendas}">Vendas</a>.
+                </p>
+            </div>
 
             <button type="button" class="btn-salvar" onclick="abrirModal('modal-novo')">
                 + Novo Veículo
